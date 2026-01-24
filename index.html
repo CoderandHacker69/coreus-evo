@@ -278,7 +278,6 @@
     <div id="gamesView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; overflow-y: auto; padding: 20px 20px 100px 20px;">
         <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 40px;">
             <h2 class="title" style="font-size: 4rem; margin-bottom: 0; flex-grow: 1; text-align: center;">Coreus games</h2>
-            <button id="backToMainBtn" style="background: #555; color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; margin-left: 20px;" onclick="hideGamesView()">Back</button>
         </div>
         <div id="gamesGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 30px; padding: 10px;"></div>
 
@@ -314,8 +313,7 @@
     <!-- Tools View Container -->
     <div id="toolsView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; overflow-y: auto; padding: 20px 20px 100px 20px;">
         <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 40px;">
-            <h2 class="title" style="font-size: 4rem; margin-bottom: 0; flex-grow: 1; text-align: center;">coreus tools</h2>
-            <button id="backToMainBtn" style="background: #555; color: white; border: none; padding: 0.5rem 1rem; border-radius: 5px; cursor: pointer; margin-left: 20px;" onclick="hideToolsView()">Back</button>
+            <h2 class="title" style="font-size: 4rem; margin-bottom: 0; flex-grow: 1; text-align: center;">Coreus tools</h2>
         </div>
         <div id="toolsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 30px; padding: 10px;"></div>
 
@@ -640,6 +638,9 @@
 
         // Function to show the game popup
         function showGamePopup(gamePath) {
+            // Set previous view to games
+            previousView = 'games';
+
             // Hide games view
             document.getElementById('gamesView').style.display = 'none';
 
@@ -674,10 +675,21 @@
             };
         }
 
-        // Function to close the game popup and return to games view
+        // Track which view was active before popup
+        let previousView = 'main'; // 'main', 'games', or 'tools'
+
+        // Function to close the game popup and return to the appropriate view
         function closeGamePopup() {
             document.getElementById('gamePopup').style.display = 'none';
-            document.getElementById('gamesView').style.display = 'block';
+
+            // Return to the appropriate view based on where we came from
+            if (previousView === 'games') {
+                document.getElementById('gamesView').style.display = 'block';
+            } else if (previousView === 'tools') {
+                document.getElementById('toolsView').style.display = 'block';
+            } else {
+                document.querySelector('.container').style.display = 'block';
+            }
 
             // Clear the iframe to stop any running content
             document.getElementById('gameIframe').src = 'about:blank';
@@ -763,6 +775,9 @@
 
         // Function to show the tool popup
         function showToolPopup(toolPath) {
+            // Set previous view to tools
+            previousView = 'tools';
+
             // Hide tools view
             document.getElementById('toolsView').style.display = 'none';
 
