@@ -127,6 +127,49 @@
             background: #000;
         }
 
+        /* Loading overlay for embeddr */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #000;
+            z-index: 2000;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            transition: opacity 0.5s ease-in-out;
+        }
+
+        .loading-spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            border-top: 4px solid #4CAF50;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .loading-text {
+            color: #fff;
+            font-size: 1.2rem;
+            text-align: center;
+            padding: 0 20px;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
         .frame-header {
             background: #111;
             padding: 0.5rem 1rem;
@@ -253,6 +296,10 @@
             <button class="close-btn" onclick="closeProxy()">✕ Close</button>
         </div>
         <iframe class="proxy-iframe" id="proxyIframe" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"></iframe>
+        <div class="loading-overlay" id="proxyLoadingOverlay">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Loading content...</div>
+        </div>
     </div>
 
     <!-- Floating Bottom Navbar -->
@@ -308,6 +355,10 @@
             <button class="close-btn" onclick="closeGamePopup()">✕ Close</button>
         </div>
         <iframe class="proxy-iframe" id="gameIframe" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"></iframe>
+        <div class="loading-overlay" id="gameLoadingOverlay">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Loading content...</div>
+        </div>
     </div>
 
     <!-- Tools View Container -->
@@ -505,19 +556,33 @@
             const proxyFrame = document.getElementById('proxyFrame');
             const proxyIframe = document.getElementById('proxyIframe');
             const frameUrl = document.getElementById('frameUrl');
-            
+            const proxyLoadingOverlay = document.getElementById('proxyLoadingOverlay');
+
             frameUrl.textContent = targetUrl;
-            proxyIframe.src = proxyUrl;
+
+            // Show loading overlay for embeddr immediately before setting the src
+            if (proxyUrl.startsWith('https://embeddr.rhw.one/embed#')) {
+                proxyLoadingOverlay.classList.remove('hidden');
+            }
+
             proxyFrame.style.display = 'block';
             document.body.style.overflow = 'hidden';
-            
+
+            // Set the iframe src after showing the overlay to prevent the ugly loading screen
+            proxyIframe.src = proxyUrl;
+
             // Try to inject styles once the iframe loads
             proxyIframe.onload = function() {
                 setTimeout(() => {
                     injectIframeStyles(proxyIframe);
-                }, 1000); // Small delay to ensure content is loaded
+
+                    // Hide loading overlay after 5 seconds for proxy
+                    if (proxyUrl.startsWith('https://embeddr.rhw.one/embed#')) {
+                        proxyLoadingOverlay.classList.add('hidden');
+                    }
+                }, 5000); // Longer delay for proxy
             };
-            
+
             const proxyBtn = document.getElementById('proxyBtn');
             proxyBtn.disabled = false;
             proxyBtn.textContent = 'Access via Proxy';
@@ -655,6 +720,7 @@
 
             // Try to load the game directly first
             const gameIframe = document.getElementById('gameIframe');
+            const gameLoadingOverlay = document.getElementById('gameLoadingOverlay');
 
             // Clear previous error handlers
             gameIframe.onload = null;
@@ -668,12 +734,34 @@
                 console.log("Direct load failed, trying embeddr...");
                 // Fallback to embeddr
                 const embeddrUrl = `https://embeddr.rhw.one/embed#${encodeURIComponent(gameUrl)}`;
+
+                // Show loading overlay for embeddr immediately to prevent ugly loading screen
+                gameLoadingOverlay.classList.remove('hidden');
+
                 gameIframe.src = embeddrUrl;
 
                 // Set error handler for embeddr as well
                 gameIframe.onerror = function() {
                     console.log("Embeddr also failed to load the game");
+                    // Hide loading overlay if embeddr fails
+                    gameLoadingOverlay.classList.add('hidden');
                 };
+
+                // Handle embeddr load completion - hide overlay after 0.5 seconds
+                gameIframe.onload = function() {
+                    // Hide loading overlay after 0.5 seconds to prevent ugly loading screen
+                    setTimeout(() => {
+                        gameLoadingOverlay.classList.add('hidden');
+                    }, 500);
+                };
+            };
+
+            // Handle direct load completion
+            gameIframe.onload = function() {
+                // Hide loading overlay after 0.5 seconds
+                setTimeout(() => {
+                    gameLoadingOverlay.classList.add('hidden');
+                }, 500);
             };
         }
 
@@ -799,6 +887,7 @@
 
             // Try to load the tool directly first
             const gameIframe = document.getElementById('gameIframe');
+            const gameLoadingOverlay = document.getElementById('gameLoadingOverlay');
 
             // Clear previous error handlers
             gameIframe.onload = null;
@@ -812,12 +901,34 @@
                 console.log("Direct load failed, trying embeddr...");
                 // Fallback to embeddr
                 const embeddrUrl = `https://embeddr.rhw.one/embed#${encodeURIComponent(toolUrl)}`;
+
+                // Show loading overlay for embeddr immediately to prevent ugly loading screen
+                gameLoadingOverlay.classList.remove('hidden');
+
                 gameIframe.src = embeddrUrl;
 
                 // Set error handler for embeddr as well
                 gameIframe.onerror = function() {
                     console.log("Embeddr also failed to load the tool");
+                    // Hide loading overlay if embeddr fails
+                    gameLoadingOverlay.classList.add('hidden');
                 };
+
+                // Handle embeddr load completion - hide overlay after 0.5 seconds
+                gameIframe.onload = function() {
+                    // Hide loading overlay after 0.5 seconds to prevent ugly loading screen
+                    setTimeout(() => {
+                        gameLoadingOverlay.classList.add('hidden');
+                    }, 500);
+                };
+            };
+
+            // Handle direct load completion
+            gameIframe.onload = function() {
+                // Hide loading overlay after 0.5 seconds
+                setTimeout(() => {
+                    gameLoadingOverlay.classList.add('hidden');
+                }, 500);
             };
         }
 
