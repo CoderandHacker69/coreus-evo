@@ -302,6 +302,19 @@
         </div>
     </div>
 
+    <!-- Game Popup View -->
+    <div id="gamePopup" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 3000;">
+        <div class="frame-header">
+            <span class="frame-url" id="gameUrlDisplay"></span>
+            <button class="close-btn" onclick="closeGamePopup()">✕ Close</button>
+        </div>
+        <iframe class="proxy-iframe" id="gameIframe" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"></iframe>
+        <div class="loading-overlay" id="gameLoadingOverlay">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Loading content...</div>
+        </div>
+    </div>
+
     <!-- Floating Bottom Navbar -->
     <div class="bottom-navbar" style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); border-radius: 50px; padding: 10px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 1000; border: 1px solid rgba(255,255,255,0.1);">
         <button class="nav-icon-btn" style="background: none; border: none; cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.3s;" onclick="location.reload()">
@@ -318,6 +331,10 @@
         <div style="width: 1px; height: 24px; margin: 0 10px;"></div>
         <button class="nav-icon-btn" style="background: none; border: none; cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.3s;" onclick="showToolsView()">
             <i class="fas fa-tools" style="color: white; font-size: 20px;"></i>
+        </button>
+        <div style="width: 1px; height: 24px; margin: 0 10px;"></div>
+        <button class="nav-icon-btn" style="background: none; border: none; cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.3s;" onclick="showAboutView()">
+            <i class="fas fa-info-circle" style="color: white; font-size: 20px;"></i>
         </button>
     </div>
 
@@ -345,19 +362,10 @@
             <button class="nav-icon-btn" style="background: none; border: none; cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.3s;" onclick="showToolsView()">
                 <i class="fas fa-tools" style="color: white; font-size: 20px;"></i>
             </button>
-        </div>
-    </div>
-
-    <!-- Game Popup View -->
-    <div id="gamePopup" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 3000;">
-        <div class="frame-header">
-            <span class="frame-url" id="gameUrlDisplay"></span>
-            <button class="close-btn" onclick="closeGamePopup()">✕ Close</button>
-        </div>
-        <iframe class="proxy-iframe" id="gameIframe" sandbox="allow-same-origin allow-scripts allow-forms allow-popups allow-popups-to-escape-sandbox"></iframe>
-        <div class="loading-overlay" id="gameLoadingOverlay">
-            <div class="loading-spinner"></div>
-            <div class="loading-text">Loading content...</div>
+            <div style="width: 1px; height: 24px; margin: 0 10px;"></div>
+            <button class="nav-icon-btn" style="background: none; border: none; cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.3s;" onclick="showAboutView()">
+                <i class="fas fa-info-circle" style="color: white; font-size: 20px;"></i>
+            </button>
         </div>
     </div>
 
@@ -385,9 +393,50 @@
             <button class="nav-icon-btn" style="background: none; border: none; cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.3s;" onclick="showToolsView()">
                 <i class="fas fa-tools" style="color: white; font-size: 20px;"></i>
             </button>
+            <div style="width: 1px; height: 24px; margin: 0 10px;"></div>
+            <button class="nav-icon-btn" style="background: none; border: none; cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.3s;" onclick="showAboutView()">
+                <i class="fas fa-info-circle" style="color: white; font-size: 20px;"></i>
+            </button>
         </div>
     </div>
 
+    <!-- About View Container -->
+    <div id="aboutView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 2000; overflow-y: auto; padding: 20px 20px 100px 20px;">
+        <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 40px;">
+            <h2 class="title" style="font-size: 4rem; margin-bottom: 0; flex-grow: 1; text-align: center;">About Coreus</h2>
+        </div>
+        <div style="max-width: 800px; margin: 0 auto; padding: 20px; text-align: center;">
+            <p style="color: white; font-size: 1.2rem; line-height: 1.6; margin-bottom: 20px;">
+                Coreus is a complete UBG with an Ultraviolet proxy, 100 games, tools, that fits in a single HTML file. It was made by <a href="https://github.com/noodlelover1" style="color: white;">n00dle</a>.
+            </p>
+            <p style="color: white; font-size: 1.2rem; line-height: 1.6;">
+                Since it is a single HTML file, it is completely unblockable : you can paste the code in a code editor, deploy it using Vercel, Netlify, Surge or any other static host and even convert it in a permanent "data:" URL. See all methods on the <a href="https://github.com/noodlelover1/coreus" style="color: white;">GitHub</a>
+            </p>
+        </div>
+
+        <!-- Floating Bottom Navbar for About View -->
+        <div class="bottom-navbar" style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); border-radius: 50px; padding: 10px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 2001; border: 1px solid rgba(255,255,255,0.1);">
+            <button class="nav-icon-btn" style="background: none; border: none; cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.3s;" onclick="location.reload()">
+                <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='30' cy='30' r='15' fill='%23fff'/><circle cx='70' cy='70' r='15' fill='%23fff'/><path d='M35 35 L65 65' stroke='%23fff' stroke-width='5'/></svg>" alt="Home" style="width: 24px; height: 24px;">
+            </button>
+            <div style="width: 1px; height: 24px; background: rgba(255,255,255,0.2); margin: 0 10px;"></div>
+            <button class="nav-icon-btn" style="background: none; border: none; cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.3s;" onclick="hideAboutView()">
+                <i class="fas fa-network-wired" style="color: white; font-size: 20px;"></i>
+            </button>
+            <div style="width: 1px; height: 24px; margin: 0 10px;"></div>
+            <button class="nav-icon-btn" style="background: none; border: none; cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.3s;" onclick="showGamesView()">
+                <i class="fas fa-gamepad" style="color: white; font-size: 20px;"></i>
+            </button>
+            <div style="width: 1px; height: 24px; margin: 0 10px;"></div>
+            <button class="nav-icon-btn" style="background: none; border: none; cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.3s;" onclick="showToolsView()">
+                <i class="fas fa-tools" style="color: white; font-size: 20px;"></i>
+            </button>
+            <div style="width: 1px; height: 24px; margin: 0 10px;"></div>
+            <button class="nav-icon-btn" style="background: none; border: none; cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.3s;" onclick="showAboutView()">
+                <i class="fas fa-info-circle" style="color: white; font-size: 20px;"></i>
+            </button>
+        </div>
+    </div>
     <script>
         let currentProxyIndex = 0;
         let targetUrl = '';
@@ -688,18 +737,23 @@
             // Hide all other views first
             document.querySelector('.container').style.display = 'none';
             document.getElementById('toolsView').style.display = 'none';
+            document.getElementById('aboutView').style.display = 'none';
 
             // Show games view
             document.getElementById('gamesView').style.display = 'block';
 
             // Load games
             await loadGames();
+
+            // Set previous view to games
+            previousView = 'games';
         }
 
         // Function to hide the games view and return to main
         function hideGamesView() {
             document.getElementById('gamesView').style.display = 'none';
             document.getElementById('toolsView').style.display = 'none';
+            document.getElementById('aboutView').style.display = 'none';
             document.querySelector('.container').style.display = 'block';
         }
 
@@ -775,6 +829,7 @@
             // Hide all views first to ensure clean state
             document.getElementById('gamesView').style.display = 'none';
             document.getElementById('toolsView').style.display = 'none';
+            document.getElementById('aboutView').style.display = 'none';
             document.querySelector('.container').style.display = 'none';
 
             // Return to the appropriate view based on where we came from
@@ -782,6 +837,8 @@
                 document.getElementById('gamesView').style.display = 'block';
             } else if (previousView === 'tools') {
                 document.getElementById('toolsView').style.display = 'block';
+            } else if (previousView === 'about') {
+                document.getElementById('aboutView').style.display = 'block';
             } else {
                 document.querySelector('.container').style.display = 'block';
             }
@@ -790,23 +847,50 @@
             document.getElementById('gameIframe').src = 'about:blank';
         }
 
+        // Function to show the about view
+        function showAboutView() {
+            // Hide all other views first
+            document.querySelector('.container').style.display = 'none';
+            document.getElementById('gamesView').style.display = 'none';
+            document.getElementById('toolsView').style.display = 'none';
+
+            // Show about view
+            document.getElementById('aboutView').style.display = 'block';
+
+            // Set previous view to about
+            previousView = 'about';
+        }
+
+        // Function to hide the about view and return to main
+        function hideAboutView() {
+            document.getElementById('aboutView').style.display = 'none';
+            document.getElementById('gamesView').style.display = 'none';
+            document.getElementById('toolsView').style.display = 'none';
+            document.querySelector('.container').style.display = 'block';
+        }
+
         // Function to show the tools view
         async function showToolsView() {
             // Hide all other views first
             document.querySelector('.container').style.display = 'none';
             document.getElementById('gamesView').style.display = 'none';
+            document.getElementById('aboutView').style.display = 'none';
 
             // Show tools view
             document.getElementById('toolsView').style.display = 'block';
 
             // Load tools
             await loadTools();
+
+            // Set previous view to tools
+            previousView = 'tools';
         }
 
         // Function to hide the tools view and return to main
         function hideToolsView() {
             document.getElementById('toolsView').style.display = 'none';
             document.getElementById('gamesView').style.display = 'none';
+            document.getElementById('aboutView').style.display = 'none';
             document.querySelector('.container').style.display = 'block';
         }
 
