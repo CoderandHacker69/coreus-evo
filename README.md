@@ -22,6 +22,10 @@
 - 🚫 No ads
 - 🤩 Beautiful UI
 
+## I am looking for contributors !
+
+I am actively looking for contributors ! Wanna help ? See the devs todo list at the end of the README, do anything on the list and open a PR.
+
 ## Using Coreus
 
 There are a bunch of ways to access Coreus. Here are some :
@@ -61,7 +65,7 @@ Contributions are happily accepted and requested ! Open an issue or make a pull 
 
 Special thanks to [RHW](https://rhw.one) for the ultraviolet proxy API.
 
-Games are not mine and remains to theur respective owners.
+Games are not mine and remains to their respective owners.
 
 I was inspired by the [Helios](https://github.com/dinguschan-owo/helios) concept, to have a single file that can be completly unblocked.
 
@@ -71,8 +75,9 @@ This code is under MIT License, wich means that you can do anything you want wit
 
 ## Devs TODO list
 
-- [ ] Add live chat
-- [ ] Less dirty code
+- [ ] Add live chat (thats for me)
+- [ ] Globally more features
 - [ ] Fix some loading time bugs
+- [ ] Less dirty code
 - [x] Custom loading animation
 - [x] Add more comments in code
