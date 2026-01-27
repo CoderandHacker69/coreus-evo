@@ -74,7 +74,7 @@
             flex-direction: column;
             align-items: center;
             justify-content: center;
-            padding-bottom: 80px; /* Space for the floating navbar */
+            padding-bottom: 80px;
         }
 
         .container {
@@ -90,7 +90,7 @@
             margin-bottom: 3rem;
             color: var(--primary-text);
             text-transform: lowercase;
-            margin-right: 0px; /* Make room for the smaller settings button */
+            margin-right: 0px;
         }
 
         .search-container {
@@ -678,10 +678,12 @@
         </div>
     </div>
     <script>
+        // Core variables
         let currentProxyIndex = 0;
         let targetUrl = '';
-
-        function showStatus(message, type = 'loading') {
+        let proxyMode = 'fallback';
+        let selectedProxy = [];
+        let previousView = 'main';
             const statusDiv = document.getElementById('statusDiv');
             statusDiv.textContent = message;
             statusDiv.className = `status ${type}`;
@@ -694,7 +696,6 @@
 
         function isValidUrl(string) {
             try {
-                // Add protocol if missing
                 if (!string.startsWith('http://') && !string.startsWith('https://')) {
                     string = 'https://' + string;
                 }
@@ -748,12 +749,12 @@
         }
 
         async function tryProxies() {
+            // Attempt to connect via proxy (fallback or single mode)
             const proxyBtn = document.getElementById('proxyBtn');
             proxyBtn.disabled = true;
             proxyBtn.textContent = 'Connecting...';
 
             if (proxyMode === 'single') {
-                // Use only the selected single proxy
                 showStatus(`Using selected proxy: ${selectedProxy}`, 'loading');
 
                 const works = await testProxy(selectedProxy, targetUrl);
@@ -771,7 +772,6 @@
                     return;
                 }
             } else {
-                // Use fallback mode (try all proxies in sequence)
                 for (let i = 0; i < proxyAPIs.length; i++) {
                     const proxyUrl = proxyAPIs[i];
                     showStatus(`Trying proxy ${i + 1}/${proxyAPIs.length}: ${proxyUrl}`, 'loading');
@@ -786,8 +786,6 @@
                         return;
                     }
                 }
-
-                // All proxies failed
                 showStatus('All proxy services are currently unavailable. Please try again later.', 'error');
                 proxyBtn.disabled = false;
                 proxyBtn.textContent = 'Access via Proxy';
@@ -795,6 +793,7 @@
         }
 
         function injectIframeStyles(iframe) {
+            // Apply dark theme styles to iframe content
             try {
                 const iframeDoc = iframe.contentDocument || iframe.contentWindow.document;
                 if (iframeDoc) {
@@ -831,7 +830,8 @@
                     }
                 }
             } catch (e) {
-                console.log('Cannot inject styles due to cross-origin restrictions');
+                document.body.removeChild(iframe);
+                resolve(true);
             }
         }
 
@@ -874,6 +874,7 @@
         }
 
         function startProxy() {
+            // Parse input and handle DuckDuckGo search vs domain
             const urlInput = document.getElementById('urlInput');
             const inputUrl = urlInput.value.trim();
 
@@ -883,18 +884,15 @@
                 return;
             }
 
-            // Check if input contains a domain name with common TLDs
             const domainPattern = /\.(com|org|net|io|gov|edu|int|mil|arpa|co|uk|de|jp|fr|au|ca|ru|br|in|it|nl|se|no|dk|fi|es|pl|be|ch|at|cz|ie|pt|hu|gr|il|cn|hk|kr|sg|mx|ar|cl|pe|ve|uy|py|bo|ec|gt|hn|sv|ni|cr|pa|do|cu|jm|ht|bs|bz|sr|gy|fk|gg|je|im|ai|bm|ky|lc|vc|ag|gd|kn|ms|tc|vg|vi|pr|as|gu|mp|pw|fm|mh|ws|to|vu|sb|nc|pf|wf|ck|nu|tk|pn|nf|cc|cx|hm|aq|gs|tf)$/i;
             
             if (domainPattern.test(inputUrl)) {
-                // It's a domain, add https:// if not present
                 if (!inputUrl.startsWith('http://') && !inputUrl.startsWith('https://')) {
                     targetUrl = 'https://' + inputUrl;
                 } else {
                     targetUrl = inputUrl;
                 }
             } else {
-                // It's a search query, use DuckDuckGo
                 targetUrl = 'https://duckduckgo.com/?q=' + encodeURIComponent(inputUrl);
             }
             
@@ -919,21 +917,18 @@
             return true;
         }
 
-        // Handle Enter key in input
+
         document.getElementById('urlInput').addEventListener('keypress', function(e) {
             if (e.key === 'Enter') {
                 startProxy();
             }
         });
-
-        // Handle Escape key to close proxy
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') {
                 closeProxy();
             }
         });
 
-        // List of proxy API endpoints
         const proxyAPIs = [
             'https://embeddr.pages.dev/embed#',
             'https://embeddr.rhw.one/embed#',
@@ -942,8 +937,6 @@
             'https://api.cors.lol/?url=',
             'https://yacdn.org/proxy/'
         ];
-
-        // Settings variables
         let proxyMode = 'fallback';
         let selectedProxy = proxyAPIs[0];
         
@@ -958,10 +951,6 @@
             } else {
                 modal.style.display = 'none';
             }
-        }
-        
-        function toggleExtraModal(){
-            console.log("Toggling extra modal");
         }
 
         function loadCurrentSettings() {
@@ -1009,6 +998,7 @@
             document.querySelector('.container').style.display = 'block';
         }
 
+        // Load game/tool in iframe with fallback proxy
         function showGamePopup(gamePath) {
             previousView = 'games';
 
@@ -1038,7 +1028,6 @@
             gameIframe.onload = handleLoadCompletion;
 
             gameIframe.onerror = function() {
-                console.log("direct load failed, trying embeddr...");
                 const embeddrUrl = `https://embeddr.rhw.one/embed#${encodeURIComponent(gameUrl)}`;
 
                 gameLoadingOverlay.classList.remove('hidden');
@@ -1046,7 +1035,6 @@
             gameIframe.src = embeddrUrl;
 
                 gameIframe.onerror = function() {
-                    console.log("embeddr also failed to load the game");
                     gameLoadingOverlay.classList.add('hidden');
                 };
 
@@ -1131,6 +1119,7 @@
         }
 
         async function loadTools() {
+            // Fetch and render tool cards with search functionality
             try {
                 const response = await fetch('https://cdn.jsdelivr.net/gh/noodlelover1/coreus-assets@main/tools.json');
                 const tools = await response.json();
@@ -1183,14 +1172,12 @@
                     toolsGrid.appendChild(toolCard);
                 });
 
-                // Add search functionality
                 const toolsSearchInput = document.getElementById('toolsSearchInput');
                 if (toolsSearchInput) {
                     toolsSearchInput.addEventListener('input', function() {
                         filterTools(this.value);
                     });
                 }
-            } catch (error) {
                 console.error('Error loading tools:', error);
                 document.getElementById('toolsGrid').innerHTML = '<p style="color: var(--primary-text); width: 100%; text-align: center;">Error loading tools. Please try again later.</p>';
             }
@@ -1239,7 +1226,6 @@
             gameIframe.onload = handleLoadCompletion;
 
             gameIframe.onerror = function() {
-                console.log("direct load failed, trying embeddr...");
                 const embeddrUrl = `https://embeddr.rhw.one/embed#${encodeURIComponent(toolUrl)}`;
 
                 gameLoadingOverlay.classList.remove('hidden');
@@ -1247,7 +1233,6 @@
     gameIframe.src = embeddrUrl;
 
                 gameIframe.onerror = function() {
-                    console.log("embeddr also failed to load the tool");
                     gameLoadingOverlay.classList.add('hidden');
                 };
 
@@ -1256,11 +1241,10 @@
         }
 
         async function loadGames() {
+            // Fetch and render game cards with search functionality
             try {
                 const response = await fetch('https://cdn.jsdelivr.net/gh/noodlelover1/coreus-assets@main/games.json');
                 const games = await response.json();
-
-                console.log('Games data:', games);
 
                 const gamesGrid = document.getElementById('gamesGrid');
                 gamesGrid.innerHTML = '';
@@ -1310,7 +1294,6 @@
                     gamesGrid.appendChild(gameCard);
                 });
 
-                // Add search functionality
                 const gamesSearchInput = document.getElementById('gamesSearchInput');
                 if (gamesSearchInput) {
                     gamesSearchInput.addEventListener('input', function() {
@@ -1324,6 +1307,7 @@
         }
 
         function filterGames(searchTerm) {
+            // Show/hide game cards based on search term
             const searchLower = searchTerm.toLowerCase();
             const gameCards = document.querySelectorAll('.game-card');
 
@@ -1337,23 +1321,15 @@
             });
         }
 
-        // Shows chat view
         function showChatView() {
-            // hide all other views first
             document.querySelector('.container').style.display = 'none';
             document.getElementById('gamesView').style.display = 'none';
             document.getElementById('toolsView').style.display = 'none';
             document.getElementById('aboutView').style.display = 'none';
             document.getElementById('settingsView').style.display = 'none';
-
-            // show chat view
             document.getElementById('chatView').style.display = 'block';
-
-            // set previous view to chat
             previousView = 'chat';
         }
-
-        // function to hide the chat view and return to main
         function hideChatView() {
             document.getElementById('chatView').style.display = 'none';
             document.getElementById('gamesView').style.display = 'none';
@@ -1363,26 +1339,16 @@
             document.querySelector('.container').style.display = 'block';
         }
 
-        // function to show settings view
         function showSettingsView() {
-            // hide all other views first
             document.querySelector('.container').style.display = 'none';
             document.getElementById('gamesView').style.display = 'none';
             document.getElementById('toolsView').style.display = 'none';
             document.getElementById('aboutView').style.display = 'none';
             document.getElementById('chatView').style.display = 'none';
-
-            // show settings view
             document.getElementById('settingsView').style.display = 'block';
-
-            // load current settings into the view
             loadCurrentSettings();
-
-            // set previous view to settings
             previousView = 'settings';
         }
-
-        // function to hide the settings view and return to main
         function hideSettingsView() {
             document.getElementById('settingsView').style.display = 'none';
             document.getElementById('gamesView').style.display = 'none';
@@ -1392,8 +1358,8 @@
             document.querySelector('.container').style.display = 'block';
         }
 
-        // Theme functions
         function changeTheme(theme) {
+            // Apply theme to body element
             const body = document.body;
             body.className = '';
             if (theme !== 'default') {
@@ -1401,13 +1367,11 @@
             }
         }
 
-        // This function was added later - not sure if it's needed
         function checkUrlFormat(url) {
             var pattern = /^https?:\/\/(?:[-\w.])+(?:\:[0-9]+)?(?:\/(?:[\w\/_.])*(?:\?(?:[\w&=%.])*)?(?:\#(?:[\w.])*)?)?$/;
             return pattern.test(url);
         }
 
-        // Attach event listeners after DOM is loaded
         window.addEventListener('load', function() {
             document.getElementById('urlInput').focus();
 
@@ -1419,7 +1383,7 @@
     <script>eruda.init();</script>
     
     <script>
-        // animation effect
+        // Title hover animation effect
         document.addEventListener('DOMContentLoaded', function() {
             const title = document.querySelector('.title');
             if(title) {
