@@ -119,6 +119,17 @@
             color: var(--secondary-text);
         }
 
+        /* Search bar styles for games and tools views */
+        #gamesSearchInput, #toolsSearchInput {
+            transition: all 0.3s ease !important;
+        }
+
+        #gamesSearchInput:focus, #toolsSearchInput:focus {
+            border-color: var(--accent-color) !important;
+            background-color: var(--secondary-bg) !important;
+            box-shadow: 0 0 15px rgba(76, 175, 80, 0.2) !important;
+        }
+
         .proxy-btn {
             padding: 0.8rem 2rem;
             font-size: 1rem;
@@ -542,6 +553,9 @@
         <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 40px;">
             <h2 class="title" style="font-size: 4rem; margin-bottom: 0; flex-grow: 1; text-align: center;">Coreus games</h2>
         </div>
+        <div style="display: flex; justify-content: center; margin-bottom: 30px;">
+            <input type="text" id="gamesSearchInput" placeholder="Search games..." style="width: 100%; max-width: 500px; padding: 12px 20px; font-size: 1rem; background-color: var(--secondary-bg); border: 2px solid var(--border-color); border-radius: 25px; color: var(--primary-text); outline: none; transition: all 0.3s ease;" />
+        </div>
         <div id="gamesGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 30px; padding: 10px;"></div>
 
         <!-- Floating Bottom Navbar for Games View -->
@@ -580,6 +594,9 @@
     <div id="toolsView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary-bg); z-index: 2000; overflow-y: auto; padding: 20px 20px 100px 20px;">
         <div style="display: flex; justify-content: center; align-items: center; margin-bottom: 40px;">
             <h2 class="title" style="font-size: 4rem; margin-bottom: 0; flex-grow: 1; text-align: center;">Coreus tools</h2>
+        </div>
+        <div style="display: flex; justify-content: center; margin-bottom: 30px;">
+            <input type="text" id="toolsSearchInput" placeholder="Search tools..." style="width: 100%; max-width: 500px; padding: 12px 20px; font-size: 1rem; background-color: var(--secondary-bg); border: 2px solid var(--border-color); border-radius: 25px; color: var(--primary-text); outline: none; transition: all 0.3s ease;" />
         </div>
         <div id="toolsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 30px; padding: 10px;"></div>
 
@@ -1128,6 +1145,7 @@
 
                     const toolCard = document.createElement('div');
                     toolCard.className = 'tool-card';
+                    toolCard.setAttribute('data-tool-name', title.toLowerCase());
                     toolCard.style.cssText = `
                         display: flex;
                         flex-direction: column;
@@ -1164,10 +1182,32 @@
 
                     toolsGrid.appendChild(toolCard);
                 });
+
+                // Add search functionality
+                const toolsSearchInput = document.getElementById('toolsSearchInput');
+                if (toolsSearchInput) {
+                    toolsSearchInput.addEventListener('input', function() {
+                        filterTools(this.value);
+                    });
+                }
             } catch (error) {
                 console.error('Error loading tools:', error);
                 document.getElementById('toolsGrid').innerHTML = '<p style="color: var(--primary-text); width: 100%; text-align: center;">Error loading tools. Please try again later.</p>';
             }
+        }
+
+        function filterTools(searchTerm) {
+            const searchLower = searchTerm.toLowerCase();
+            const toolCards = document.querySelectorAll('.tool-card');
+
+            toolCards.forEach(card => {
+                const toolName = card.getAttribute('data-tool-name');
+                if (toolName.includes(searchLower)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
         }
 
     function showToolPopup(toolPath) {
@@ -1232,6 +1272,7 @@
 
                     const gameCard = document.createElement('div');
                     gameCard.className = 'game-card';
+                    gameCard.setAttribute('data-game-name', title.toLowerCase());
                     gameCard.style.cssText = `
                         display: flex;
                         flex-direction: column;
@@ -1268,10 +1309,32 @@
 
                     gamesGrid.appendChild(gameCard);
                 });
+
+                // Add search functionality
+                const gamesSearchInput = document.getElementById('gamesSearchInput');
+                if (gamesSearchInput) {
+                    gamesSearchInput.addEventListener('input', function() {
+                        filterGames(this.value);
+                    });
+                }
             } catch (error) {
                 console.error('Error loading games:', error);
                 document.getElementById('gamesGrid').innerHTML = '<p style="color: var(--primary-text); width: 100%; text-align: center;">Error loading games. Please try again later.</p>';
             }
+        }
+
+        function filterGames(searchTerm) {
+            const searchLower = searchTerm.toLowerCase();
+            const gameCards = document.querySelectorAll('.game-card');
+
+            gameCards.forEach(card => {
+                const gameName = card.getAttribute('data-game-name');
+                if (gameName.includes(searchLower)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
         }
 
         // Shows chat view
