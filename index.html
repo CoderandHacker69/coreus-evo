@@ -434,6 +434,8 @@
             <button class="nav-icon-btn" style="background: none; border: none; cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.3s;" onclick="showSettingsView()">
                 <i class="fas fa-cog" style="color: white; font-size: 20px;"></i>
             </button>
+            <div style="width: 1px; height: 24px; background: rgba(255,255,255,0.2); margin: 0 10px;"></div>
+            <span class="navbar-time" style="color: #fff; font-size: 0.85rem; font-family: monospace; min-width: 50px; text-align: right; margin-right: 10px;">00:00:00</span>
         </div>
     </div>
 
@@ -514,6 +516,8 @@
             <button class="nav-icon-btn" style="background: none; border: none; cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.3s;" onclick="showSettingsView()">
                 <i class="fas fa-cog" style="color: white; font-size: 20px;"></i>
             </button>
+            <div style="width: 1px; height: 24px; background: rgba(255,255,255,0.2); margin: 0 10px;"></div>
+            <span class="navbar-time" style="color: #fff; font-size: 0.85rem; font-family: monospace; min-width: 50px; text-align: right; margin-right: 10px;">00:00:00</span>
         </div>
     </div>
 
@@ -546,6 +550,8 @@
         <button class="nav-icon-btn" style="background: none; border: none; cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.3s;" onclick="showSettingsView()">
             <i class="fas fa-cog" style="color: white; font-size: 20px;"></i>
         </button>
+        <div style="width: 1px; height: 24px; background: rgba(255,255,255,0.2); margin: 0 10px;"></div>
+        <span class="navbar-time" style="color: #fff; font-size: 0.85rem; font-family: monospace; min-width: 50px; text-align: right; margin-right: 10px;">00:00:00</span>
     </div>
 
     <!-- Games View Container -->
@@ -587,6 +593,8 @@
             <button class="nav-icon-btn" style="background: none; border: none; cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.3s;" onclick="showSettingsView()">
                 <i class="fas fa-cog" style="color: white; font-size: 20px;"></i>
             </button>
+            <div style="width: 1px; height: 24px; background: rgba(255,255,255,0.2); margin: 0 10px;"></div>
+            <span class="navbar-time" style="color: #fff; font-size: 0.85rem; font-family: monospace; min-width: 50px; text-align: right; margin-right: 10px;">00:00:00</span>
         </div>
     </div>
 
@@ -629,6 +637,8 @@
             <button class="nav-icon-btn" style="background: none; border: none; cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.3s;" onclick="showSettingsView()">
                 <i class="fas fa-cog" style="color: white; font-size: 20px;"></i>
             </button>
+            <div style="width: 1px; height: 24px; background: rgba(255,255,255,0.2); margin: 0 10px;"></div>
+            <span class="navbar-time" style="color: #fff; font-size: 0.85rem; font-family: monospace; min-width: 50px; text-align: right; margin-right: 10px;">00:00:00</span>
         </div>
     </div>
 
@@ -675,6 +685,8 @@
             <button class="nav-icon-btn" style="background: none; border: none; cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.3s;" onclick="showSettingsView()">
                 <i class="fas fa-cog" style="color: white; font-size: 20px;"></i>
             </button>
+            <div style="width: 1px; height: 24px; background: rgba(255,255,255,0.2); margin: 0 10px;"></div>
+            <span class="navbar-time" style="color: #fff; font-size: 0.85rem; font-family: monospace; min-width: 50px; text-align: right; margin-right: 10px;">00:00:00</span>
         </div>
     </div>
     <script>
@@ -1434,6 +1446,27 @@
             var pattern = /^https?:\/\/(?:[-\w.])+(?:\:[0-9]+)?(?:\/(?:[\w\/_.])*(?:\?(?:[\w&=%.])*)?(?:\#(?:[\w.])*)?)?$/;
             return pattern.test(url);
         }
+
+        // Function to update time in all navbars
+        function updateNavbarTime() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            const timeString = `${hours}:${minutes}:${seconds}`;
+            
+            // Update all navbar time elements
+            const timeElements = document.querySelectorAll('.navbar-time');
+            timeElements.forEach(el => {
+                el.textContent = timeString;
+            });
+        }
+
+        // Start the time update interval (updates every second)
+        setInterval(updateNavbarTime, 1000);
+        
+        // Initial call to update time immediately
+        updateNavbarTime();
 
         // Attach event listeners after DOM is loaded
         window.addEventListener('load', function() {
