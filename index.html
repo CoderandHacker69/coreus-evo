@@ -1027,10 +1027,14 @@
             gameIframe.onload = null;
             gameIframe.onerror = null;
 
+            // Force hide overlay after 0.5 seconds regardless of iframe load status
+            const forceHideTimeout = setTimeout(() => {
+                gameLoadingOverlay.classList.add('hidden');
+            }, 500);
+
             const handleLoadCompletion = function() {
-                setTimeout(() => {
-                    gameLoadingOverlay.classList.add('hidden');
-                }, 500);
+                clearTimeout(forceHideTimeout);
+                gameLoadingOverlay.classList.add('hidden');
             };
 
             gameIframe.src = gameUrl;
@@ -1043,14 +1047,24 @@
 
                 gameLoadingOverlay.classList.remove('hidden');
 
+                // Reset force hide timeout for embeddr attempt
+                clearTimeout(forceHideTimeout);
+                const embeddrForceHideTimeout = setTimeout(() => {
+                    gameLoadingOverlay.classList.add('hidden');
+                }, 500);
+
             gameIframe.src = embeddrUrl;
 
                 gameIframe.onerror = function() {
                     console.log("embeddr also failed to load the game");
+                    clearTimeout(embeddrForceHideTimeout);
                     gameLoadingOverlay.classList.add('hidden');
                 };
 
-                gameIframe.onload = handleLoadCompletion;
+                gameIframe.onload = function() {
+                    clearTimeout(embeddrForceHideTimeout);
+                    gameLoadingOverlay.classList.add('hidden');
+                };
             };
         }
 
@@ -1228,10 +1242,14 @@
             gameIframe.onload = null;
             gameIframe.onerror = null;
 
+            // Force hide overlay after 0.5 seconds regardless of iframe load status
+            const forceHideTimeout = setTimeout(() => {
+                gameLoadingOverlay.classList.add('hidden');
+            }, 500);
+
             const handleLoadCompletion = function() {
-                setTimeout(() => {
-                    gameLoadingOverlay.classList.add('hidden');
-                }, 500);
+                clearTimeout(forceHideTimeout);
+                gameLoadingOverlay.classList.add('hidden');
             };
 
             gameIframe.src = toolUrl;
@@ -1244,14 +1262,24 @@
 
                 gameLoadingOverlay.classList.remove('hidden');
 
+                // Reset force hide timeout for embeddr attempt
+                clearTimeout(forceHideTimeout);
+                const embeddrForceHideTimeout = setTimeout(() => {
+                    gameLoadingOverlay.classList.add('hidden');
+                }, 500);
+
     gameIframe.src = embeddrUrl;
 
                 gameIframe.onerror = function() {
                     console.log("embeddr also failed to load the tool");
+                    clearTimeout(embeddrForceHideTimeout);
                     gameLoadingOverlay.classList.add('hidden');
                 };
 
-                gameIframe.onload = handleLoadCompletion;
+                gameIframe.onload = function() {
+                    clearTimeout(embeddrForceHideTimeout);
+                    gameLoadingOverlay.classList.add('hidden');
+                };
             };
         }
 
