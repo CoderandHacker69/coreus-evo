@@ -6,6 +6,7 @@
     <title>Coreus</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23000'/><circle cx='30' cy='30' r='15' fill='%23fff'/><circle cx='70' cy='70' r='15' fill='%23fff'/><path d='M35 35 L65 65' stroke='%23fff' stroke-width='5'/></svg>" type="image/svg+xml">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://js.puter.com/v2/"></script>
     <style>
         :root {
             --primary-bg: #000000;
@@ -364,6 +365,21 @@
                 <button class="proxy-btn" onclick="toggleSettingsModal()" style="background: var(--secondary-bg);">Cancel</button>
                 <button class="proxy-btn" onclick="saveSettings()" style="background: var(--accent-color);">Save</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Puter Login Modal -->
+    <div id="puterLoginModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 3000; justify-content: center; align-items: center;">
+        <div style="background: var(--card-bg); padding: 2.5rem; border-radius: 15px; width: 90%; max-width: 400px; text-align: center; border: 1px solid var(--border-color); position: relative;">
+            <button style="position: absolute; top: 15px; right: 15px; background: none; border: none; color: var(--secondary-text); font-size: 1.5rem; cursor: pointer; transition: color 0.3s;" onclick="closePuterLoginModal()" title="Close">
+                ✕
+            </button>
+            <i class="fas fa-robot" style="font-size: 3rem; color: white; margin-bottom: 1rem; display: block;"></i>
+            <h2 style="color: var(--primary-text); margin-bottom: 1rem; font-size: 1.5rem;">Sign in to Puter AI</h2>
+            <p style="color: var(--secondary-text); margin-bottom: 2rem; line-height: 1.6;">You will need to login with Puter to use AI chat features.</p>
+            <button id="puterSignInBtn" style="width: 100%; padding: 1rem; background: white; border: none; color: #000; border-radius: 10px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(255, 255, 255, 0.2);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(255, 255, 255, 0.3)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 15px rgba(255, 255, 255, 0.2)';">
+                <i class="fas fa-sign-in-alt" style="margin-right: 0.5rem;"></i> Login with Puter
+            </button>
         </div>
     </div>
 
@@ -1513,14 +1529,14 @@
     <!-- AI Chat View Container -->
     <div id="aiView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary-bg); z-index: 2000; overflow: hidden; padding: 0;">
         <div style="display: flex; justify-content: center; align-items: center; height: 100%; width: 100%; padding-bottom: 100px;">
-            <div style="width: 90%; max-width: 900px; height: 80vh; background: #0d0d0d; border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 8px 32px rgba(0,0,0,0.8); border: 5px solid #333333;">
+            <div style="width: 90%; max-width: 900px; height: 80vh; background: #0d0d0d; border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 8px 32px rgba(0,0,0,0.8); border: 2px solid #333333;">
                 <!-- AI Chat Header -->
                 <div style="padding: 20px; background: rgba(0,0,0,0.6); border-bottom: 2px solid var(--border-color); display: flex; justify-content: space-between; align-items: center;">
                     <div style="display: flex; align-items: center; gap: 10px;">
                         <i class="fas fa-robot" style="color: white; font-size: 24px;"></i>
                         <span style="color: var(--primary-text); font-size: 1.3rem; font-weight: 500;">AI Assistant</span>
                     </div>
-                    <button class="nav-icon-btn" style="background: rgba(255,255,255,0.1); border: none; cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.3s;" onclick="clearChatHistory()" title="Clear chat history">
+                    <button class="nav-icon-btn" style="background: #000; border: none; cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.3s;" onclick="clearChatHistory()" title="Clear chat history">
                         <i class="fas fa-trash" style="color: white; font-size: 18px;"></i>
                     </button>
                 </div>
@@ -1628,15 +1644,92 @@
             document.querySelector('.container').style.display = 'block';
         }
 
-        function sendAiMessage() {
+        // Store pending message for after login
+        let pendingAiMessage = null;
+
+        // Check if user is logged in with Puter using official API
+        async function isPuterLoggedIn() {
+            try {
+                // Official Puter.js method to check login status
+                const user = await puter.auth.getUser();
+                return !!user;
+            } catch (error) {
+                // User is not logged in or error occurred
+                return false;
+            }
+        }
+
+        // Show Puter login modal
+        function showPuterLoginModal(message) {
+            pendingAiMessage = message;
+            document.getElementById('puterLoginModal').style.display = 'flex';
+        }
+
+        // Close Puter login modal
+        function closePuterLoginModal() {
+            document.getElementById('puterLoginModal').style.display = 'none';
+            pendingAiMessage = null;
+        }
+
+        // Handle Puter sign in with official API
+        async function handlePuterSignIn() {
+            const signInBtn = document.getElementById('puterSignInBtn');
+            signInBtn.disabled = true;
+            signInBtn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 0.5rem;"></i> Signing in...';
+
+            try {
+                // Official Puter.js sign in method (from documentation)
+                await puter.auth.signIn();
+                
+                // Save the message before closing modal
+                const msg = pendingAiMessage;
+                
+                // Close modal
+                closePuterLoginModal();
+                
+                // Reset button state
+                signInBtn.disabled = false;
+                signInBtn.innerHTML = '<i class="fas fa-sign-in-alt" style="margin-right: 0.5rem;"></i> Login with Puter';
+                
+                // Send the pending message
+                if (msg) {
+                    await sendAiMessage(msg);
+                }
+            } catch (error) {
+                console.error('Puter sign in error:', error);
+                signInBtn.disabled = false;
+                signInBtn.innerHTML = '<i class="fas fa-sign-in-alt" style="margin-right: 0.5rem;"></i> Login with Puter';
+                alert('Failed to sign in with Puter. Please try again.');
+            }
+        }
+
+        // Puter.js AI Integration - Following official documentation
+        async function sendAiMessage(messageText = null) {
             const input = document.getElementById('aiMessageInput');
-            const message = input.value.trim();
+            let message = messageText || input.value.trim();
             
             if (!message) return;
 
+            // Only clear input if this is a fresh message (not from pending)
+            if (!messageText) {
+                input.value = '';
+            }
+
+            // Check if user is logged in using official Puter.js API
+            const isLoggedIn = await isPuterLoggedIn();
+            
+            if (!isLoggedIn) {
+                // Put the message back if it wasn't already in input
+                if (!messageText && !input.value) {
+                    input.value = message;
+                }
+                // Show login modal
+                showPuterLoginModal(message);
+                return;
+            }
+
             // Add user message to chat
             addMessageToChat('user', message);
-            input.value = '';
 
             // Disable send button while processing
             const sendBtn = document.getElementById('aiSendBtn');
@@ -1645,31 +1738,34 @@
             // Show loading animation
             addLoadingMessage();
 
-            // Encode the prompt
-            const encodedPrompt = encodeURIComponent(message);
-            const systemPrompt = encodeURIComponent('you are an ai assistant from the coreus UBG');
-            
-            // Build the API URL
-            const apiUrl = `https://corsproxy.io/?url=https://text.pollinations.ai/${encodedPrompt}?model=openai-fast&system=${systemPrompt}`;
+            try {
+                // Use puter.ai.chat as per official documentation
+                // https://docs.puter.com - Chat with GPT-5 nano example
+                const response = await puter.ai.chat(message, { model: 'gpt-5-nano' });
+                
+                // Response is directly the text string
+                const aiText = response || 'No response from Puter AI';
 
-            // Make the GET request
-            fetch(apiUrl)
-                .then(response => response.text())
-                .then(data => {
-                    // Remove loading message
-                    removeLoadingMessage();
-                    // Add AI response to chat
-                    addMessageToChat('ai', data);
-                    sendBtn.disabled = false;
-                    document.getElementById('aiMessageInput').focus();
-                })
-                .catch(error => {
-                    console.error('AI Error:', error);
-                    removeLoadingMessage();
-                    addMessageToChat('ai', 'Sorry, I encountered an error. Please try again.');
-                    sendBtn.disabled = false;
-                    document.getElementById('aiMessageInput').focus();
-                });
+                removeLoadingMessage();
+                addMessageToChat('ai', aiText);
+            } catch (error) {
+                console.error('Puter AI Error:', error);
+                removeLoadingMessage();
+                
+                // Provide helpful error message
+                let errorMsg = 'Error communicating with Puter AI';
+                if (error.message) {
+                    errorMsg += ': ' + error.message;
+                }
+                if (error.status === 401) {
+                    errorMsg = 'Puter authentication failed. Please sign in again.';
+                }
+                
+                addMessageToChat('ai', errorMsg);
+            } finally {
+                sendBtn.disabled = false;
+                document.getElementById('aiMessageInput').focus();
+            }
         }
 
         function addLoadingMessage() {
@@ -1690,7 +1786,7 @@
             bubble.style.lineHeight = '1.5';
             bubble.style.background = 'rgba(255, 255, 255, 0.05)';
             bubble.style.color = 'var(--primary-text)';
-            bubble.style.border = '1px solid rgba(76, 175, 80, 0.2)';
+            bubble.style.border = '1px solid #333333';
             bubble.style.textAlign = 'left';
 
             bubble.innerHTML = '<span class="ai-loading-dot"></span><span class="ai-loading-dot"></span><span class="ai-loading-dot"></span>';
@@ -1734,7 +1830,7 @@
             } else {
                 bubble.style.background = 'rgba(255, 255, 255, 0.05)';
                 bubble.style.color = 'var(--primary-text)';
-                bubble.style.border = '1px solid rgba(76, 175, 80, 0.2)';
+                bubble.style.border = '1px solid #333333';
                 bubble.style.textAlign = 'left';
             }
 
@@ -1812,6 +1908,12 @@
                         sendAiMessage();
                     }
                 });
+            }
+
+            // Setup Puter login button
+            const puterSignInBtn = document.getElementById('puterSignInBtn');
+            if (puterSignInBtn) {
+                puterSignInBtn.addEventListener('click', handlePuterSignIn);
             }
         });
     </script>
