@@ -14,6 +14,8 @@
 
 </div>
 
+### ⭐ PLEASE STAR IF YOU FORK ⭐
+
 ## Features
 
 - 🎮 100 Games
