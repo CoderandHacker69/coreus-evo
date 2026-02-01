@@ -21,7 +21,7 @@
 - 🎮 100 Games
 - 🌐 Ultraviolet proxy
 - 💬 Live chatroom
-- 🤖 AI chatbot
+- 🤖 AI chatbot with 4 AI models
 - 🔓 Single file, completely unblockable
 - 🚫 No ads
 - 🤩 Beautiful UI
@@ -84,10 +84,10 @@ This code is under AGPL v3.0 License, wich means that you can use the code but y
 See the full license in the LICENSE file
 ## Devs TODO list
 
-- [ ] [URGENT] Better proxy integration + new APIs
+- [ ] Better proxy integration + new APIs
 - [ ] Globally more features
-- [ ] Fix some loading time bugs
-- [ ] Less dirty code
+- [x] Fix some loading time bugs
+- [x] Less dirty code
 - [x] Add live chat
 - [x] Custom loading animation
 - [x] Add more comments in code
