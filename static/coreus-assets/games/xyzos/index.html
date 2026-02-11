@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Xyzos OS</title>
+    <link rel="icon" type="image/svg+xml" href="icon.svg">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <!-- Bootloader -->
+    <div id="bootloader" class="bootloader">
+        <!-- Main Boot Screen -->
+        <div class="boot-main">
+            <!-- Logo Section -->
+            <div class="boot-logo-container">
+                <div class="boot-logo">
+                    <div class="logo-inner">
+                        <span class="logo-x">X</span>
+                        <span class="logo-y">y</span>
+                        <span class="logo-z">z</span>
+                        <span class="logo-o">o</span>
+                        <span class="logo-s">s</span>
+                    </div>
+                    <div class="logo-glow"></div>
+                </div>
+                <div class="boot-product">Xyzos Operating System</div>
+                <div class="boot-version">Version 1.0.0 Enterprise Edition</div>
+                <div class="boot-copyright">© 2024-2026 Xyzos Technologies</div>
+            </div>
+            
+            <!-- Boot Progress -->
+            <div class="boot-progress-container">
+                <div class="boot-progress-info">
+                    <span id="bootStatus">Initializing system components...</span>
+                    <span id="bootPercent">0%</span>
+                </div>
+                <div class="boot-progress-bar">
+                    <div class="boot-progress-fill" id="bootProgressFill"></div>
+                    <div class="boot-progress-glare"></div>
+                </div>
+            </div>
+            
+            <!-- Boot Options -->
+            <div class="boot-options" id="bootOptions">
+                <div class="boot-option selected" data-boot="graphical">
+                    <span class="option-icon">🖥️</span>
+                    <div class="option-text">
+                        <div class="option-title">Normal Boot</div>
+                        <div class="option-desc">Start Xyzos OS with full graphical interface</div>
+                    </div>
+                    <span class="option-key">↵</span>
+                </div>
+                <div class="boot-option" data-boot="cli">
+                    <span class="option-icon">💻</span>
+                    <div class="option-text">
+                        <div class="option-title">Terminal Mode</div>
+                        <div class="option-desc">Boot directly into command line interface</div>
+                    </div>
+                    <span class="option-key">F2</span>
+                </div>
+                <div class="boot-option" data-boot="safe">
+                    <span class="option-icon">🔧</span>
+                    <div class="option-text">
+                        <div class="option-title">Safe Mode</div>
+                        <div class="option-desc">Boot with minimal drivers and services</div>
+                    </div>
+                    <span class="option-key">F5</span>
+                </div>
+                <div class="boot-option" data-boot="recovery">
+                    <span class="option-icon">🔄</span>
+                    <div class="option-text">
+                        <div class="option-title">Recovery Mode</div>
+                        <div class="option-desc">System recovery and troubleshooting</div>
+                    </div>
+                    <span class="option-key">F8</span>
+                </div>
+                <div class="boot-option" data-boot="bios">
+                    <span class="option-icon">⚙️</span>
+                    <div class="option-text">
+                        <div class="option-title">BIOS Setup</div>
+                        <div class="option-desc">Configure system settings and preferences</div>
+                    </div>
+                    <span class="option-key">Del</span>
+                </div>
+            </div>
+            
+            <!-- System Info -->
+            <div class="boot-system-info">
+                <div class="info-section">
+                    <div class="info-label">CPU</div>
+                    <div class="info-value" id="infoCPU">Virtual ARM 8-Core @ 2.5GHz</div>
+                </div>
+                <div class="info-section">
+                    <div class="info-label">Memory</div>
+                    <div class="info-value" id="infoMemory">8192 MB DDR5</div>
+                </div>
+                <div class="info-section">
+                    <div class="info-label">Storage</div>
+                    <div class="info-value" id="infoStorage">128 GB NVMe SSD</div>
+                </div>
+                <div class="info-section">
+                    <div class="info-label">Network</div>
+                    <div class="info-value" id="infoNetwork">Virtual 10GbE</div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Boot Footer -->
+        <div class="boot-footer">
+            <div class="footer-left">
+                <span id="footerCopyright">UEFI Boot Mode</span>
+            </div>
+            <div class="footer-right">
+                <span>Press</span>
+                <span class="key-badge">↑</span>
+                <span class="key-badge">↓</span>
+                <span>to select,</span>
+                <span class="key-badge">↵</span>
+                <span>to boot</span>
+            </div>
+        </div>
+        
+        <!-- Loading Overlay -->
+        <div class="boot-loading hidden" id="bootLoading">
+            <div class="loading-spinner"></div>
+            <div class="loading-text">Starting Xyzos OS...</div>
+            <div class="loading-details" id="loadingDetails">Initializing kernel...</div>
+        </div>
+    </div>
+
+    <!-- BIOS Setup Screen -->
+    <div id="biosSetup" class="bios-setup hidden">
+        <div class="bios-header">
+            <span class="bios-title">⚙️ Xyzos UEFI BIOS v2.0</span>
+            <span id="biosSetupTime"></span>
+        </div>
+        <div class="bios-content">
+            <div class="bios-sidebar">
+                <div class="bios-menu-item selected" data-section="main">Main</div>
+                <div class="bios-menu-item" data-section="advanced">Advanced</div>
+                <div class="bios-menu-item" data-section="boot">Boot</div>
+                <div class="bios-menu-item" data-section="security">Security</div>
+                <div class="bios-menu-item" data-section="exit">Exit</div>
+            </div>
+            <div class="bios-main">
+                <div id="biosSection-main" class="bios-section">
+                    <h3>Main Configuration</h3>
+                    <div class="bios-field">
+                        <label>System Date:</label>
+                        <span id="biosDateDisplay"></span>
+                    </div>
+                    <div class="bios-field">
+                        <label>System Time:</label>
+                        <span id="biosTimeDisplay"></span>
+                    </div>
+                    <div class="bios-field">
+                        <label>BIOS Version:</label>
+                        <span>XYZOS BIOS 2.0</span>
+                    </div>
+                    <div class="bios-field">
+                        <label>EC Version:</label>
+                        <span>1.0.0</span>
+                    </div>
+                </div>
+                <div id="biosSection-advanced" class="bios-section hidden">
+                    <h3>Advanced Configuration</h3>
+                    <div class="bios-field">
+                        <label>Virtual CPU:</label>
+                        <span>Virtual ARM 8-Core @ 2.5GHz</span>
+                    </div>
+                    <div class="bios-field">
+                        <label>Memory Speed:</label>
+                        <span>DDR5-3200</span>
+                    </div>
+                    <div class="bios-field">
+                        <label>Hyper-Threading:</label>
+                        <span>Enabled</span>
+                    </div>
+                    <div class="bios-field">
+                        <label>Virtualization:</label>
+                        <span>Enabled</span>
+                    </div>
+                </div>
+                <div id="biosSection-boot" class="bios-section hidden">
+                    <h3>Boot Configuration</h3>
+                    <div class="bios-field">
+                        <label>Boot Mode:</label>
+                        <span>UEFI</span>
+                    </div>
+                    <div class="bios-field">
+                        <label>Secure Boot:</label>
+                        <span>Enabled</span>
+                    </div>
+                    <div class="bios-field">
+                        <label>Fast Boot:</label>
+                        <span>Enabled</span>
+                    </div>
+                    <div class="bios-field">
+                        <label>Boot Priority:</label>
+                        <span>NVMe SSD → USB → Network</span>
+                    </div>
+                </div>
+                <div id="biosSection-security" class="bios-section hidden">
+                    <h3>Security Settings</h3>
+                    <div class="bios-field">
+                        <label>Admin Password:</label>
+                        <span>Not Set</span>
+                    </div>
+                    <div class="bios-field">
+                        <label>Secure Boot:</label>
+                        <span>Enabled</span>
+                    </div>
+                    <div class="bios-field">
+                        <label>TPM 2.0:</label>
+                        <span>Enabled</span>
+                    </div>
+                </div>
+                <div id="biosSection-exit" class="bios-section hidden">
+                    <h3>Exit Options</h3>
+                    <button class="bios-btn" onclick="exitBIOS('save')">Save Changes & Exit</button>
+                    <button class="bios-btn" onclick="exitBIOS('discard')">Discard Changes & Exit</button>
+                    <button class="bios-btn" onclick="exitBIOS('default')">Load Optimized Defaults</button>
+                </div>
+            </div>
+        </div>
+        <div class="bios-footer">
+            <span>← → to navigate tabs, ↑ ↓ to select, Enter to confirm, Esc to return</span>
+            <span>F10: Save & Exit</span>
+        </div>
+    </div>
+
+    <!-- Recovery Mode Screen -->
+    <div id="recoveryMode" class="recovery-mode hidden">
+        <div class="recovery-header">
+            <span>🔄 Xyzos Recovery Mode</span>
+        </div>
+        <div class="recovery-content">
+            <div class="recovery-menu">
+                <div class="recovery-option selected" data-action="system-restore">
+                    <span class="rec-icon">🔧</span>
+                    <div class="rec-text">
+                        <div class="rec-title">System Restore</div>
+                        <div class="rec-desc">Restore system to a previous state</div>
+                    </div>
+                </div>
+                <div class="recovery-option" data-action="file-recovery">
+                    <span class="rec-icon">📁</span>
+                    <div class="rec-text">
+                        <div class="rec-title">File Recovery</div>
+                        <div class="rec-desc">Recover deleted or corrupted files</div>
+                    </div>
+                </div>
+                <div class="recovery-option" data-action="disk-check">
+                    <span class="rec-icon">💾</span>
+                    <div class="rec-text">
+                        <div class="rec-title">Disk Check</div>
+                        <div class="rec-desc">Scan and repair disk errors</div>
+                    </div>
+                </div>
+                <div class="recovery-option" data-action="terminal">
+                    <span class="rec-icon">💻</span>
+                    <div class="rec-text">
+                        <div class="rec-title">Command Prompt</div>
+                        <div class="rec-desc">Access recovery command line</div>
+                    </div>
+                </div>
+                <div class="recovery-option" data-action="boot-normal">
+                    <span class="rec-icon">🖥️</span>
+                    <div class="rec-text">
+                        <div class="rec-title">Normal Boot</div>
+                        <div class="rec-desc">Boot normally</div>
+                    </div>
+                </div>
+                <div class="recovery-option" data-action="shutdown">
+                    <span class="rec-icon">⏻</span>
+                    <div class="rec-text">
+                        <div class="rec-title">Power Off</div>
+                        <div class="rec-desc">Turn off the system</div>
+                    </div>
+                </div>
+            </div>
+            <div class="recovery-info">
+                <h4>System Information</h4>
+                <p>OS: Xyzos 1.0.0</p>
+                <p>Build: Enterprise Edition</p>
+                <p>Memory: 8192 MB</p>
+                <p>Storage: 128 GB NVMe SSD</p>
+                <div class="recovery-tips">
+                    <h4>Tips</h4>
+                    <p>Use ↑/↓ keys to navigate</p>
+                    <p>Press Enter to select an option</p>
+                    <p>Press Esc to return to boot menu</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Safe Mode Screen -->
+    <div id="safeMode" class="safe-mode hidden">
+        <div class="safe-mode-content">
+            <div class="safe-icon">🔧</div>
+            <h2>Safe Mode</h2>
+            <p>Booting with minimal drivers and services...</p>
+            <div class="safe-progress">
+                <div class="safe-progress-fill" id="safeProgressFill"></div>
+            </div>
+            <div class="safe-status" id="safeStatus">Loading minimal drivers...</div>
+            <div class="safe-options">
+                <button class="safe-btn" onclick="continueSafeMode()">Continue</button>
+                <button class="safe-btn" onclick="abortSafeMode()">Abort</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CLI Boot Screen -->
+    <div id="cliBoot" class="cli-boot hidden">
+        <div class="cli-boot-header">
+            <span>Xyzos OS Terminal Boot</span>
+        </div>
+        <div id="cliOutput" class="cli-output"></div>
+        <div class="cli-input-area">
+            <span class="cli-prompt">user@xyzos:~$</span>
+            <input type="text" id="cliInput" class="cli-input" autofocus enterkeyhint="go" inputmode="text">
+        </div>
+        <div class="mobile-keyboard-hint" id="cliKeyboardHint" onclick="focusCLIInput()">
+            Tap here to show keyboard
+        </div>
+    </div>
+
+    <!-- Desktop -->
+    <div id="desktop" class="desktop hidden">
+        <div id="taskbar" class="taskbar">
+            <div id="startBtn" class="start-btn">
+                <span class="start-icon">◆</span> Start
+            </div>
+            <div id="taskbarApps" class="taskbar-apps"></div>
+            <div id="systemTray" class="system-tray">
+                <span id="clock"></span>
+                <span id="battery">🔋100%</span>
+                <span id="wifi">📶</span>
+            </div>
+        </div>
+        <div id="desktopIcons" class="desktop-icons"></div>
+        <div id="desktopArea" class="desktop-area"></div>
+    </div>
+
+    <!-- Windows Container -->
+    <div id="windowsContainer" class="windows-container"></div>
+
+    <!-- Start Menu -->
+    <div id="startMenu" class="start-menu hidden">
+        <div class="start-menu-header">
+            <span class="user-avatar">👤</span>
+            <span class="user-name">User</span>
+        </div>
+        <div class="start-menu-search">
+            <input type="text" id="appSearch" placeholder="🔍 Search apps...">
+        </div>
+        <div id="startMenuApps" class="start-menu-apps"></div>
+        <div class="start-menu-footer">
+            <button id="powerBtn" class="menu-btn">⏻ Power</button>
+            <button id="settingsBtn" class="menu-btn">⚙️ Settings</button>
+        </div>
+    </div>
+
+    <!-- Terminal -->
+    <div id="terminal" class="terminal hidden">
+        <div class="terminal-header">
+            <span class="terminal-title">💻 yterminal</span>
+            <button class="terminal-close">✕</button>
+        </div>
+        <div id="terminalOutput" class="terminal-output"></div>
+        <div class="terminal-input-line">
+            <span class="terminal-prompt" id="terminalPrompt">user@xyzos:~$</span>
+            <input type="text" id="terminalInput" class="terminal-input" autofocus>
+        </div>
+    </div>
+
+    <!-- App Store -->
+    <div id="appStore" class="app-store hidden">
+        <div class="app-store-header">
+            <span class="app-store-title">📦 App Store</span>
+            <button class="app-store-close">✕</button>
+        </div>
+        <div class="app-store-search">
+            <input type="text" placeholder="🔍 Search apps...">
+        </div>
+        <div id="appStoreContent" class="app-store-content"></div>
+    </div>
+
+    <!-- Lock Screen -->
+    <div id="lockScreen" class="lock-screen hidden">
+        <div class="lock-time" id="lockTime"></div>
+        <div class="lock-date" id="lockDate"></div>
+        <button id="unlockBtn" class="unlock-btn">Swipe to unlock</button>
+    </div>
+
+    <!-- Context Menu -->
+    <div id="contextMenu" class="context-menu hidden">
+        <div class="context-item" data-action="refresh">🔄 Refresh</div>
+        <div class="context-item" data-action="terminal">💻 Open Terminal</div>
+        <div class="context-item" data-action="settings">⚙️ Settings</div>
+        <div class="context-divider"></div>
+        <div class="context-item" data-action="wallpaper">🖼️ Change Wallpaper</div>
+    </div>
+
+    <script src="os.js"></script>
+</body>
+</html>

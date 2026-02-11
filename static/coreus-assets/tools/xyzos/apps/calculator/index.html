@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <style>
+        .calc-app { height: 100%; padding: 1rem; background: #0f172a; }
+        .calc-display { background: #1e293b; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; text-align: right; }
+        .calc-expression { font-size: 0.875rem; color: #94a3b8; min-height: 1.25rem; }
+        .calc-result { font-size: 2rem; font-weight: 300; color: #f8fafc; }
+        .calc-buttons { display: grid; grid-template-columns: repeat(4, 1fr); gap: 0.5rem; }
+        .calc-btn { padding: 1rem; border: none; border-radius: 8px; font-size: 1.25rem; cursor: pointer; background: #1e293b; color: #f8fafc; transition: all 0.2s; }
+        .calc-btn:hover { background: #334155; }
+        .calc-btn.operator { background: #6366f1; }
+        .calc-btn.operator:hover { background: #4f46e5; }
+        .calc-btn.equals { background: #22c55e; }
+        .calc-btn.equals:hover { background: #16a34a; }
+        .calc-btn.clear { background: #ef4444; }
+        .calc-btn.clear:hover { background: #dc2626; }
+    </style>
+</head>
+<body>
+    <div class="calc-app">
+        <div class="calc-display">
+            <div class="calc-expression" id="calcExpression"></div>
+            <div class="calc-result" id="calcResult">0</div>
+        </div>
+        <div class="calc-buttons">
+            <button class="calc-btn clear" data-action="clear">AC</button>
+            <button class="calc-btn" data-action="negate">±</button>
+            <button class="calc-btn" data-action="percent">%</button>
+            <button class="calc-btn operator" data-action="operator" data-op="/">÷</button>
+            <button class="calc-btn" data-value="7">7</button>
+            <button class="calc-btn" data-value="8">8</button>
+            <button class="calc-btn" data-value="9">9</button>
+            <button class="calc-btn operator" data-action="operator" data-op="*">×</button>
+            <button class="calc-btn" data-value="4">4</button>
+            <button class="calc-btn" data-value="5">5</button>
+            <button class="calc-btn" data-value="6">6</button>
+            <button class="calc-btn operator" data-action="operator" data-op="-">−</button>
+            <button class="calc-btn" data-value="1">1</button>
+            <button class="calc-btn" data-value="2">2</button>
+            <button class="calc-btn" data-value="3">3</button>
+            <button class="calc-btn operator" data-action="operator" data-op="+">+</button>
+            <button class="calc-btn" data-value="0" style="grid-column: span 2;">0</button>
+            <button class="calc-btn" data-value=".">.</button>
+            <button class="calc-btn equals" data-action="equals">=</button>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

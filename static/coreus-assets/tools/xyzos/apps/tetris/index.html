@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tetris</title>
+    <style>
+        .tetris-app { height: 100%; display: flex; flex-direction: column; align-items: center; background: #0f172a; padding: 1rem; }
+        .tetris-score { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .tetris-wrapper { display: flex; gap: 1rem; align-items: flex-start; }
+        .tetris-canvas-wrapper { position: relative; }
+        #tetrisCanvas { border: 2px solid #6366f1; border-radius: 8px; touch-action: none; }
+        .tetris-next { width: 80px; }
+        .tetris-next canvas { border: 1px solid #334155; border-radius: 4px; margin-top: 0.5rem; }
+        .tetris-controls { display: none; margin-top: 1rem; gap: 0.5rem; }
+        @media (max-width: 400px) {
+            .tetris-controls { display: grid; grid-template-columns: repeat(3, 50px); }
+            .tetris-wrapper { flex-direction: column; align-items: center; }
+            .tetris-next { display: none; }
+        }
+        .tetris-btn { width: 50px; height: 50px; border: none; border-radius: 8px; background: #334155; color: #f8fafc; font-size: 1.25rem; cursor: pointer; touch-action: manipulation; }
+        .tetris-btn:active { background: #6366f1; }
+        .tetris-btn.action { width: 80px; background: #22c55e; }
+        .tetris-instructions { margin-top: 0.5rem; color: #94a3b8; font-size: 0.75rem; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="tetris-app">
+        <div class="tetris-score">Score: <span id="tetrisScore">0</span></div>
+        <div class="tetris-wrapper">
+            <div class="tetris-canvas-wrapper">
+                <canvas id="tetrisCanvas" width="180" height="360"></canvas>
+            </div>
+            <div class="tetris-next">
+                <div style="color: #94a3b8; font-size: 0.75rem;">Next:</div>
+                <canvas id="nextCanvas" width="60" height="60"></canvas>
+            </div>
+        </div>
+        <div class="tetris-controls">
+            <button class="tetris-btn" data-action="rotate">↻</button>
+            <button class="tetris-btn" data-action="left">⬅️</button>
+            <button class="tetris-btn" data-action="rotate">↻</button>
+            <button class="tetris-btn" data-action="down">⬇️</button>
+            <button class="tetris-btn" data-action="right">➡️</button>
+            <button class="tetris-btn action" data-action="drop">⬇️</button>
+        </div>
+        <div class="tetris-instructions">Arrow keys or buttons to play. Tap canvas to start.</div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

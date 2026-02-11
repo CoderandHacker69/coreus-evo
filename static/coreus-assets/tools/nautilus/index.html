@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>Nautilus - Vortex Legacy</title>
+        <link rel="stylesheet" href="../../style.css">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+        <style>
+            .navbar-left-split {
+                position: fixed;
+                top: 15px;
+                left: 20px;
+                right: auto;
+                transform: none;
+                padding: 8px 15px;
+            }
+            .navbar-right-split {
+                position: fixed;
+                top: 15px;
+                left: auto;
+                right: 20px;
+                transform: none;
+            }
+            .nav-brand {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+            }
+            .nav-brand .navbar-icon {
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+            }
+            .navbar-title {
+                font-size: 1rem;
+                font-weight: 700;
+                color: #333;
+                letter-spacing: -0.5px;
+            }
+            .navbar-version {
+                font-size: 0.7rem;
+                font-weight: 600;
+                color: #667eea;
+                background: rgba(102, 126, 234, 0.1);
+                padding: 3px 8px;
+                border-radius: 10px;
+                border: 1px solid rgba(102, 126, 234, 0.3);
+            }
+            .nav-items-right {
+                display: flex;
+                align-items: center;
+                gap: 1px;
+            }
+            .proxy-container {
+                position: fixed;
+                top: 90px;
+                left: 50%;
+                transform: translateX(-50%);
+                width: 95%;
+                height: calc(100vh - 90px - 5vh);
+                margin-bottom: 5vh;
+                background: #fff;
+                border-radius: 12px;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+                overflow: hidden;
+                z-index: 1;
+            }
+            .proxy-iframe {
+                width: 100%;
+                height: 100%;
+                border: none;
+                border-radius: 12px;
+            }
+            .dark-mode .proxy-container {
+                background: #2a2b37;
+                box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+            }
+            @media (max-width: 1024px) {
+                .proxy-container {
+                    top: 80px;
+                    height: calc(100vh - 80px - 5vh);
+                }
+            }
+            @media (max-width: 600px) {
+                .proxy-container {
+                    top: 70px;
+                    height: calc(100vh - 70px - 5vh);
+                    width: 98%;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="navbar navbar-floating navbar-left-split">
+          <div class="nav-brand">
+            <img src="../../favicon.ico" alt="Vortex" class="navbar-icon">
+            <span class="navbar-title">Vortex Legacy</span>
+            <span class="navbar-version">v2.1</span>
+          </div>
+        </div>
+        <div class="navbar navbar-floating navbar-right-split">
+          <div class="nav-items-right">
+            <a href="../../index.html" class="nav-link"><i class="fas fa-home"></i><span>Home</span></a>
+            <a href="../../games/" class="nav-link"><i class="fas fa-gamepad"></i><span>Games</span></a>
+            <a href="../../tools/" class="nav-link active"><i class="fas fa-tools"></i><span>Tools</span></a>
+            <a href="../../uvproxy/" class="nav-link"><i class="fas fa-globe"></i><span>Pr0xy</span></a>
+            <a href="../../ai/" class="nav-link"><i class="fas fa-robot"></i><span>AI</span></a>
+            <a href="../../extra.html" class="nav-link"><i class="fas fa-star"></i><span>Extra</span></a>
+             <a href="../../settings.html" class="nav-link"><i class="fas fa-cog"></i></a>
+            <span id="currentTime" class="navbar-time"></span>
+          </div>
+         </div>
+
+        <div class="proxy-container">
+            <iframe id="main-iframe" class="proxy-iframe" src="https://nautilus-os.vercel.app">
+                Your browser doesn't support iframes
+            </iframe>
+        </div>
+
+        <script>
+          function updateTime() {
+              const now = new Date();
+              const hours = String(now.getHours()).padStart(2, '0');
+              const minutes = String(now.getMinutes()).padStart(2, '0');
+              const seconds = String(now.getSeconds()).padStart(2, '0');
+              const timeString = `${hours}:${minutes}:${seconds}`;
+
+              const timeElement = document.getElementById('currentTime');
+              if (timeElement) {
+                  timeElement.textContent = timeString;
+              }
+          }
+
+          setInterval(updateTime, 1000);
+          updateTime();
+
+          function applyTheme() {
+            const storedTheme = localStorage.getItem('theme') || 'dark';
+            const storedColor = localStorage.getItem('colorTheme') || 'default';
+            const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+
+            let isDarkMode = false;
+            if (storedTheme === 'light') {
+                isDarkMode = false;
+            } else if (storedTheme === 'dark' || (storedTheme === 'auto' && prefersDark)) {
+                isDarkMode = true;
+            }
+
+            if (isDarkMode) {
+              document.body.classList.add('dark-mode');
+            } else {
+              document.body.classList.remove('dark-mode');
+            }
+
+            document.body.classList.forEach(cls => {
+              if (cls.startsWith('color-')) {
+                document.body.classList.remove(cls);
+              }
+            });
+
+            if (storedColor !== 'default') {
+              document.body.classList.add(`color-${storedColor}`);
+            }
+          }
+
+          window.onload = function() {
+            applyTheme();
+
+            const iframe = document.getElementById('main-iframe');
+            const primaryUrl = 'https://nautilus-os.vercel.app';
+            const fallbackUrl = './src/';
+
+            iframe.onerror = function() {
+                iframe.src = fallbackUrl;
+            };
+
+            iframe.onload = function() {
+                try {
+                    if (iframe.contentWindow.location.href === 'about:blank') {
+                        iframe.src = fallbackUrl;
+                    }
+                } catch (e) {
+                    iframe.src = fallbackUrl;
+                }
+            };
+
+            window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', e => {
+              if (!localStorage.getItem('theme')) {
+                applyTheme();
+              }
+            });
+          };
+        </script>
+    </body>
+</html>

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Weather</title>
+    <style>
+        .weather-app { height: 100%; padding: 1.5rem; background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 100%); }
+        .weather-header { text-align: center; margin-bottom: 2rem; }
+        .weather-location { font-size: 1.5rem; font-weight: 600; }
+        .weather-date { color: #94a3b8; }
+        .weather-main { display: flex; justify-content: center; align-items: center; gap: 2rem; margin-bottom: 2rem; }
+        .weather-icon { font-size: 5rem; }
+        .weather-temp { font-size: 4rem; font-weight: 300; }
+        .weather-desc { text-align: center; font-size: 1.25rem; color: #94a3b8; margin-bottom: 2rem; }
+        .weather-details { display: flex; justify-content: space-around; }
+        .weather-detail { text-align: center; }
+        .weather-detail .icon { font-size: 2rem; margin-bottom: 0.5rem; }
+        .weather-detail .value { font-size: 1.25rem; font-weight: 600; }
+        .weather-detail .label { font-size: 0.75rem; color: #94a3b8; }
+    </style>
+</head>
+<body>
+    <div class="weather-app">
+        <div class="weather-header">
+            <div class="weather-location">📍 Xyzos City</div>
+            <div class="weather-date" id="weatherDate"></div>
+        </div>
+        <div class="weather-main">
+            <div class="weather-icon">☀️</div>
+            <div class="weather-temp">22°</div>
+        </div>
+        <div class="weather-desc">Sunny</div>
+        <div class="weather-details">
+            <div class="weather-detail">
+                <div class="icon">💧</div>
+                <div class="value">45%</div>
+                <div class="label">Humidity</div>
+            </div>
+            <div class="weather-detail">
+                <div class="icon">🌬️</div>
+                <div class="value">12 km/h</div>
+                <div class="label">Wind</div>
+            </div>
+            <div class="weather-detail">
+                <div class="icon">👁️</div>
+                <div class="value">10 km</div>
+                <div class="label">Visibility</div>
+            </div>
+        </div>
+    </div>
+    <script>
+        document.getElementById('weatherDate').textContent = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    </script>
+</body>
+</html>

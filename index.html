@@ -942,7 +942,7 @@
             }
 
             // Check if input contains a domain name with common TLDs
-            const domainPattern = /\.(com|org|net|io|gov|edu|int|mil|arpa|co|uk|de|jp|fr|au|ca|ru|br|in|it|nl|se|no|dk|fi|es|pl|be|ch|at|cz|ie|pt|hu|gr|il|cn|hk|kr|sg|mx|ar|cl|pe|ve|uy|py|bo|ec|gt|hn|sv|ni|cr|pa|do|cu|jm|ht|bs|bz|sr|gy|fk|gg|je|im|ai|bm|ky|lc|vc|ag|gd|kn|ms|tc|vg|vi|pr|as|gu|mp|pw|fm|mh|ws|to|vu|sb|nc|pf|wf|ck|nu|tk|pn|nf|cc|cx|hm|aq|gs|tf)$/i;
+            const domainPattern = /\.(com|org|net|io|gov|edu|int|mil|arpa|co|uk|de|jp|fr|au|ca|ru|br|in|it|nl|se|no|dk|fi|es|pl|be|ch|at|cz|ie|pt|hu|gr|il|cn|hk|kr|sg|mx|ar|cl|pe|ve|uy|py|bo|ec|gt|hn|sv|ni|cr|pa|do|cu|jm|ht|bs|bz|sr|gy|fk|gg|je|im|ai|bm|ky|lc|vc|ag|gd|kn|ms|tc|vg|vi|pr|as|gu|mp|pw|fm|mh|ws|to|vu|sb|nc|pf|wf|ck|nu|tk|pn|nf|cc|cx|hm|aq|gs|fun|lol|tf)$/i;
             
             if (domainPattern.test(inputUrl)) {
                 // It's a domain, add https:// if not present
@@ -1254,7 +1254,7 @@
 
             document.getElementById('gamePopup').style.display = 'block';
 
-            const gameUrl = `https://noodlelover1.github.io/coreus-assets/${gamePath}`;
+            const gameUrl = `/static/coreus-assets/${gamePath}`;
             document.getElementById('gameUrlDisplay').textContent = gameUrl;
 
             const gameIframe = document.getElementById('gameIframe');
@@ -1388,7 +1388,7 @@
 
         async function loadTools() {
             try {
-                const response = await fetch('https://cdn.jsdelivr.net/gh/noodlelover1/coreus-assets@main/tools.json');
+                const response = await fetch('/static/coreus-assets/tools.json');
                 const tools = await response.json();
 
                 const toolsGrid = document.getElementById('toolsGrid');
@@ -1415,7 +1415,7 @@
                     `;
 
                     toolCard.innerHTML = `
-                        <img src="https://cdn.jsdelivr.net/gh/noodlelover1/coreus-assets@main/${imagePath}"
+                        <img src="/static/coreus-assets/${imagePath}"
                              alt="${title}"
                              style="width: 150px; height: 150px; object-fit: cover; border-radius: 15px; margin-bottom: 15px; border: 1px solid var(--border-color);"
                              onerror="this.onerror=null; this.src='data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'150\' height=\'150\' viewBox=\'0 0 150 150\'><rect width=\'150\' height=\'150\' fill=\'%23333\'/><text x=\'75\' y=\'85\' font-family=\'Arial\' font-size=\'14\' fill=\'%23fff\' text-anchor=\'middle\'>No Image</text></svg>';">
@@ -1473,7 +1473,7 @@
 
             document.getElementById('gamePopup').style.display = 'block';
 
-            const toolUrl = `https://noodlelover1.github.io/coreus-assets/${toolPath}`;
+            const toolUrl = `/static/coreus-assets/${toolPath}`;
             document.getElementById('gameUrlDisplay').textContent = toolUrl;
 
             const gameIframe = document.getElementById('gameIframe');
@@ -1527,7 +1527,7 @@
 
         async function loadGames() {
             try {
-                const response = await fetch('https://cdn.jsdelivr.net/gh/noodlelover1/coreus-assets@main/games.json');
+                const response = await fetch('/static/coreus-assets/games.json');
                 const games = await response.json();
 
                 console.log('Games data:', games);
@@ -1556,7 +1556,7 @@
                     `;
 
                     gameCard.innerHTML = `
-                        <img src="https://cdn.jsdelivr.net/gh/noodlelover1/coreus-assets@main/${imagePath}"
+                        <img src="/static/coreus-assets/${imagePath}"
                              alt="${title}"
                              style="width: 150px; height: 150px; object-fit: cover; border-radius: 15px; margin-bottom: 15px; border: 1px solid var(--border-color);"
                              onerror="this.onerror=null; this.src='data:image/svg+xml,<svg xmlns=\'http://www.w3.org/2000/svg\' width=\'150\' height=\'150\' viewBox=\'0 0 150 150\'><rect width=\'150\' height=\'150\' fill=\'%23333\'/><text x=\'75\' y=\'85\' font-family=\'Arial\' font-size=\'14\' fill=\'%23fff\' text-anchor=\'middle\'>No Image</text></svg>';">

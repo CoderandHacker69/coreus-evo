@@ -1,0 +1,65 @@
+[
+	{
+		"name": "Conway's Game of Life",
+		"tags": "simulation, biology, tool",
+		"image": "img/life.png",
+		"href": "tools/gameoflife/",
+		"category": "Tools"
+	},
+	{
+		"name": "HTML to data URL",
+		"tags": "tool, convert, developpement",
+		"image": "img/dataurl.png",
+		"href": "tools/dataurl/",
+		"category": "Tools"
+	},
+	{
+		"name": "Ruffle",
+		"tags": "flash, emulator, tool",
+		"image": "img/ruffle.png",
+		"href": "tools/ruffle/",
+		"category": "Tools"
+	},
+	{
+		"name": "Soundboard",
+		"tags": "app, button, myinstants",
+		"image": "img/sounboard.jpeg",
+		"href": "tools/soundboard/",
+		"category": "Tools"
+	},
+	{
+		"name": "XyzOS",
+		"tags": "operating, system, linux",
+		"image": "img/xyzos.svg",
+		"href": "tools/xyzos/",
+		"category": "Tools"
+	},
+	{
+		"name": "Zdit",
+		"tags": "tool, code, html",
+		"image": "img/zdit.png",
+		"href": "tools/zdit/",
+		"category": "Tools"
+	},
+	{
+		"name": "Helios",
+		"tags": "proxy, browser, web",
+		"image": "img/helios.ico",
+		"href": "tools/helios/src/",
+		"category": "Tools"
+	},
+	{
+		"name": "NautilusOS",
+		"tags": "operating, system, linux, emulator",
+		"image": "img/nautilus.png",
+		"href": "tools/nautilus/src/",
+		"category": "Tools"
+	},
+	{
+		"name": "Physix",
+		"tags": "simulator, engine, sandbox",
+		"image": "img/physix.png",
+		"href": "tools/physix/",
+		"category": "Tools"
+	}
+]

@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Music Player</title>
+    <style>
+        .music-app { height: 100%; display: flex; flex-direction: column; }
+        .music-sidebar { display: flex; background: #1e293b; border-bottom: 1px solid #334155; padding: 0.5rem; overflow-x: auto; }
+        .music-nav-item { padding: 0.5rem 1rem; cursor: pointer; color: #94a3b8; white-space: nowrap; border-radius: 6px; }
+        .music-nav-item:hover { background: #334155; color: #f8fafc; }
+        .music-nav-item.active { background: #6366f1; color: white; }
+        .music-main { flex: 1; padding: 1.5rem; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+        .music-player { background: #1e293b; border-radius: 16px; padding: 2rem; text-align: center; width: 100%; max-width: 350px; }
+        .music-album-art { font-size: 8rem; margin-bottom: 1rem; }
+        .music-title { font-size: 1.5rem; font-weight: 600; margin-bottom: 0.25rem; }
+        .music-artist { color: #94a3b8; margin-bottom: 1rem; }
+        .music-controls { display: flex; justify-content: center; gap: 1rem; margin-bottom: 1rem; }
+        .music-controls button { width: 50px; height: 50px; border: none; border-radius: 50%; background: #6366f1; color: white; font-size: 1.25rem; cursor: pointer; touch-action: manipulation; transition: transform 0.2s; }
+        .music-controls button:active { transform: scale(0.9); }
+        .music-controls .play-btn { width: 70px; height: 70px; font-size: 1.75rem; }
+        .music-progress { display: flex; align-items: center; gap: 0.5rem; margin-top: 1rem; }
+        .music-progress-bar { flex: 1; height: 4px; background: #334155; border-radius: 2px; overflow: hidden; }
+        .music-progress-fill { height: 100%; width: 35%; background: #6366f1; }
+        @media (max-width: 400px) {
+            .music-player { padding: 1.5rem; }
+            .music-album-art { font-size: 6rem; }
+            .music-controls button { width: 45px; height: 45px; }
+            .music-controls .play-btn { width: 60px; height: 60px; }
+        }
+    </style>
+</head>
+<body>
+    <div class="music-app">
+        <div class="music-sidebar">
+            <div class="music-nav-item active">🎵 All Songs</div>
+            <div class="music-nav-item">❤️ Favorites</div>
+            <div class="music-nav-item">📀 Albums</div>
+            <div class="music-nav-item">👤 Artists</div>
+        </div>
+        <div class="music-main">
+            <div class="music-player">
+                <div class="music-album-art">🎵</div>
+                <div class="music-title">No Track Selected</div>
+                <div class="music-artist">Unknown Artist</div>
+                <div class="music-controls">
+                    <button>⏮️</button>
+                    <button class="play-btn" id="playBtn">▶️</button>
+                    <button>⏭️</button>
+                </div>
+                <div class="music-progress">
+                    <span style="font-size: 0.75rem; color: #94a3b8;">1:23</span>
+                    <div class="music-progress-bar">
+                        <div class="music-progress-fill"></div>
+                    </div>
+                    <span style="font-size: 0.75rem; color: #94a3b8;">3:45</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script>
+        const playBtn = document.getElementById('playBtn');
+        let playing = false;
+        playBtn.addEventListener('click', () => {
+            playing = !playing;
+            playBtn.textContent = playing ? '⏸️' : '▶️';
+        });
+        
+        document.querySelectorAll('.music-nav-item').forEach((item, index) => {
+            item.addEventListener('click', () => {
+                document.querySelectorAll('.music-nav-item').forEach(i => i.classList.remove('active'));
+                item.classList.add('active');
+            });
+        });
+    </script>
+</body>
+</html>

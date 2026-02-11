@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Snake Game</title>
+    <style>
+        .snake-app { height: 100%; display: flex; flex-direction: column; align-items: center; background: #0f172a; padding: 1rem; }
+        .snake-score { font-size: 1.5rem; margin-bottom: 0.5rem; }
+        .snake-canvas-wrapper { position: relative; }
+        #snakeCanvas { border: 2px solid #6366f1; border-radius: 8px; touch-action: none; }
+        .snake-controls { display: none; margin-top: 1rem; gap: 0.5rem; }
+        @media (max-width: 500px) {
+            .snake-controls { display: grid; grid-template-columns: repeat(3, 60px); }
+        }
+        .snake-btn { width: 60px; height: 60px; border: none; border-radius: 12px; background: #334155; color: #f8fafc; font-size: 1.5rem; cursor: pointer; touch-action: manipulation; }
+        .snake-btn:active { background: #6366f1; }
+        .snake-instructions { margin-top: 0.5rem; color: #94a3b8; font-size: 0.875rem; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="snake-app">
+        <div class="snake-score">Score: <span id="snakeScore">0</span></div>
+        <div class="snake-canvas-wrapper">
+            <canvas id="snakeCanvas" width="350" height="350"></canvas>
+        </div>
+        <div class="snake-controls">
+            <button class="snake-btn" data-dir="up">⬆️</button>
+            <button class="snake-btn" data-dir="left">⬅️</button>
+            <button class="snake-btn" data-dir="down">⬇️</button>
+            <button class="snake-btn" data-dir="right">➡️</button>
+        </div>
+        <div class="snake-instructions">Use arrow keys or buttons to move. Tap canvas to start.</div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

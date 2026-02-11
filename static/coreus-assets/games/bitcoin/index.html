@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Bitcoin Clicker</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="particles" id="particles"></div>
+  <div class="floating-miners" id="floating-miners"></div>
+
+  <div id="main">
+    <div class="header-glow"></div>
+    <div class="header-icon">
+      <object type="image/svg+xml" data="icon.svg" width="80" height="80"></object>
+    </div>
+    <h1>Bitcoin Clicker</h1>
+    <p class="subtitle">Made with 💩 and tears by <a href="https://vrtx-lgc.vercel.app" style="color: #888;">Vortex Legacy</a></p>
+    
+    <div id="btc-display">
+      <div class="btc-icon">₿</div>
+      <span id="btc-amount">0.00</span>
+      <span class="btc-label">BTC</span>
+    </div>
+    
+    <div class="stats-bar">
+      <div class="stat">
+        <span class="stat-label">Per Click:</span>
+        <span id="btc-per-click" class="stat-value">1.00</span>
+      </div>
+      <div class="stat">
+        <span class="stat-label">Per Second:</span>
+        <span id="btc-per-sec" class="stat-value">0.00</span>
+      </div>
+    </div>
+
+    <button id="click-btn">
+      <span class="btn-icon">⛏️</span>
+      <span class="btn-text">MINE BITCOIN</span>
+      <div class="btn-shine"></div>
+    </button>
+
+    <div class="achievement-popup" id="achievement-popup"></div>
+
+    <h2>🛒 Upgrades Shop 🛒</h2>
+    <div id="shop"></div>
+
+    <div class="achievements-section">
+      <h3>🏆 Achievements <span id="achievement-count">0/15</span></h3>
+      <div id="achievements-list"></div>
+    </div>
+  </div>
+
+  <div class="control-panel">
+    <button id="save-btn" class="control-btn">💾 Save</button>
+    <button id="load-btn" class="control-btn">📂 Load</button>
+    <button id="reset-btn" class="control-btn">🗑️ Reset</button>
+  </div>
+
+  <div class="prestige-section" id="prestige-section" style="display:none;">
+    <button id="prestige-btn">
+      🌟 PRESTIGE 🌟<br>
+      <small>Reset for <span id="prestige-bonus">0</span>% bonus</small>
+    </button>
+  </div>
+
+  <script src="script.js"></script>
+</body>
+</html>

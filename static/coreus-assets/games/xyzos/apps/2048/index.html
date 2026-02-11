@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2048</title>
+    <style>
+        .game2048-app { height: 100%; padding: 1rem; background: #bbada0; display: flex; flex-direction: column; align-items: center; }
+        .game2048-header { display: flex; justify-content: space-between; width: 100%; max-width: 320px; margin-bottom: 1rem; }
+        .game2048-title { font-size: 1.5rem; font-weight: bold; color: #776e65; }
+        .game2048-score-box { background: #bbada0; padding: 0.5rem 1rem; border-radius: 6px; text-align: center; }
+        .game2048-score-label { color: #eee4da; font-size: 0.75rem; }
+        .game2048-score-value { color: white; font-weight: bold; }
+        .game2048-grid { display: grid; grid-template-columns: repeat(4, 70px); gap: 8px; background: #bbada0; padding: 8px; border-radius: 8px; }
+        .game2048-cell { width: 70px; height: 70px; background: rgba(238, 228, 218, 0.35); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold; }
+    </style>
+</head>
+<body>
+    <div class="game2048-app">
+        <div class="game2048-header">
+            <div class="game2048-title">2048</div>
+            <div class="game2048-score-box">
+                <div class="game2048-score-label">SCORE</div>
+                <div class="game2048-score-value" id="game2048Score">0</div>
+            </div>
+        </div>
+        <div class="game2048-grid" id="game2048Grid"></div>
+        <p style="color: #776e65; margin-top: 1rem; font-size: 0.875rem;">Use arrow keys or swipe to play</p>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

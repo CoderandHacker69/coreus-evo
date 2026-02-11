@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gallery</title>
+    <style>
+        .gallery-app { height: 100%; display: flex; flex-direction: column; }
+        .gallery-toolbar { display: flex; gap: 0.5rem; padding: 0.75rem; background: #1e293b; border-bottom: 1px solid #334155; flex-wrap: wrap; }
+        .gallery-toolbar button { padding: 0.5rem 1rem; border: none; border-radius: 6px; background: #334155; color: #f8fafc; cursor: pointer; touch-action: manipulation; font-size: 0.875rem; }
+        .gallery-toolbar button:active { background: #6366f1; }
+        .gallery-content { flex: 1; padding: 1rem; overflow-y: auto; }
+        .gallery-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 0.5rem; }
+        .gallery-item { aspect-ratio: 1; background: #1e293b; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; cursor: pointer; touch-action: manipulation; transition: transform 0.2s; }
+        .gallery-item:active { transform: scale(0.95); }
+        @media (max-width: 400px) {
+            .gallery-grid { grid-template-columns: repeat(4, 1fr); gap: 0.25rem; }
+            .gallery-item { font-size: 2rem; border-radius: 4px; }
+            .gallery-toolbar button { padding: 0.5rem 0.75rem; font-size: 0.75rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="gallery-app">
+        <div class="gallery-toolbar">
+            <button>📁 New</button>
+            <button>🗑️ Delete</button>
+            <button>⬆️ Upload</button>
+            <button>🔄 Refresh</button>
+        </div>
+        <div class="gallery-content">
+            <div class="gallery-grid" id="galleryGrid">
+                ${[...Array(16)].map((_, i) => `<div class="gallery-item" onclick="GalleryApp.openPhoto(${i})">🖼️</div>`).join('')}
+            </div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

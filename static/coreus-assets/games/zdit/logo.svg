@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+  <defs>
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1a2e"/>
+      <stop offset="100%" style="stop-color:#16213e"/>
+    </linearGradient>
+    <linearGradient id="accentGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#6366f1"/>
+      <stop offset="100%" style="stop-color:#818cf8"/>
+    </linearGradient>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="512" height="512" rx="64" fill="url(#bgGrad)"/>
+  
+  <!-- Code brackets -->
+  <g fill="none" stroke="url(#accentGrad)" stroke-width="32" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Left bracket -->
+    <path d="M176 128 L96 256 L176 384"/>
+    <!-- Right bracket -->
+    <path d="M336 128 L416 256 L336 384"/>
+  </g>
+  
+  <!-- Z letter -->
+  <g fill="url(#accentGrad)">
+    <path d="M200 200 L312 200 L312 224 L244 224 L244 248 L304 248 L304 272 L244 272 L244 312 L200 312 L200 200 Z"/>
+  </g>
+  
+  <!-- Cursor/Line -->
+  <rect x="320" y="208" width="48" height="16" rx="4" fill="#22c55e"/>
+  <rect x="320" y="240" width="32" height="16" rx="4" fill="#f59e0b"/>
+  <rect x="320" y="272" width="40" height="16" rx="4" fill="#6366f1"/>
+</svg>

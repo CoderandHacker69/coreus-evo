@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>File Manager</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; overflow: hidden; }
+        .files-app { height: 100%; display: flex; touch-action: manipulation; }
+        .files-sidebar { width: 140px; background: #1e293b; border-right: 1px solid #334155; padding: 0.5rem 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+        .files-nav-item { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1rem; cursor: pointer; color: #94a3b8; transition: all 0.2s; font-size: 0.875rem; }
+        .files-nav-item:hover { background: #334155; color: #f8fafc; }
+        .files-nav-item.active { background: #6366f1; color: white; }
+        .files-main { flex: 1; display: flex; flex-direction: column; min-width: 0; }
+        .files-toolbar { display: flex; gap: 0.5rem; padding: 0.75rem; background: #1e293b; border-bottom: 1px solid #334155; flex-wrap: wrap; }
+        .files-toolbar button { padding: 0.5rem 1rem; border: none; border-radius: 6px; background: #334155; color: #f8fafc; cursor: pointer; font-size: 0.875rem; transition: all 0.2s; min-height: 44px; }
+        .files-toolbar button:hover { background: #475569; }
+        .files-toolbar button:active { background: #6366f1; transform: scale(0.98); }
+        .files-path { padding: 0.5rem 1rem; background: #0f172a; color: #94a3b8; font-family: monospace; font-size: 0.875rem; border-bottom: 1px solid #334155; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+        .files-grid { flex: 1; padding: 1rem; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 0.5rem; align-content: start; -webkit-overflow-scrolling: touch; }
+        .file-item { display: flex; flex-direction: column; align-items: center; padding: 0.75rem; border-radius: 8px; cursor: pointer; transition: all 0.2s; min-height: 44px; }
+        .file-item:hover { background: #334155; }
+        .file-item.selected { background: #6366f1; }
+        .file-item .icon { font-size: 2.5rem; margin-bottom: 0.25rem; }
+        .file-item .name { font-size: 0.75rem; text-align: center; word-break: break-word; max-width: 100%; }
+        @media (max-width: 600px) {
+            .files-app { flex-direction: column; }
+            .files-sidebar { width: 100%; display: flex; overflow-x: auto; padding: 0.5rem; border-right: none; border-bottom: 1px solid #334155; }
+            .files-nav-item { white-space: nowrap; padding: 0.5rem 0.75rem; }
+            .files-toolbar { padding: 0.5rem; gap: 0.25rem; }
+            .files-toolbar button { padding: 0.5rem 0.75rem; font-size: 0.8rem; }
+            .files-grid { grid-template-columns: repeat(auto-fill, minmax(60px, 1fr)); padding: 0.5rem; }
+            .file-item { padding: 0.5rem; }
+            .file-item .icon { font-size: 2rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="files-app">
+        <div class="files-sidebar">
+            <div class="files-nav-item active" data-path="~">🏠 Home</div>
+            <div class="files-nav-item" data-path="~/Documents">📄 Documents</div>
+            <div class="files-nav-item" data-path="~/Downloads">⬇️ Downloads</div>
+            <div class="files-nav-item" data-path="~/Pictures">🖼️ Pictures</div>
+            <div class="files-nav-item" data-path="~/Music">🎵 Music</div>
+            <div class="files-nav-item" data-path="~/Videos">🎬 Videos</div>
+        </div>
+        <div class="files-main">
+            <div class="files-toolbar">
+                <button id="newFolderBtn">📁 New</button>
+                <button id="deleteBtn">🗑️</button>
+                <button id="refreshBtn">🔄</button>
+                <button id="goUpBtn">⬆️</button>
+            </div>
+            <div class="files-path" id="currentPath">/home/user</div>
+            <div class="files-grid" id="filesGrid"></div>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

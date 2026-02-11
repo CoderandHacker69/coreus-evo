@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Terminal</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body { height: 100%; overflow: hidden; }
+        .terminal-app { height: 100%; display: flex; flex-direction: column; background: #0f172a; touch-action: manipulation; }
+        .terminal-output { flex: 1; padding: 1rem; overflow-y: auto; font-family: 'Consolas', monospace; font-size: 0.875rem; -webkit-overflow-scrolling: touch; }
+        .terminal-line { margin-bottom: 0.25rem; word-break: break-all; }
+        .terminal-line.error { color: #ef4444; }
+        .terminal-line.success { color: #22c55e; }
+        .terminal-line.info { color: #0ea5e9; }
+        .terminal-line.command { color: #8b5cf6; }
+        .terminal-input-line { display: flex; align-items: center; padding: 0.75rem 1rem; background: #1e293b; border-top: 1px solid #334155; min-height: 52px; }
+        .terminal-prompt { color: #22c55e; margin-right: 0.5rem; font-size: 0.875rem; white-space: nowrap; }
+        .terminal-input { flex: 1; background: transparent; border: none; color: #f8fafc; font-family: inherit; font-size: inherit; outline: none; min-width: 0; }
+        .mobile-keyboard-hint {
+            display: none;
+            padding: 1rem;
+            text-align: center;
+            background: #1e293b;
+            color: #94a3b8;
+            font-size: 0.875rem;
+            cursor: pointer;
+            border-top: 1px solid #334155;
+        }
+        .mobile-keyboard-hint:active { background: #334155; }
+        @media (max-width: 768px) {
+            .terminal-output { font-size: 0.8rem; padding: 0.75rem; }
+            .terminal-input-line { padding: 0.5rem 0.75rem; min-height: 48px; }
+            .terminal-prompt { font-size: 0.8rem; }
+            .terminal-input { font-size: 0.8rem; }
+            .mobile-keyboard-hint { display: block; }
+        }
+    </style>
+</head>
+<body>
+    <div class="terminal-app">
+        <div class="terminal-output" id="terminalOutput"></div>
+        <div class="terminal-input-line">
+            <span class="terminal-prompt" id="terminalPrompt">user@xyzos:~$</span>
+            <input type="text" id="terminalInput" class="terminal-input" autofocus enterkeyhint="go" inputmode="text" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false">
+        </div>
+        <div class="mobile-keyboard-hint" id="terminalKeyboardHint" onclick="focusTerminalInput()">
+            Tap here to show keyboard
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

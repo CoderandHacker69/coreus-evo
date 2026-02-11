@@ -1,0 +1,821 @@
+[
+	{
+		"name": "1 (Reversed 2048)",
+		"tags": "2048, reversed",
+		"image": "img/1.webp",
+		"href": "games/1/",
+		"category": "Puzzle"
+	},
+	{
+		"name": "99 Balls Evo",
+		"tags": "brick, arcade",
+		"image": "img/99balls.png",
+		"href": "games/99balls/",
+		"category": "Casual"
+	},
+	{
+		"name": "A Small World Cup",
+		"tags": "pixel, football, sport",
+		"image": "img/aswc.jpg",
+		"href": "games/aswc/",
+		"category": "Sports"
+	},
+	{
+		"name": "Adventure Drivers",
+		"tags": "driving, multiplayer, racing",
+		"image": "img/adventuredrivers.avif",
+		"href": "games/adventuredrivers/",
+		"category": "Racing"
+	},
+	{
+		"name": "Ages of Conflict",
+		"tags": "war, map, territory, strategy",
+		"image": "img/aoconflict.png",
+		"href": "games/agesofconflict/",
+		"category": "Strategy"
+	},
+	{
+		"name": "Among Us",
+		"tags": "amongus, social",
+		"image": "img/amongus.webp",
+		"href": "games/amongus/",
+		"category": "Social"
+	},
+	{
+		"name": "A Dance Of Fire And Ice",
+		"tags": "fire, dance, ice, rhythm",
+		"image": "img/adofai.ico",
+		"href": "games/adofai/",
+		"category": "Rhythm"
+	},
+	{
+		"name": "Arcane Archer",
+		"tags": "fight, arrow, 3d",
+		"image": "img/aarcher.png",
+		"href": "games/arcanearcher/",
+		"category": "Action"
+	},
+	{
+		"name": "Ball Blast",
+		"tags": "blast, ball, casual",
+		"image": "img/ballblast.png",
+		"href": "games/ballblast/",
+		"category": "Casual"
+	},
+	{
+		"name": "Ball Sort",
+		"tags": "water, tube, puzzle",
+		"image": "img/ballsort.png",
+		"href": "games/ballsort/",
+		"category": "Puzzle"
+	},
+	{
+		"name": "Basket and Ball",
+		"tags": "sport, casual",
+		"image": "img/bab.jpg",
+		"href": "games/basketandball/",
+		"category": "Sports"
+	},
+	{
+		"name": "Basket Battle",
+		"tags": "sport, ball, casual",
+		"image": "img/basketbattle.webp",
+		"href": "games/basketbattle/",
+		"category": "Sports"
+	},
+	{
+		"name": "Battle Simulator",
+		"tags": "battle, simulator, casual",
+		"image": "img/battlesim.webp",
+		"href": "games/battlesim/",
+		"category": "Simulation"
+	},
+	{
+		"name": "Bazooka Boy",
+		"tags": "boom, fight, casual",
+		"image": "img/bazboy.webp",
+		"href": "games/bazboy/",
+		"category": "Casual"
+	},
+	{
+		"name": "Bitcoin Clicker",
+		"tags": "money, clicker, idle",
+		"image": "img/btclicker.svg",
+		"href": "games/bitcoin/",
+		"category": "Idle"
+	},
+	{
+		"name": "Blaze Drifter",
+		"tags": "blaze, drifter, racing, drift, 3d",
+		"image": "img/blazedrifter.jpeg",
+		"href": "games/blazedrifter/",
+		"category": "Racing"
+	},
+	{
+		"name": "Block Blast",
+		"tags": "tetris, puzzle, chalenging",
+		"image": "img/blockblast.png",
+		"href": "games/blockblast/",
+		"category": "Puzzle"
+	},
+	{
+		"name": "Blocky Snakes",
+		"tags": "snake, block, online",
+		"image": "img/blockysnakes.PNG",
+		"href": "games/blockysnakes/",
+		"category": "Casual"
+	},
+	{
+		"name": "Blumgi Castle",
+		"tags": "dungeon, bomb, wtf",
+		"image": "img/bcastle.jpg",
+		"href": "games/blumgicastle/",
+		"category": "Casual"
+	},
+	{
+		"name": "Blumgi Paintball",
+		"tags": "gun, fight, slime",
+		"image": "img/blpaintball.avif",
+		"href": "games/blumgipaintball/",
+		"category": "Action"
+	},
+	{
+		"name": "Blumgi Slime",
+		"tags": "ball, jump, slime",
+		"image": "img/bslime.avif",
+		"href": "games/blumgislime/",
+		"category": "Casual"
+	},
+	{
+		"name": "Bottle Jump 3D",
+		"tags": "3d, timing, casual",
+		"image": "img/bottlejump.png",
+		"href": "games/bottlejump",
+		"category": "Casual"
+	},
+	{
+		"name": "Bouncemasters",
+		"tags": "jump, pinguin, casual",
+		"image": "img/bouncemasters.webp",
+		"href": "games/bouncemasters/",
+		"category": "Casual"
+	},
+	{
+		"name": "Burger Bounty",
+		"tags": "cooking, management, restaurant",
+		"image": "img/burgerb.webp",
+		"href": "games/burgerbounty/",
+		"category": "Idle"
+	},
+	{
+		"name": "Burrito Bison",
+		"tags": "mexico, taco, el primo",
+		"image": "img/bbison.png",
+		"href": "games/burritobison/",
+		"category": "Casual"
+	},
+	{
+		"name": "Car Drawing",
+		"tags": "car, 2d, casual",
+		"image": "img/cardrawing.webp",
+		"href": "games/cardrawing/",
+		"category": "Casual"
+	},
+	{
+		"name": "Cat Gunner - Super Zombie Shoot",
+		"tags": "fight, kitty, pixel",
+		"image": "img/catgunner.jpeg",
+		"href": "games/catgunner/",
+		"category": "Action"
+	},
+	{
+		"name": "Catpad",
+		"tags": "tablet, kitty, minigames",
+		"image": "img/catpad.jpg",
+		"href": "games/catpad/",
+		"category": "Casual"
+	},
+	{
+		"name": "Cell Machine",
+		"tags": "puzzle, mod, grid",
+		"image": "img/cellmachine.jpg",
+		"href": "games/cellmachine/",
+		"category": "Puzzle"
+	},
+	{
+		"name": "Chrome Dino",
+		"tags": "dinosaur, google, casual",
+		"image": "img/dino.jpg",
+		"href": "games/chromedino/",
+		"category": "Casual"
+	},
+	{
+		"name": "Clash of Vikings",
+		"tags": "battle, cards, royale",
+		"image": "img/vikings.jpeg",
+		"href": "games/clashofvikings/",
+		"category": "Action"
+	},
+	{
+		"name": "Connect 3",
+		"tags": "merge, puzzle, casual",
+		"image": "img/connect3.png",
+		"href": "games/connect3/",
+		"category": "Puzzle"
+	},
+	{
+		"name": "Cookie Clicker",
+		"tags": "cookie, clicker, idle",
+		"image": "img/cookieclicker.png",
+		"href": "games/cookieclicker/docs/",
+		"category": "Idle"
+	},
+	{
+		"name": "Core Ball",
+		"tags": "hit, knife, casual",
+		"image": "img/coreball.png",
+		"href": "games/coreball/",
+		"category": "Casual"
+	},
+	{
+		"name": "Craftmine",
+		"tags": "pixel, minecraft, adventure",
+		"image": "img/craftmine.jpg",
+		"href": "games/craftmine/",
+		"category": "Adventure"
+	},
+	{
+		"name": "Cut The Rope",
+		"tags": "cut the rope, puzzle",
+		"image": "img/cuttherope.png",
+		"href": "games/cuttherope/",
+		"category": "Puzzle"
+	},
+	{
+		"name": "Dadish",
+		"tags": "pixel, platformer, adventure",
+		"image": "img/dadish.jpg",
+		"href": "games/dadish/",
+		"category": "Adventure"
+	},
+	{
+		"name": "Dragons vs Bricks",
+		"tags": "snake, casual, ice, voodoo",
+		"image": "img/dragonbricks.jpeg",
+		"href": "games/dragonvsbricks/",
+		"category": "Casual"
+	},
+	{
+		"name": "Draw Climber",
+		"tags": "draw, climber, casual",
+		"image": "img/drawclimber.jpeg",
+		"href": "games/drawclimber/",
+		"category": "Casual"
+	},
+	{
+		"name": "Draw the Hill",
+		"tags": "draw, car, casual",
+		"image": "img/dthill.png",
+		"href": "games/drawthehill/",
+		"category": "Casual"
+	},
+	{
+		"name": "Drift Boss",
+		"tags": "drift, boss, racing, drift",
+		"image": "img/driftboss.jpeg",
+		"href": "games/driftboss/",
+		"category": "Racing"
+	},
+	{
+		"name": "Drive Mad",
+		"tags": "drive, mad, casual",
+		"image": "img/drivemad.png",
+		"href": "games/drivemadx/",
+		"category": "Racing"
+	},
+	{
+		"name": "Driven Wild",
+		"tags": "racing, casual, retro",
+		"image": "img/drvwild.jpg",
+		"href": "games/drivenwild/",
+		"category": "Racing"
+	},
+	{
+		"name": "Ducklings.io",
+		"tags": "water, io",
+		"image": "img/ducklings.webp",
+		"href": "games/ducklings/",
+		"category": "Casual"
+	},
+	{
+		"name": "Edge Surf",
+		"tags": "browser, pixel, endless",
+		"image": "img/surf.jpg",
+		"href": "games/edgesurf/",
+		"category": "Casual"
+	},
+	{
+		"name": "Eggy Car",
+		"tags": "casual, hill, truck",
+		"image": "img/eggy-car.png",
+		"href": "games/eggycar/",
+		"category": "Casual"
+	},
+	{
+		"name": "Final Earth 2",
+		"tags": "final earth, earth, strategy",
+		"image": "img/finalearth.png",
+		"href": "games/finalearth/",
+		"category": "Strategy"
+	},
+	{
+		"name": "Fruit Ninja",
+		"tags": "fruit, ninja",
+		"image": "img/fninja.webp",
+		"href": "games/fninja/",
+		"category": "Casual"
+	},
+	{
+		"name": "G-Switch",
+		"tags": "platformer, gravity",
+		"image": "img/gswitch.webp",
+		"href": "games/gswitch/",
+		"category": "Casual"
+	},
+	{
+		"name": "Geometry Dash",
+		"tags": "geometry, dash, rhythm",
+		"image": "img/gdash.png",
+		"href": "games/gdash/",
+		"category": "Rhythm"
+	},
+	{
+		"name": "Gobble",
+		"tags": "3d, casual",
+		"image": "img/gobble.webp",
+		"href": "games/gobble",
+		"category": "Casual"
+	},
+	{
+		"name": "Going Balls",
+		"tags": "ball, ramp",
+		"image": "img/goingballs.webp",
+		"href": "games/goingballs/",
+		"category": "Casual"
+	},
+	{
+		"name": "Google Baseball",
+		"tags": "doodle, sport, burger",
+		"image": "img/gbaseball.png",
+		"href": "games/googlebaseball/",
+		"category": "Sports"
+	},
+	{
+		"name": "Grindcraft",
+		"tags": "minecraft, casual, idle",
+		"image": "img/grindcraft.jpg",
+		"href": "games/grindcraft/",
+		"category": "Idle"
+	},
+	{
+		"name": "Gunspin",
+		"tags": "gun, spin, shooting",
+		"image": "img/gunspin.png",
+		"href": "games/gunspin/",
+		"category": "Action"
+	},
+	{
+		"name": "Hextris",
+		"tags": "challenging, puzzle, tetris",
+		"image": "img/hextris.png",
+		"href": "games/hextris/",
+		"category": "Puzzle"
+	},
+	{
+		"name": "Hide and Smash",
+		"tags": "seek, 3d",
+		"image": "img/hidesmash.png",
+		"href": "games/hideandsmash/",
+		"category": "Casual"
+	},
+	{
+		"name": "Hill Climb Racing",
+		"tags": "casual, racing",
+		"image": "img/hcr.jpeg",
+		"href": "games/hcr/",
+		"category": "Racing"
+	},
+	{
+		"name": "Idle Breakout",
+		"tags": "breakout, idle",
+		"image": "img/breakout.webp",
+		"href": "games/breakout/",
+		"category": "Idle"
+	},
+	{
+		"name": "Idle Dice",
+		"tags": "idle, tycoon, random",
+		"image": "img/dice.webp",
+		"href": "games/idledice/",
+		"category": "Idle"
+	},
+	{
+		"name": "Idle Lumber Inc.",
+		"tags": "idle, tycoon, 3d",
+		"image": "img/lumber.jpeg",
+		"href": "games/idlelumber/",
+		"category": "Idle"
+	},
+	{
+		"name": "Idle Miner Tycoon",
+		"tags": "idle, miner, tycoon",
+		"image": "img/miner.png",
+		"href": "games/idleminer/",
+		"category": "Idle"
+	},
+	{
+		"name": "Idle Restaurants Tycoon",
+		"tags": "idle, cooking, dish",
+		"image": "img/idlerestaurants.jpeg",
+		"href": "games/idlerestaurants/",
+		"category": "Idle"
+	},
+	{
+		"name": "Idle Tree City",
+		"tags": "idle, ecology, forest",
+		"image": "img/treecity.webp",
+		"href": "games/treecity/",
+		"category": "Idle"
+	},
+	{
+		"name": "Jetpack Joyride",
+		"tags": "jetpack, joyride, running",
+		"image": "img/jetpack.png",
+		"href": "games/jetpack/",
+		"category": "Casual"
+	},
+	{
+		"name": "Jetski Race",
+		"tags": "jetski, racing, casual",
+		"image": "img/jetskirace.jpg",
+		"href": "games/jetskirace/",
+		"category": "Racing"
+	},
+	{
+		"name": "Johnny Trigger",
+		"tags": "johnny, trigger, shooting",
+		"image": "img/johnnytrigger.jpeg",
+		"href": "games/johnnytrigger/",
+		"category": "Action"
+	},
+	{
+		"name": "Jumping Shell",
+		"tags": "jumping, shell",
+		"image": "img/jumpingshell.jpeg",
+		"href": "games/jumpingshell/",
+		"category": "Casual"
+	},
+	{
+		"name": "Kitty Toy",
+		"tags": "cute, cat, idle",
+		"image": "img/kitty.webp",
+		"href": "games/kittytoy/",
+		"category": "Idle"
+	},
+	{
+		"name": "Lazy Jump 3D",
+		"tags": "sleep, boy, 3D",
+		"image": "img/lazyjump.png",
+		"href": "games/lazyjump3d/",
+		"category": "Casual"
+	},
+	{
+		"name": "Level Devil",
+		"tags": "level, devil, puzzle",
+		"image": "img/leveldevil.jpeg",
+		"href": "games/leveldevil/",
+		"category": "Puzzle"
+	},
+	{
+		"name": "Little Alchemy 2",
+		"tags": "infinitecraft, merge, puzzle",
+		"image": "img/lilalchemy.png",
+		"href": "games/littlealchemy/",
+		"category": "Puzzle"
+	},
+	{
+		"name": "Minecraft Pix Launcher",
+		"tags": "minecraft, block, eaglercraft",
+		"image": "img/minecraft.jpeg",
+		"href": "games/pixlauncher/",
+		"category": "Adventure"
+	},
+	{
+		"name": "Mini Shooters",
+		"tags": "mini, shooters, arcarde",
+		"image": "img/minishooters.webp",
+		"href": "games/minishooters/",
+		"category": "Action"
+	},
+	{
+		"name": "Monkey Mart",
+		"tags": "monkey, mart, simulation",
+		"image": "img/monkeymart.png",
+		"href": "games/monkeymart/",
+		"category": "Simulation"
+	},
+	{
+		"name": "Monster Tracks",
+		"tags": "car, hill, bounce",
+		"image": "img/monstert.png",
+		"href": "games/monstertracks/",
+		"category": "Racing"
+	},
+	{
+		"name": "Moto X3M",
+		"tags": "moto, x3m, racing",
+		"image": "img/motox3m.webp",
+		"href": "games/motox3m2/",
+		"category": "Racing"
+	},
+	{
+		"name": "Mr Racer",
+		"tags": "highway, car, racing",
+		"image": "img/mrracer.png",
+		"href": "games/mrracer/",
+		"category": "Racing"
+	},
+	{
+		"name": "Odd Bot Out",
+		"tags": "platformer, casual, 2d",
+		"image": "img/oddbotout.jpg",
+		"href": "games/oddbotout/",
+		"category": "Casual"
+	},
+	{
+		"name": "Papa's Pizzeria",
+		"tags": "papa's, pizzeria, cooking",
+		"image": "img/pizzeria.png",
+		"href": "games/papaspizzeria/",
+		"category": "Casual"
+	},
+	{
+		"name": "Paper.io 2",
+		"tags": "io, online, strategy",
+		"image": "img/paperio.jpeg",
+		"href": "games/paperio/",
+		"category": "Strategy"
+	},
+	{
+		"name": "Planet Life",
+		"tags": "pixel, idle",
+		"image": "img/plife.webp",
+		"href": "games/planetlife/",
+		"category": "Idle"
+	},
+	{
+		"name": "Polytrack",
+		"tags": "3d, casual, racing",
+		"image": "img/polytrack.jpg",
+		"href": "games/polytrackx/",
+		"category": "Racing"
+	},
+	{
+		"name": "Ragdoll Archers",
+		"tags": "ragdoll, archers, skill",
+		"image": "img/ragdollarchers.png",
+		"href": "games/ragdollarchers/",
+		"category": "Action"
+	},
+	{
+		"name": "Ragdoll Hit",
+		"tags": "ragdoll, hit, skill",
+		"image": "img/raghit.jpeg",
+		"href": "games/raghit/",
+		"category": "Action"
+	},
+	{
+		"name": "Recoil",
+		"tags": "3d, gun, casual",
+		"image": "img/recoil.avif",
+		"href": "games/recoil/",
+		"category": "Action"
+	},
+	{
+		"name": "Revolution Idle",
+		"tags": "revolution, tycoon, idle",
+		"image": "img/revidle.jpeg",
+		"href": "games/revidle/",
+		"category": "Idle"
+	},
+	{
+		"name": "Rolly Vortex",
+		"tags": "casual, vortex, ball",
+		"image": "img/rollyvortex.webp",
+		"href": "games/rollyvortex/",
+		"category": "Casual"
+	},
+	{
+		"name": "Sandboxels",
+		"tags": "sandboxels, sand, puzzle",
+		"image": "img/sandboxels.webp",
+		"href": "games/sandboxels/",
+		"category": "Puzzle"
+	},
+	{
+		"name": "ShootZ",
+		"tags": "sniper, 3d, action",
+		"image": "img/shootz.png",
+		"href": "games/shootz/",
+		"category": "Action"
+	},
+	{
+		"name": "Slice It All",
+		"tags": "knife, casual, action",
+		"image": "img/slice.jpeg",
+		"href": "games/slice/",
+		"category": "Action"
+	},
+	{
+		"name": "Snowball.io",
+		"tags": "snowball, io, arcade",
+		"image": "img/snowball.jpeg",
+		"href": "games/snowballio/",
+		"category": "Casual"
+	},
+	{
+		"name": "Solar Smash",
+		"tags": "destruction, galaxy, planet, rocket, laser",
+		"image": "img/solarsmash.png",
+		"href": "games/solarsmash/",
+		"category": "Casual"
+	},
+	{
+		"name": "Stack",
+		"tags": "stack, reflex",
+		"image": "img/stack.png",
+		"href": "games/stack/",
+		"category": "Casual"
+	},
+	{
+		"name": "Stackball",
+		"tags": "stack, ball, casual",
+		"image": "img/stackball.jpeg",
+		"href": "games/stackball/",
+		"category": "Casual"
+	},
+	{
+		"name": "State.io",
+		"tags": "io, territory, conquest, casual",
+		"image": "img/stateio.webp",
+		"href": "games/stateio/",
+		"category": "Strategy"
+	},
+	{
+		"name": "Stickman Fight: Ragdoll",
+		"tags": "stickman, battle, skill",
+		"image": "img/stickfr.webp",
+		"href": "games/stickmanfightragdoll/",
+		"category": "Action"
+	},
+	{
+		"name": "Stickman Golf",
+		"tags": "stickman, sport, skill",
+		"image": "img/sgolf.png",
+		"href": "games/stickmangolf/",
+		"category": "Sports"
+	},
+	{
+		"name": "Stickman Hook",
+		"tags": "stickman, hook, skill",
+		"image": "img/stickmanhook.jpeg",
+		"href": "games/stickmanhook/",
+		"category": "Casual"
+	},
+	{
+		"name": "Stickman Ragdoll Crash",
+		"tags": "stickman, physics, injury",
+		"image": "img/scrash.webp",
+		"href": "games/stickragdollcrash/",
+		"category": "Casual"
+	},
+	{
+		"name": "Suika Game (Watermelon Game)",
+		"tags": "suika, watermelon, puzzle",
+		"image": "img/suika.png",
+		"href": "games/suikagame/",
+		"category": "Puzzle"
+	},
+	{
+		"name": "SupeerNova",
+		"tags": "spaceship, 3d, run",
+		"image": "img/supernova.avif",
+		"href": "games/supernova/",
+		"category": "Raxing"
+	},
+	{
+		"name": "Survival Race",
+		"tags": "survival, race, racing",
+		"image": "img/survivalrace.jpeg",
+		"href": "games/survivalrace/",
+		"category": "Racing"
+	},
+	{
+		"name": "Survive to Victory",
+		"tags": "stickman, ragdoll, fight",
+		"image": "img/stv.jpg",
+		"href": "games/survivetovictory/",
+		"category": "Action"
+	},
+	{
+		"name": "Tanuki Sunset",
+		"tags": "drift, racing, casual",
+		"image": "img/tsunset.jpg",
+		"href": "games/tanukisunset/",
+		"category": "Racing"
+	},
+	{
+		"name": "Tap Road",
+		"tags": "neon, racing, casual",
+		"image": "img/taproad.jpeg",
+		"href": "games/taproad/",
+		"category": "Racing"
+	},
+	{
+		"name": "Tiny Fishing",
+		"tags": "tiny, fishing, idle",
+		"image": "img/tinyfishing.png",
+		"href": "games/tinyfishing/",
+		"category": "Idle"
+	},
+	{
+		"name": "Tiny Town Racing",
+		"tags": "car, 3d, pixel",
+		"image": "img/ttr.png",
+		"href": "games/tinytownracing/",
+		"category": "Racing"
+	},
+	{
+		"name": "Traffic Rush",
+		"tags": "car, 3d, strategy",
+		"image": "img/trafficrush.png",
+		"href": "games/trafficrush/",
+		"category": "Racing"
+	},
+	{
+		"name": "Traffic Mania",
+		"tags": "car, 3d, cop",
+		"image": "img/trafficmania.png",
+		"href": "games/trafficmania/",
+		"category": "Racing"
+	},
+	{
+		"name": "Tricksplit.io",
+		"tags": "agar, ball, multiplayer",
+		"image": "img/tricksplit.webp",
+		"href": "games/tricksplit/",
+		"category": "Strategy"
+	},
+	{
+		"name": "Tube Clicker",
+		"tags": "youtube, video, tycoon",
+		"image": "img/tubeclicker.webp",
+		"href": "games/tubeclicker/",
+		"category": "Idle"
+	},
+	{
+		"name": "Village Craft",
+		"tags": "tycoon, 3d, survival",
+		"image": "img/vcraft.png",
+		"href": "games/villagecraft/",
+		"category": "Idle"
+	},
+	{
+		"name": "Volley Random",
+		"tags": "volley, random, sport",
+		"image": "img/volley.png",
+		"href": "games/volleyrandom/",
+		"category": "Sports"
+	},
+	{
+		"name": "Waterworks",
+		"tags": "history, water, casual",
+		"image": "img/waterworks.png",
+		"href": "games/waterworks/",
+		"category": "Casual"
+	},
+	{
+		"name": "Yohoho.io",
+		"tags": "pirate, fight, battle royale",
+		"image": "img/yohoho.webp",
+		"href": "games/yohoho/",
+		"category": "Action"
+	},
+	{
+		"name": "Zombie Road",
+		"tags": "zombie, road, running",
+		"image": "img/zombieroad.webp",
+		"href": "games/zombieroad/",
+		"category": "Action"
+	}
+]

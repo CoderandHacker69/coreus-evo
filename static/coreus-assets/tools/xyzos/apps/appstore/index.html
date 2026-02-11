@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>App Store</title>
+    <style>
+        .appstore-app { height: 100%; display: flex; flex-direction: column; }
+        .appstore-header { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #1e293b; border-bottom: 1px solid #334155; }
+        .appstore-search { padding: 1rem; }
+        .appstore-search input { width: 100%; padding: 0.75rem 1rem; border: 1px solid #334155; border-radius: 8px; background: #0f172a; color: #f8fafc; font-size: 1rem; outline: none; }
+        .appstore-content { flex: 1; padding: 1rem; overflow-y: auto; display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 1rem; }
+        .appstore-item { background: #1e293b; border-radius: 12px; padding: 1rem; cursor: pointer; transition: all 0.2s; border: 1px solid #334155; }
+        .appstore-item:hover { border-color: #6366f1; transform: translateY(-2px); }
+        .appstore-item .icon { font-size: 3rem; text-align: center; margin-bottom: 0.5rem; }
+        .appstore-item .name { font-weight: 600; margin-bottom: 0.25rem; text-align: center; }
+        .appstore-item .desc { font-size: 0.75rem; color: #94a3b8; text-align: center; margin-bottom: 0.5rem; }
+        .appstore-item .install-btn { width: 100%; padding: 0.5rem; border: none; border-radius: 6px; background: #6366f1; color: white; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <div class="appstore-app">
+        <div class="appstore-header">
+            <span style="font-size: 1.25rem; font-weight: 600;">📦 App Store</span>
+        </div>
+        <div class="appstore-search">
+            <input type="text" id="appSearch" placeholder="Search apps...">
+        </div>
+        <div class="appstore-content" id="appStoreContent"></div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

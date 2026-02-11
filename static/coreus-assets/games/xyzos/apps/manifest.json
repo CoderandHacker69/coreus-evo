@@ -1,0 +1,196 @@
+{
+  "name": "Xyzos OS",
+  "version": "1.0.0",
+  "apps": [
+    {
+      "id": "terminal",
+      "name": "yterminal",
+      "icon": "💻",
+      "path": "terminal/",
+      "description": "Command line interface",
+      "category": "System",
+      "width": 700,
+      "height": 450
+    },
+    {
+      "id": "files",
+      "name": "File Manager",
+      "icon": "📁",
+      "path": "files/",
+      "description": "Browse and manage files",
+      "category": "Utilities",
+      "width": 750,
+      "height": 550
+    },
+    {
+      "id": "settings",
+      "name": "Settings",
+      "icon": "⚙️",
+      "path": "settings/",
+      "description": "System configuration",
+      "category": "System",
+      "width": 700,
+      "height": 500
+    },
+    {
+      "id": "calculator",
+      "name": "Calculator",
+      "icon": "🔢",
+      "path": "calculator/",
+      "description": "Perform calculations",
+      "category": "Utilities",
+      "width": 320,
+      "height": 480
+    },
+    {
+      "id": "paint",
+      "name": "Paint",
+      "icon": "🎨",
+      "path": "paint/",
+      "description": "Digital art studio",
+      "category": "Creativity",
+      "width": 700,
+      "height": 550
+    },
+    {
+      "id": "snake",
+      "name": "Snake Game",
+      "icon": "🐍",
+      "path": "snake/",
+      "description": "Classic snake game",
+      "category": "Games",
+      "width": 450,
+      "height": 550
+    },
+    {
+      "id": "tetris",
+      "name": "Tetris",
+      "icon": "🧱",
+      "path": "tetris/",
+      "description": "Block puzzle game",
+      "category": "Games",
+      "width": 350,
+      "height": 550
+    },
+    {
+      "id": "notepad",
+      "name": "Notepad",
+      "icon": "📝",
+      "path": "notepad/",
+      "description": "Text editor",
+      "category": "Utilities",
+      "width": 600,
+      "height": 450
+    },
+    {
+      "id": "appstore",
+      "name": "App Store",
+      "icon": "📦",
+      "path": "appstore/",
+      "description": "Download and install apps",
+      "category": "System",
+      "width": 800,
+      "height": 600
+    },
+    {
+      "id": "browser",
+      "name": "Web Browser",
+      "icon": "🌐",
+      "path": "browser/",
+      "description": "Browse the web",
+      "category": "Internet",
+      "width": 800,
+      "height": 550
+    },
+    {
+      "id": "weather",
+      "name": "Weather",
+      "icon": "🌤️",
+      "path": "weather/",
+      "description": "Weather forecast",
+      "category": "Utilities",
+      "width": 350,
+      "height": 400
+    },
+    {
+      "id": "gallery",
+      "name": "Gallery",
+      "icon": "🖼️",
+      "path": "gallery/",
+      "description": "View photos",
+      "category": "Multimedia",
+      "width": 600,
+      "height": 450
+    },
+    {
+      "id": "music",
+      "name": "Music Player",
+      "icon": "🎵",
+      "path": "music/",
+      "description": "Play music files",
+      "category": "Multimedia",
+      "width": 700,
+      "height": 500
+    },
+    {
+      "id": "clock",
+      "name": "Clock",
+      "icon": "⏰",
+      "path": "clock/",
+      "description": "Clock and alarm",
+      "category": "Utilities",
+      "width": 350,
+      "height": 300
+    },
+    {
+      "id": "about",
+      "name": "About",
+      "icon": "ℹ️",
+      "path": "about/",
+      "description": "About Xyzos OS",
+      "category": "System",
+      "width": 400,
+      "height": 350
+    },
+    {
+      "id": "game2048",
+      "name": "2048",
+      "icon": "🎲",
+      "path": "2048/",
+      "description": "Number puzzle game",
+      "category": "Games",
+      "width": 380,
+      "height": 480
+    },
+    {
+      "id": "chess",
+      "name": "Chess",
+      "icon": "♟️",
+      "path": "chess/",
+      "description": "Classic chess game",
+      "category": "Games",
+      "width": 450,
+      "height": 550
+    },
+    {
+      "id": "memory",
+      "name": "Memory Match",
+      "icon": "🧠",
+      "path": "memory/",
+      "description": "Card matching game",
+      "category": "Games",
+      "width": 320,
+      "height": 420
+    },
+    {
+      "id": "tictactoe",
+      "name": "Tic-Tac-Toe",
+      "icon": "❌",
+      "path": "tictactoe/",
+      "description": "Two-player game",
+      "category": "Games",
+      "width": 320,
+      "height": 420
+    }
+  ]
+}
