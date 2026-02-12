@@ -32,6 +32,18 @@
 
 I am actively looking for contributors ! Wanna help ? See the devs todo list at the end of the README, do anything on the list and open a PR.
 
+## Deployment:
+
+> [![Deploy to Vercel](https://binbashbanana.github.io/deploy-buttons/buttons/remade/vercel.svg)](https://vercel.com/new/clone?repository-url=https://github.com/noodlelover1/coreus)
+> [![Deploy to Heroku](https://binbashbanana.github.io/deploy-buttons/buttons/remade/heroku.svg)](https://heroku.com/deploy/?template=https://github.com/noodlelover1/coreus)
+> [![Run on Replit](https://binbashbanana.github.io/deploy-buttons/buttons/remade/replit.svg)](https://replit.com/github/noodlelover1/coreus)
+> [![Remix on Glitch](https://binbashbanana.github.io/deploy-buttons/buttons/remade/glitch.svg)](https://glitch.com/edit/#!/import/github/noodlelover1/coreus)
+> [![Deploy to Amplify Console](https://binbashbanana.github.io/deploy-buttons/buttons/remade/amplifyconsole.svg)](https://console.aws.amazon.com/amplify/home#/deploy?repo=https://github.com/PeteZah-Games/petezahgames)
+> [![Deploy to Oracle Cloud](https://binbashbanana.github.io/deploy-buttons/buttons/remade/oraclecloud.svg)](https://cloud.oracle.com/resourcemanager/stacks/create?zipUrl=https://github.com/noodlelover1/coreus/archive/refs/heads/main.zip)
+> [![Deploy on Railway](https://binbashbanana.github.io/deploy-buttons/buttons/remade/railway.svg)](https://railway.app/new/template?template=https://github.com/noodlelover1/coreus)
+> [![Deploy to Netlify](https://binbashbanana.github.io/deploy-buttons/buttons/remade/netlify.svg)](https://app.netlify.com/start/deploy?repository=https://github.com/noodlelover1/coreus)
+> [![Deploy to Render](https://binbashbanana.github.io/deploy-buttons/buttons/remade/render.svg)](https://render.com/deploy?repo=https://github.com/noodelover1/coreus)
+
 ## Using Coreus
 
 There are a bunch of ways to access Coreus. Here are some :
@@ -39,10 +51,6 @@ There are a bunch of ways to access Coreus. Here are some :
 ### Live Demo
 
 You can simply use the live demo at https://noodlelover1.github.io/coreus/ . Blocked ? Use one of the options below :
-
-### Website deployment
-
-Deploy this repo to any website static host (Vercel, Netlify, Render, Cloudflare/GitHub/GitLab pages, Surge.sh, ...). You will get your own Coreus link that you can change and access !
 
 ### Codespaces
 
