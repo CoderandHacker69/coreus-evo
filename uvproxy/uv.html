@@ -1,0 +1,693 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>An Ultraviolet Proxy for Next Dev</title>
+    <script src="/uv/uv.bundle.js"></script>
+    <script src="/uv/uv.config.js"></script>
+    <script src="/baremux/index.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css" />
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+
+    <style>
+        * {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen", "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue", sans-serif;
+        }
+
+        body {
+            margin: 0;
+            padding: 0;
+            padding-top: 75px;
+            background: #0f0f0f;
+        }
+
+        html {
+            background: #0f0f0f;
+            height: 100%;
+        }
+
+        /* Navigation Bar - Fixed at Top */
+        .webcontrols {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            width: 100%;
+            background: rgba(20, 20, 20, 0.95);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            margin: 0;
+            padding: 12px 20px;
+            display: block;
+            z-index: 1000;
+            transition: none;
+            backdrop-filter: blur(20px);
+        }
+
+        /* Tabs Section */
+        .tabs {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            flex-direction: row;
+            margin: 0 0 10px 0;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            height: 28px;
+            padding: 4px 10px;
+            color: #e0e0e0;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            text-align: center;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+            font-size: 12px;
+            position: relative;
+            white-space: nowrap;
+            overflow: hidden;
+            max-width: 180px;
+            font-weight: 500;
+        }
+
+        .tab img {
+            width: 16px;
+            height: 16px;
+            object-fit: contain;
+            flex-shrink: 0;
+        }
+
+        .tab.active {
+            background: rgba(100, 200, 255, 0.2);
+            border-color: rgba(100, 200, 255, 0.4);
+            color: #64c8ff;
+        }
+
+        .tab:hover:not(.active) {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .tab:active {
+            transform: scale(0.95);
+        }
+
+        .tab i {
+            position: relative;
+            font-size: 11px;
+            cursor: pointer;
+            padding: 4px;
+            margin: -4px;
+        }
+
+        .tab i:hover {
+            color: #ff6b7a;
+        }
+
+        .tab span {
+            text-align: left;
+            width: auto;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        #nt {
+            min-width: 28px;
+            padding: 4px;
+            height: 28px;
+        }
+
+        /* Controls Section */
+        .maincontrols {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            width: 100%;
+            margin: 0;
+            gap: 12px;
+        }
+
+        .leftcontrols,
+        .rightcontrols {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            width: auto;
+            margin: 0;
+            flex-shrink: 0;
+        }
+
+        /* URL Bar Form */
+        form {
+            flex: 1 1 300px;
+            display: flex;
+            justify-content: center;
+            margin: 0;
+            gap: 10px;
+            min-width: 300px;
+        }
+
+        form input {
+            height: 36px;
+            padding: 0 16px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #e0e0e0;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            font-size: 13px;
+            width: 100%;
+            margin: 0;
+            font-family: inherit;
+        }
+
+        form input::placeholder {
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        form input:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(100, 200, 255, 0.5);
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(100, 200, 255, 0.1);
+        }
+
+        form button {
+            display: none;
+        }
+
+        /* Buttons */
+        button {
+            height: 36px;
+            padding: 0 12px;
+            color: #e0e0e0;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            margin: 0;
+            font-size: 13px;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            white-space: nowrap;
+        }
+
+        button:hover {
+            background: rgba(255, 255, 255, 0.12);
+            border-color: rgba(255, 255, 255, 0.2);
+            transform: translateY(-1px);
+        }
+
+        button:active {
+            transform: scale(0.95);
+        }
+
+        button i {
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* Proxied Content iframes */
+        iframe {
+            position: absolute;
+            top: 75px;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 75px);
+            z-index: -1;
+            border: none;
+        }
+
+        iframe.viewframe {
+            position: fixed;
+            top: 75px;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 75px);
+            z-index: 1;
+            border: none;
+            display: none;
+        }
+
+        .viewframe.active {
+            display: block;
+        }
+
+        /* Background message */
+        .backgroundtext {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            user-select: none;
+            text-align: center;
+            margin-top: 0;
+        }
+
+        .backgroundtext h1 {
+            color: rgba(255, 255, 255, 0.08);
+            font-weight: 700;
+            font-size: 120px;
+            margin: 0;
+            letter-spacing: -3px;
+        }
+
+        .backgroundtext p {
+            color: rgba(255, 255, 255, 0.12);
+            font-size: 14px;
+            margin: 10px 0 0 0;
+            font-weight: 500;
+        }
+
+        /* Show controls button (hidden) */
+        .showcontrols {
+            display: none !important;
+        }
+
+        .loader {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            border: 3px solid rgba(100, 200, 255, 0.3);
+            border-top-color: rgba(100, 200, 255, 0.8);
+            border-right-color: rgba(100, 200, 255, 0.6);
+            animation: rot1 0.8s linear infinite;
+        }
+
+        @keyframes rot1 {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* Responsive Design */
+        @media (max-width: 768px) {
+            body {
+                padding-top: 140px;
+            }
+
+            .webcontrols {
+                padding: 10px 12px;
+            }
+
+            .tabs {
+                margin-bottom: 8px;
+            }
+
+            .maincontrols {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            form {
+                width: 100%;
+                order: -1;
+            }
+
+            .leftcontrols,
+            .rightcontrols {
+                width: 100%;
+                justify-content: center;
+            }
+
+            iframe.viewframe {
+                top: 140px;
+                height: calc(100vh - 140px);
+            }
+        }
+    </style>
+    <div class="webcontrols">
+        <div class="tabs">
+            <button id="nt" onclick="newTab()"><i class="fas fa-plus"></i></button>
+        </div>
+        <div class="maincontrols">
+            <div class="leftcontrols">
+                <button onclick="b()"><i class="fas fa-chevron-left"></i></button>
+                <button onclick="f()"><i class="fas fa-chevron-right"></i></button>
+                <button onclick="r()"><i class="fas fa-rotate-right"></i></button>
+            </div>
+            <form action="" id="form">
+                <input type="text" id="urlbar" placeholder="Search with or enter a URL here">
+                <button id="submit">Go</button>
+            </form>
+            <div class="rightcontrols">
+                <button onclick="full()"><i class="fas fa-external-link"></i></button>
+                <i></i>
+                <i></i>
+                <i></i>
+            </div>
+        </div>
+    </div>
+
+    <button class="showcontrols" onclick="show()" style="opacity: 0; position: fixed; right: 0.2%; display: none; transition: 0.2s;">
+        <i class="fas fa-chevron-down"></i>
+    </button>
+
+    <div class="backgroundtext">
+        <h1>Ultraviolet</h1>
+        <p>made by $xor</p
+    </div>
+
+    <iframe src="" frameborder="0" id="iframe"></iframe>
+
+    <script>
+        const se = localStorage.getItem("nOS_searchEngine") || "https://search.brave.com/search?q="
+        const bar = document.getElementById("urlbar")
+
+        if (se === "https://duckduckgo.com/search?q=") {
+            bar.placeholder = "Search with Duck Duck Go or enter a URL here"
+        } else if (se === "https://google.com/search?q=") {
+            bar.placeholder = "Search with Google or enter a URL here"
+        } else if (se === "https://bing.com/search?q=") {
+            bar.placeholder = "Search with Bing or enter a URL here"
+        } else if (se === "https://startpage.com/search?q=") {
+            bar.placeholder = "Search with Startpage or enter a URL here"
+        } else if (se === "https://qwant.com/search?q=") {
+            bar.placeholder = "Search with Qwant or enter a URL here"
+        } else {
+            bar.placeholder = "Search with Brave or enter a URL here"
+        }
+    </script>
+
+    <script>
+        // register sw
+        if ("serviceWorker" in navigator) {
+            window.addEventListener("load", () => {
+                navigator.serviceWorker.register("/uv/sw.js")
+            })
+        }
+    </script>
+
+    <script>
+        let tabFrame
+
+        // actual uv handling
+        const connection = new BareMux.BareMuxConnection("/baremux/worker.js")
+        const wispUrl = "wss://wisp.rhw.one/" // rhw wisp, super speedy
+        const bareUrl = "https://useclassplay.vercel.app/fq/" // old site i have
+
+        // Initialize proxy transport - this will be awaited before navigation
+        let transportReady = connection.setTransport("/libcurl/index.mjs", [{ websocket: wispUrl }])
+
+        const tabCont = document.querySelector(".tabs")
+
+        let bTabs = [
+            {
+                id: 0,
+                title: "New Tab",
+                url: "",
+                history: [],
+                historyIndex: -1,
+            },
+        ]
+
+        let aTab = 0
+        let tabCounter = 1
+
+        function newTab() {
+            const nTab = {
+                id: tabCounter++,
+                title: "New Tab",
+                url: "",
+                history: [],
+                historyIndex: -1,
+            };
+
+            bTabs.push(nTab)
+            if (!tabCont) return
+
+            const ntBtn = document.getElementById('nt')
+
+            const tabElement = document.createElement("div")
+            tabElement.classList.add("tab")
+            tabElement.dataset.tabId = nTab.id
+            tabElement.innerHTML = `<img id="fav" data-fav-id="${nTab.id}" src="https://www.google.com/s2/favicons?domain=https://nautilus-os.vercel.app&sz=16"></img> <span class="btitle">New Tab</span> <div class="closetab"><i class="fas fa-times"></i></div>`
+
+            tabElement.addEventListener("click", (e) => {
+                if (!e.target.closest(".closetab")) {
+                    switchTab(nTab.id)
+                }
+            })
+
+            const closebtn = tabElement.querySelector(".closetab")
+            closebtn.addEventListener("click", (e) => {
+                e.stopPropagation();
+                closeTab(nTab.id);
+            });
+
+            tabCont.insertBefore(tabElement, ntBtn)
+
+            tabFrame = document.createElement("iframe")
+            tabFrame.classList.add("viewframe")
+            tabFrame.dataset.frameId = nTab.id
+
+            document.body.appendChild(tabFrame)
+
+            switchTab(nTab.id)
+        }
+
+        newTab()
+        closeTab(0)
+
+        // Check for target URL parameter and navigate to it
+        // IMPORTANT: We must wait for the transport to be initialized before navigating
+        const urlParams = new URLSearchParams(window.location.search)
+        const targetUrl = urlParams.get('target')
+        
+        // Only navigate if we have a target, and ensure transport is ready first
+        if (targetUrl) {
+            (async () => {
+                try {
+                    // Wait for transport to be initialized
+                    await transportReady;
+                    console.log("Transport ready, navigating to target:", targetUrl);
+                    nav(targetUrl)
+                } catch (error) {
+                    console.error("Failed to initialize transport before navigating to target:", error);
+                    // Still try to navigate even if there was an error
+                    nav(targetUrl)
+                }
+            })()
+        }
+
+        function switchTab(tId) {
+            aTab = tId
+
+            document.querySelectorAll(".tab").forEach(tab => {
+                tab.classList.toggle("active", parseInt(tab.dataset.tabId) === tId)
+            })
+
+            document.querySelectorAll(".viewframe").forEach(frame => {
+                frame.classList.toggle("active", parseInt(frame.dataset.frameId) === tId)
+            })
+
+            const cTab = bTabs.find(t => t.id === tId)
+            if (cTab) {
+                const input = document.getElementById("urlbar")
+                if (input) input.value = cTab.url
+            }
+        }
+
+
+        function closeTab(tId) {
+            if (bTabs.length === 1) {
+                showToast("Cannot close last tab!", "fas fa-circle-xmark")
+                return
+            }
+
+            const tIndex = bTabs.findIndex((t) => t.id === tId)
+            if (tIndex === -1) return
+
+            bTabs.splice(tIndex, 1)
+
+            const tEl = document.querySelector(`.tab[data-tab-id="${tId}"]`)
+            const frame = document.querySelector(`.viewframe[data-view-id="${tId}"]`)
+
+            if (tEl) tEl.remove()
+            if (frame) frame.remove()
+
+            if (aTab === tId) {
+                const newATab = bTabs[Math.max(0, tIndex - 1)];
+                if (newATab) {
+                    switchTab(newATab.id);
+                    console.log("woah")
+                }
+            }
+        }
+
+        document.getElementById("form").addEventListener("submit", (e) => {
+            e.preventDefault()
+            const inp = document.getElementById("urlbar")
+            nav(inp.value)
+            console.log("i")
+        })
+
+        function nav(i) {
+            console.log("e")
+            if (!i.trim()) return
+
+            let url = i.trim()
+
+            if (!url.includes(".") || url.includes(" ")) {
+                const se = localStorage.getItem("nOS_searchEngine") || "https://search.brave.com/search?q="
+                url = se + encodeURIComponent(url)
+            } else {
+                if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                    url = "https://" + url
+                }
+            }
+
+            const cTab = bTabs.find((t) => t.id === aTab)
+            if (!cTab) return
+
+            cTab.history.push(url)
+            cTab.historyIndex++
+
+            cTab.url = url
+            const fUrl = __uv$config.prefix + __uv$config.encodeUrl(url)
+
+            const loadC = document.querySelector(".backgroundtext")
+            if (loadC) {
+                loadC.innerHTML = `
+                    <center>
+                        <div class="loader"></div>
+                        <p>Loading...</p>
+                    </center>
+                `
+            }
+
+            go(fUrl)
+        }
+
+        async function go(u) {
+
+            // Ensure transport is initialized before attempting to navigate
+            try {
+                const transport = await connection.getTransport();
+                if (!transport) {
+                    console.log("Transport not set, initializing...");
+                    await connection.setTransport("/libcurl/index.mjs", [{ websocket: wispUrl }])
+                }
+            } catch (error) {
+                console.error("Error checking/initializing transport:", error);
+                try {
+                    await connection.setTransport("/libcurl/index.mjs", [{ websocket: wispUrl }])
+                } catch (initError) {
+                    console.error("Failed to initialize transport:", initError);
+                }
+            }
+
+            console.log("a")
+            const cTab = bTabs.find((t) => t.id === aTab)
+            const favEl = document.querySelector(`#fav[data-fav-id="${aTab}"]`)
+            const viewframe = document.querySelector(`.viewframe[data-frame-id="${aTab}"]`)
+            if (!viewframe) return
+
+            const ubar = document.getElementById("urlbar")
+            if (ubar) ubar.value = __uv$config.decodeUrl(u.replace("/uv/service/", ""))
+            const favUrl = __uv$config.decodeUrl(u.replace("/uv/service/", ""))
+            if (favEl) favEl.src = `https://www.google.com/s2/favicons?domain=${favUrl}&sz=16`
+
+            try {
+                viewframe.src = u
+                console.log("ooooo")
+
+                const iframeDoc = viewframe.contentDocument || viewframe.contentWindow.document
+                const title = iframeDoc.title || new URL(cTab.url).hostname
+
+                viewframe.onload = () => {
+                    const tabEl = document.querySelector(`.tab[data-tab-id="${aTab}"]`)
+                    if (tabEl) {
+                        const titleEl = tabEl.querySelector(".btitle")
+                        if (titleEl) titleEl.textContent = title
+                    }
+
+                    const loadC = document.querySelector(".backgroundtext")
+                    if (loadC) {
+                        loadC.innerHTML = `
+                            <h1>ultraviolet</h1>
+                            <p>made by $xor | built for nautilus-os</p>
+                        `
+                    }
+                }
+            } catch (e) {
+                console.error("There was an error while loading the page:", e)
+                alert("There was an error while loading the page: " + e)
+            }
+        }
+
+        function b() {
+            const cTab = bTabs.find((t) => t.id === aTab)
+            if (!cTab || cTab.historyIndex <= 0) return;
+
+            cTab.historyIndex--
+            const u = cTab.history[cTab.historyIndex]
+            cTab.url = u
+            const furl = __uv$config.prefix + __uv$config.encodeUrl(u)
+
+            go(furl)
+        }
+
+        function f() {
+            const cTab = bTabs.find((t) => t.id === aTab)
+
+            cTab.historyIndex++
+            const u = cTab.history[cTab.historyIndex]
+            cTab.url = u
+            const furl = __uv$config.prefix + __uv$config.encodeUrl(u)
+
+            go(furl)
+        }
+
+        function r() {
+            const viewframe = document.querySelector(`.viewframe[data-frame-id="${aTab}"]`)
+            const curl = viewframe.src
+
+            viewframe.src = curl
+        }
+
+        function full() {
+            const viewframe = document.querySelector(`.viewframe[data-frame-id="${aTab}"]`)
+            console.log("adksjfh")
+            const popup = window.open(viewframe.src, "_blank")
+            if (popup) console.log("popped out")
+        }
+
+        function hide() {
+            // Navbar is now permanently fixed, hide function disabled
+            return;
+        }
+
+        function show() {
+            // Navbar is now permanently fixed, show function disabled
+            return;
+        }
+
+    </script>
+
+</body>
+
+</html>
