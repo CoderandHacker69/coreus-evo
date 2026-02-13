@@ -7,6 +7,34 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23000'/><circle cx='30' cy='30' r='15' fill='%23fff'/><circle cx='70' cy='70' r='15' fill='%23fff'/><path d='M35 35 L65 65' stroke='%23fff' stroke-width='5'/></svg>" type="image/svg+xml">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script id="main-logic">
+    
+    if (window.location.href !== "about:blank") {
+        const userChoice = confirm("Open this page in about:blank?");
+        
+        if (userChoice) {
+            const win = window.open("about:blank", "_blank");
+            if (win) {
+                window.addEventListener('load', () => {
+                    
+                    const bodyClone = document.body.cloneNode(true);
+                    const scriptToRemove = bodyClone.querySelector('#main-logic');
+                    if (scriptToRemove) scriptToRemove.remove();
+                    win.document.open();
+                    win.document.write(`
+                        <html>
+                        <head>${document.head.innerHTML}</head>
+                        <body>${bodyClone.innerHTML}</body>
+                        </html>
+                    `);
+                    win.document.close();
+                });
+            }
+        }
+    }
+</script>
+
+
     <style>
         :root {
             --primary-bg: #000000;
@@ -2425,9 +2453,6 @@ async function checkAndPermanentDelete() {
 }
 
 document.addEventListener('DOMContentLoaded', checkAndPermanentDelete);
-
-
-</script>
-
+    </script>
 </body>
 </html>
