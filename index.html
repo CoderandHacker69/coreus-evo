@@ -2382,5 +2382,52 @@
             }
         });
     </script>
+    <script>
+    const pingLinks = [
+    { url: 'https://cdn.jsdelivr.net/gh/noodlelover1/coreus/', targetClass: 'fas.fa-gamepad' },
+    { url: 'https://cdn.jsdelivr.net/gh/noodlelover1/coreus/', targetClass: 'fas.fa-tools'},
+    { url: 'https://js.puter.com/v2/', targetClass: 'fas.fa-robot' },
+    { url: 'https://minnit.chat/js/embed.js?c=1758971289', targetClass: 'fas.fa-comment-alt' }
+];
+
+async function checkAndPermanentDelete() {
+    const checks = pingLinks.map(async (item) => {
+        
+        const selector = '.' + item.targetClass.trim().replace(/\s+/g, '.');
+        const elements = document.querySelectorAll(selector);
+        
+        try {
+            await fetch(item.url, { mode: 'no-cors', cache: 'no-store' });
+            
+            
+            elements.forEach(el => {
+                const btn = el.closest('button') || el;
+                btn.style.display = 'flex';
+            });
+        } catch (error) {
+            
+            elements.forEach(el => {
+                const btn = el.closest('button') || el;
+                
+                
+                const spacer = btn.previousElementSibling;
+                if (spacer && spacer.tagName === 'DIV') {
+                    spacer.remove();
+                }
+
+                btn.remove();
+                console.warn(`Permanently deleted: ${item.targetClass}`);
+            });
+        }
+    });
+
+    await Promise.all(checks);
+}
+
+document.addEventListener('DOMContentLoaded', checkAndPermanentDelete);
+
+
+</script>
+
 </body>
 </html>
