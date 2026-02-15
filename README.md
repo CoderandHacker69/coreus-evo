@@ -102,9 +102,9 @@ This code is under AGPL v3.0 License, wich means that you can use the code but y
 See the full license in the LICENSE file
 ## Devs TODO list
 
-- [ ] Ping external services (like AI API) and display tabs only if they are accessible
-- [ ] Better proxy integration + new APIs
 - [ ] Globally more features
+- [ ] Better proxy integration + new APIs
+- [x] Ping external services (like AI API) and display tabs only if they are accessible
 - [x] A full version, with all games assets, ready to be deployed (not singlefile ofc) - PR #3, huge thanks to @CoderandHacker69
 - [x] Fix some loading time bugs
 - [x] Less dirty code

@@ -7,7 +7,7 @@
     <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23000'/><circle cx='30' cy='30' r='15' fill='%23fff'/><circle cx='70' cy='70' r='15' fill='%23fff'/><path d='M35 35 L65 65' stroke='%23fff' stroke-width='5'/></svg>" type="image/svg+xml">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <style>
+<style>
         :root {
             --primary-bg: #000000;
             --secondary-bg: #0d0d0d;
@@ -507,6 +507,29 @@
                         <option value="EcoleDirecte">EcoleDirecte</option>
                     </select>
                 </div>
+                <div style="margin-top: 1.5rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
+  <h4 style="color: var(--primary-text); margin-bottom: 0.8rem; font-weight: 400;">Panic Key</h4>
+
+  <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+    <input id="panicKeyInput"
+      placeholder="Key (e.g. \ or F1 or Escape)"
+      style="width: 100%; padding: 0.8rem; background: var(--secondary-bg); color: var(--primary-text); border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem; outline: none;">
+
+    <input id="panicUrlInput"
+      placeholder="Panic URL (https://classroom.google.com)"
+      style="width: 100%; padding: 0.8rem; background: var(--secondary-bg); color: var(--primary-text); border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem; outline: none;">
+
+    <div style="display:flex; gap:10px; align-items:center;">
+      <button onclick="savePanicSettings()"
+        class="proxy-btn"
+        style="padding: 0.7rem 2.2rem; background: linear-gradient(90deg, var(--accent-color), var(--accent-light)); color: #000; font-weight: 600; font-size: 1.05rem; border: none; border-radius: 25px; box-shadow: 0 2px 8px rgba(0,0,0,0.12); transition: background 0.2s, box-shadow 0.2s;">
+        Save Panic Key
+      </button>
+    </div>
+  </div>
+</div>
+
+
 
                 <div style="margin-top: 1rem; border-top: 1px solid var(--border-color); padding-top: 1rem;">
                     <h4 style="color: var(--primary-text); margin-bottom: 0.5rem; font-weight: 400;">about:blank cloaking</h4>
@@ -692,6 +715,9 @@
         </div>
         <div style="max-width: 800px; margin: 0 auto; background: var(--card-bg); padding: 2rem; border-radius: 10px;">
             <p style="color: var(--primary-text); font-size: 1.2rem; line-height: 1.6; margin-bottom: 20px;">
+                This is a deployment of coreus not the singlefile version, get it here: <a href="/coreus-onefile.html" download=coreus-onefile.html style="color: var(--accent-color);">Download</a>
+            </p>
+            <p style="color: var(--primary-text); font-size: 1.2rem; line-height: 1.6; margin-bottom: 20px;">
                 Coreus is a complete UBG with an Ultraviolet proxy, 100 games, tools, that fits in a single HTML file. It was made by <a href="https://github.com/noodlelover1" style="color: var(--accent-color);">n00dle</a> with the amazing contribution of <a href="https://github.com/CoderandHacker69" style="color: var(--accent-color);">@CoderandHacker69</a>.
             </p>
             <p style="color: var(--primary-text); font-size: 1.2rem; line-height: 1.6;">
@@ -735,6 +761,56 @@
             <span class="navbar-time" style="color: #fff; font-size: 0.85rem; font-family: monospace; min-width: 50px; text-align: right; margin-right: 10px;">00:00:00</span>
         </div>
     </div>
+    <script>
+  
+  function savePanicSettings() {
+    const key = document.getElementById("panicKeyInput").value.trim();
+    const url = document.getElementById("panicUrlInput").value.trim();
+
+    if (!key || !url) {
+      alert("Fill in both fields.");
+      return;
+    }
+
+    localStorage.setItem("panicKey", key);
+    localStorage.setItem("panicUrl", url);
+  }
+
+  
+  window.addEventListener("DOMContentLoaded", () => {
+    const k = localStorage.getItem("panicKey");
+    const u = localStorage.getItem("panicUrl");
+    if (k && document.getElementById("panicKeyInput")) {
+      document.getElementById("panicKeyInput").value = k;
+    }
+    if (u && document.getElementById("panicUrlInput")) {
+      document.getElementById("panicUrlInput").value = u;
+    }
+  });
+
+  
+  document.addEventListener("keydown", (e) => {
+    const panicKey = localStorage.getItem("panicKey");
+    const panicUrl = localStorage.getItem("panicUrl");
+    if (!panicKey || !panicUrl) return;
+
+    
+    const tag = document.activeElement?.tagName?.toLowerCase();
+    if (tag === "input" || tag === "textarea") return;
+
+    const wanted = panicKey.toLowerCase();
+
+    const pressedKey = e.key.toLowerCase();
+    const pressedCode = e.code.toLowerCase();
+
+    if (pressedKey === wanted || pressedCode === wanted) {
+      e.preventDefault(); // stop things like F1 opening help
+      window.location.replace(panicUrl);
+    }
+  });
+</script>
+
+
     <script>
         let currentProxyIndex = 0;
         let targetUrl = '';
@@ -2381,6 +2457,50 @@
                 puterSignInBtn.addEventListener('click', handlePuterSignIn);
             }
         });
+    </script>
+    <script>
+    const pingLinks = [
+    { url: 'https://cdn.jsdelivr.net/gh/noodlelover1/coreus/', targetClass: 'fas.fa-gamepad' },
+    { url: 'https://cdn.jsdelivr.net/gh/noodlelover1/coreus/', targetClass: 'fas.fa-tools'},
+    { url: 'https://js.puter.com/v2/', targetClass: 'fas.fa-robot' },
+    { url: 'https://minnit.chat/js/embed.js?c=1758971289', targetClass: 'fas.fa-comment-alt' }
+];
+
+async function checkAndPermanentDelete() {
+    const checks = pingLinks.map(async (item) => {
+        
+        const selector = '.' + item.targetClass.trim().replace(/\s+/g, '.');
+        const elements = document.querySelectorAll(selector);
+        
+        try {
+            await fetch(item.url, { mode: 'no-cors', cache: 'no-store' });
+            
+            
+            elements.forEach(el => {
+                const btn = el.closest('button') || el;
+                btn.style.display = 'flex';
+            });
+        } catch (error) {
+            
+            elements.forEach(el => {
+                const btn = el.closest('button') || el;
+                
+                
+                const spacer = btn.previousElementSibling;
+                if (spacer && spacer.tagName === 'DIV') {
+                    spacer.remove();
+                }
+
+                btn.remove();
+                console.warn(`Permanently deleted: ${item.targetClass}`);
+            });
+        }
+    });
+
+    await Promise.all(checks);
+}
+
+document.addEventListener('DOMContentLoaded', checkAndPermanentDelete);
     </script>
 </body>
 </html>
