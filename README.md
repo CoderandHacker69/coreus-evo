@@ -72,7 +72,7 @@ data:text/html;charset=utf-8,%3C!DOCTYPE%20html%3E%0A%3Chtml%20lang%3D%22en%22%3
 ```
 ## Supporting the project
 
-Currently, the best way to suuport the peoject is to contribute
+Currently, the best way to support the project is to contribute
 
 ## Contributing
 
@@ -81,7 +81,7 @@ Contributions are happily accepted and requested ! Open an issue or make a pull 
 ## Devs and contributors
 
 - [n00dle](https://github.com/noodlelover1) : Owner, founder and main dev of the project.
-- [CoderandHacker69](https://github.com/CoderandHacker69) : First contributor, made full version and deploy buttons.
+- [CoderandHacker69](https://github.com/CoderandHacker69) : First contributor, made full version, deploy buttons, panic key and pinging service.
   
 ## Credits
 
@@ -101,10 +101,10 @@ This code is under AGPL v3.0 License, wich means that you can use the code but y
 
 See the full license in the LICENSE file
 ## Devs TODO list
-
-- [ ] Ping external services (like AI API) and display tabs only if they are accessible
+- [ ] Create some mirrors for singlefile version assets (coreus-assets) repo using various hosting services, and then integrate a fallback system for games in singlefile with the created mirrors
 - [ ] Better proxy integration + new APIs
 - [ ] Globally more features
+- [x] Ping external services (like AI API) and display tabs only if they are accessible - thx to coderandhacker
 - [x] A full version, with all games assets, ready to be deployed (not singlefile ofc) - PR #3, huge thanks to @CoderandHacker69
 - [x] Fix some loading time bugs
 - [x] Less dirty code
