@@ -28,13 +28,13 @@ def build_onefile(input_path="index.html", output_path="coreus-onefile.html"):
     # Games JSON fetch
     html = html.replace(
         "./assets/games.json",
-        "https://cdn.jsdelivr.net/gh/noodlelover1/coreus@main/static/coreus-assets/games.json",
+        "https://cdn.jsdelivr.net/gh/noodlelover1/coreus@main/assets/games.json",
     )
 
     # Tools JSON fetch
     html = html.replace(
         "./assets/tools.json",
-        "https://cdn.jsdelivr.net/gh/noodlelover1/coreus@main/static/coreus-assets/tools.json",
+        "https://cdn.jsdelivr.net/gh/noodlelover1/coreus@main/assets/tools.json",
     )
 
     # Game launch paths
