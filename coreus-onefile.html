@@ -1464,7 +1464,7 @@
 
         async function loadTools() {
             try {
-                const response = await fetch('https://cdn.jsdelivr.net/gh/noodlelover1/coreus@main/static/coreus-assets/tools.json');
+                const response = await fetch('https://cdn.jsdelivr.net/gh/noodlelover1/coreus@main/assets/tools.json');
                 const tools = await response.json();
 
                 const toolsGrid = document.getElementById('toolsGrid');
@@ -1603,7 +1603,7 @@
 
         async function loadGames() {
             try {
-                const response = await fetch('https://cdn.jsdelivr.net/gh/noodlelover1/coreus@main/static/coreus-assets/games.json');
+                const response = await fetch('https://cdn.jsdelivr.net/gh/noodlelover1/coreus@main/assets/games.json');
                 const games = await response.json();
 
                 console.log('Games data:', games);
