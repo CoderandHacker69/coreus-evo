@@ -28,13 +28,13 @@ def build_onefile(input_path="index.html", output_path="coreus-onefile.html"):
     # Games JSON fetch
     html = html.replace(
         "./assets/games.json",
-        "https://cdn.jsdelivr.net/gh/noodlelover1/coreus@main/assets/games.json",
+        "https://noodlelover1.github.io/coreus-assets/games.json",
     )
 
     # Tools JSON fetch
     html = html.replace(
         "./assets/tools.json",
-        "https://cdn.jsdelivr.net/gh/noodlelover1/coreus@main/assets/tools.json",
+        "https://noodlelover1.github.io/coreus-assets/games.json",
     )
 
     # Game launch paths
@@ -52,7 +52,7 @@ def build_onefile(input_path="index.html", output_path="coreus-onefile.html"):
     # Tools images (first occurrence) -> CDN URL
     html = html.replace(
         'src="./assets/${imagePath}"',
-        'src="https://cdn.jsdelivr.net/gh/noodlelover1/coreus@main/static/coreus-assets/${imagePath}"',
+        'src="https://noodlelover1.github.io/coreus-assets/${imagePath}"',
         1,
     )
 
