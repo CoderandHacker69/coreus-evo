@@ -67,18 +67,10 @@ def build_onefile(input_path="index.html", output_path="coreus-onefile.html"):
     # 2. Remove the "this is a deployment" notice from the About section
     # -------------------------------------------------------------------------
 
-    html = re.sub(
-        r'<p[^>]*>This is a deployment of coreus[^<]*<a[^>]*>Download</a>\s*</p>\s*',
-        "",
-        html,
-        flags=re.IGNORECASE | re.DOTALL,
-    )
-
-    html = re.sub(
-        r'<p[^>]*>This is a deployment of coreus[^<]*</p>\s*',
-        "",
-        html,
-        flags=re.IGNORECASE | re.DOTALL,
+    html = html.replace(
+        'This is a deployment of coreus not the singlefile version, get it here: <a href="/coreus-onefile.html" download=coreus-onefile.html style="color: var(--accent-color);">Download</a>',
+        'You are running the singlefile version of Coreus. Get the latedt release here : <a href="https://noodlelover1.github.io/coreus/coreus-onefile.html" download=coreus-onefile.html style="color: var(--accent-color);">Download</a>',
+        1,
     )
 
     # -------------------------------------------------------------------------
