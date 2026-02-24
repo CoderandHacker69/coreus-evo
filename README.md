@@ -78,7 +78,7 @@ Currently, the best way to support the project is to contribute
 
 Contributions are happily accepted and requested ! Open an issue or make a pull request to start.
 
-## AI Contributions
+### AI Contributions
 
  AI contributions are accepted BUT you must :
  - Understand what the AI do
