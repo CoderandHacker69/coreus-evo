@@ -1323,7 +1323,9 @@
             document.querySelector('.container').style.display = 'block';
         }
 
-        function showGamePopup(gamePath) {
+        // showGamePopup now takes an optional popupTitle arg so the header can
+        // display the human-readable name instead of the raw path.
+        function showGamePopup(gamePath, popupTitle) {
             previousView = 'games';
 
             document.getElementById('gamesView').style.display = 'none';
@@ -1331,7 +1333,8 @@
             document.getElementById('gamePopup').style.display = 'block';
 
             const gameUrl = `./assets/${gamePath}`;
-            document.getElementById('gameUrlDisplay').textContent = gameUrl;
+            // prefer the title if given, otherwise show the url
+            document.getElementById('gameUrlDisplay').textContent = popupTitle || gameUrl;
 
             const gameIframe = document.getElementById('gameIframe');
                   const gameLoadingOverlay = document.getElementById('gameLoadingOverlay');
@@ -1500,7 +1503,7 @@
 
                     toolCard.addEventListener('click', () => {
                         if (toolPath) {
-                            showToolPopup(toolPath);
+                            showToolPopup(toolPath, title);
                         }
                     });
 
@@ -1542,7 +1545,8 @@
             });
         }
 
-    function showToolPopup(toolPath) {
+    // similar to games, tools now pass a title so we can show the name
+    function showToolPopup(toolPath, popupTitle) {
             previousView = 'tools';
 
             document.getElementById('toolsView').style.display = 'none';
@@ -1550,7 +1554,7 @@
             document.getElementById('gamePopup').style.display = 'block';
 
             const toolUrl = `./assets/${toolPath}`;
-            document.getElementById('gameUrlDisplay').textContent = toolUrl;
+            document.getElementById('gameUrlDisplay').textContent = popupTitle || toolUrl;
 
             const gameIframe = document.getElementById('gameIframe');
                     const gameLoadingOverlay = document.getElementById('gameLoadingOverlay');
@@ -1641,7 +1645,7 @@
 
                     gameCard.addEventListener('click', () => {
                         if (gamePath) {
-                            showGamePopup(gamePath);
+                            showGamePopup(gamePath, title);
                         }
                     });
 

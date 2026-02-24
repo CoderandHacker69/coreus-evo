@@ -109,7 +109,7 @@ This code is under AGPL v3.0 License, wich means that you can use the code but y
 See the full license in the LICENSE file
 ## Devs TODO list
 - [ ] Create some mirrors for singlefile version assets (coreus-assets) repo using various hosting services, and then integrate a fallback system for games in singlefile with the created mirrors
-- [ ] When a game or a tool is open display the game or tool name instead of the path
+- [x] When a game or a tool is open display the game or tool name instead of the path
 - [ ] Better proxy integration + new APIs
 - [ ] Globally more features
 - [x] Ping external services (like AI API) and display tabs only if they are accessible - thx to coderandhacker
