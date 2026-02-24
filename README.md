@@ -78,6 +78,13 @@ Currently, the best way to support the project is to contribute
 
 Contributions are happily accepted and requested ! Open an issue or make a pull request to start.
 
+## AI Contributions
+
+ AI contributions are accepted BUT you must :
+ - Understand what the AI do
+ - Review manually all the AI-generated code
+ - Manually test the AI generated code
+
 ## Devs and contributors
 
 - [n00dle](https://github.com/noodlelover1) : Owner, founder and main dev of the project.
