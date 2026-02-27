@@ -501,7 +501,7 @@
                 <h3 style="color: var(--primary-text); margin-bottom: 1rem;">Game Backend</h3>
                 <div style="margin-bottom: 1rem;">
                     <label style="display: block; color: var(--primary-text); margin-bottom: 0.5rem;">Backend:</label>
-                    <select id="gameBackendSelect" style="width: 100%; padding: 0.8rem; background: var(--secondary-bg); color: var(--primary-text); border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem; outline: none; transition: border-color 0.3s;">
+                    <select id="gameBackendSelect" onchange="setGameBackend(this.value)" style="width: 100%; padding: 0.8rem; background: var(--secondary-bg); color: var(--primary-text); border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem; outline: none; transition: border-color 0.3s;">
                         <option value="auto">Auto fallback</option>
                         <option value="default">Default (local only)</option>
                         <option value="https://coreus-assets-x44fhv591.onrender.com/">Mirror 1</option>
@@ -1313,19 +1313,19 @@
             setTimeout(hideStatus, 1200);
         }
 
+        function setGameBackend(backend) {
+            gameBackend = backend;
+            localStorage.setItem('gameBackend', gameBackend);
+            showStatus(`Game backend set to ${gameBackend}`, 'success');
+            setTimeout(hideStatus, 1200);
+        }
+
         function saveSettings() {
             proxyMode = document.querySelector('input[name="proxyMode"]:checked').value;
             selectedProxy = document.getElementById('proxySelect').value;
 
-            // Save game backend
-            const backendSel = document.getElementById('gameBackendSelect');
-            if (backendSel) {
-                gameBackend = backendSel.value;
-                localStorage.setItem('gameBackend', gameBackend);
-                showStatus(`Game backend set to ${gameBackend}`, 'success');
-                setTimeout(hideStatus, 1200);
-            }
-
+            // Game backend is now saved via setGameBackend() on change
+            
             // Save cloaking (settings view)
             const cloakSelSettings = document.getElementById('cloakingSelectSettings');
             const chosen = (cloakSelSettings && cloakSelSettings.value) || 'No';
