@@ -402,6 +402,7 @@
         <div class="loading-overlay" id="gameLoadingOverlay">
             <div class="loading-spinner"></div>
             <div class="loading-text">Loading content...</div>
+            <div id="currentLoadUrl" style="margin-top: 10px; font-size: 0.85rem; color: var(--secondary-text); word-break: break-all; max-width: 400px;"></div>
         </div>
     </div>
 
@@ -492,6 +493,20 @@
                         <option value="https://api.allorigins.win/raw?url=">api.allorigins.win</option>
                         <option value="https://api.cors.lol/?url=">api.cors.lol</option>
                         <option value="https://yacdn.org/proxy/">yacdn.org</option>
+                    </select>
+                </div>
+            </div>
+
+            <div style="margin-bottom: 1.5rem;">
+                <h3 style="color: var(--primary-text); margin-bottom: 1rem;">Game Backend</h3>
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; color: var(--primary-text); margin-bottom: 0.5rem;">Backend:</label>
+                    <select id="gameBackendSelect" style="width: 100%; padding: 0.8rem; background: var(--secondary-bg); color: var(--primary-text); border: 2px solid var(--border-color); border-radius: 8px; font-size: 1rem; outline: none; transition: border-color 0.3s;">
+                        <option value="auto">Auto fallback</option>
+                        <option value="default">Default (local only)</option>
+                        <option value="https://coreus-assets-x44fhv591.onrender.com/">Mirror 1</option>
+                        <option value="https://coreus-assets-7hb65sx0h.onrender.com/">Mirror 2</option>
+                        <option value="https://coreus-assets-g6kx36vv0.vercel.app/">Mirror 3</option>
                     </select>
                 </div>
             </div>
@@ -1081,6 +1096,14 @@
         let proxyMode = 'fallback';
         let selectedProxy = proxyAPIs[0];
         
+        // Game backend settings (default/auto/mirror urls)
+        const mirrorHosts = [
+            'https://coreus-assets-x44fhv591.onrender.com/',
+            'https://coreus-assets-7hb65sx0h.onrender.com/',
+            'https://coreus-assets-g6kx36vv0.vercel.app/'
+        ];
+        let gameBackend = localStorage.getItem('gameBackend') || 'auto';
+        
         // Cloaking settings
         let cloakingOption = localStorage.getItem('cloakingOption') || 'No';
         const cloakingMap = {
@@ -1258,6 +1281,12 @@
             if (proxySelectModal) proxySelectModal.value = selectedProxy;
             if (proxySelectSettings) proxySelectSettings.value = selectedProxy;
 
+            // Load game backend setting
+            const storedBackend = localStorage.getItem('gameBackend') || gameBackend || 'auto';
+            gameBackend = storedBackend;
+            const backendSelect = document.getElementById('gameBackendSelect');
+            if (backendSelect) backendSelect.value = gameBackend;
+
             // Load cloaking setting
             const storedCloak = localStorage.getItem('cloakingOption') || cloakingOption || 'No';
             cloakingOption = storedCloak;
@@ -1287,6 +1316,15 @@
         function saveSettings() {
             proxyMode = document.querySelector('input[name="proxyMode"]:checked').value;
             selectedProxy = document.getElementById('proxySelect').value;
+
+            // Save game backend
+            const backendSel = document.getElementById('gameBackendSelect');
+            if (backendSel) {
+                gameBackend = backendSel.value;
+                localStorage.setItem('gameBackend', gameBackend);
+                showStatus(`Game backend set to ${gameBackend}`, 'success');
+                setTimeout(hideStatus, 1200);
+            }
 
             // Save cloaking (settings view)
             const cloakSelSettings = document.getElementById('cloakingSelectSettings');
@@ -1344,45 +1382,57 @@
             gameIframe.onload = null;
             gameIframe.onerror = null;
 
-            // Force hide overlay after 0.5 seconds regardless of iframe load status
-            const forceHideTimeout = setTimeout(() => {
-                gameLoadingOverlay.classList.add('hidden');
-            }, 500);
-
             const handleLoadCompletion = function() {
-                clearTimeout(forceHideTimeout);
                 gameLoadingOverlay.classList.add('hidden');
             };
 
             gameIframe.src = gameUrl;
+            document.getElementById('currentLoadUrl').textContent = `Trying: ${gameUrl}`;
 
             gameIframe.onload = handleLoadCompletion;
 
-            gameIframe.onerror = function() {
-                console.log("direct load failed, trying embeddr...");
-                const embeddrUrl = `https://embeddr.rhw.one/embed#${encodeURIComponent(gameUrl)}`;
+            // determine which hosts to try based on the user's backend choice
+            let fallbackHosts = [];
+            if (gameBackend === 'auto') {
+                // cycle through all known mirrors
+                fallbackHosts = mirrorHosts.slice();
+            } else if (gameBackend === 'default') {
+                // no fallback hosts at all
+                fallbackHosts = [];
+            } else {
+                // assume a specific mirror URL selected by user
+                fallbackHosts = [gameBackend];
+            }
+            let fallbackIndex = 0;
 
+            // helper to start loading a url into the iframe and show overlay
+            const attemptLoad = (url) => {
+                console.log('attempting load:', url);
                 gameLoadingOverlay.classList.remove('hidden');
-
-                // Reset force hide timeout for embeddr attempt
-                clearTimeout(forceHideTimeout);
-                const embeddrForceHideTimeout = setTimeout(() => {
-                    gameLoadingOverlay.classList.add('hidden');
-                }, 500);
-
-            gameIframe.src = embeddrUrl;
-
-                gameIframe.onerror = function() {
-                    console.log("embeddr also failed to load the game");
-                    clearTimeout(embeddrForceHideTimeout);
-                    gameLoadingOverlay.classList.add('hidden');
-                };
-
-                gameIframe.onload = function() {
-                    clearTimeout(embeddrForceHideTimeout);
-                    gameLoadingOverlay.classList.add('hidden');
-                };
+                document.getElementById('currentLoadUrl').textContent = `Trying: ${url}`;
+                gameIframe.src = url;
             };
+
+            // named error handler so it can reschedule itself during retries
+            function handleError() {
+                if (fallbackIndex < fallbackHosts.length) {
+                    const nextUrl = fallbackHosts[fallbackIndex++] + gamePath;
+                    console.log('direct load failed, trying mirror:', nextUrl);
+                    gameIframe.onload = function() {
+                        gameLoadingOverlay.classList.add('hidden');
+                    };
+                    // keep cycling through mirrors
+                    gameIframe.onerror = handleError;
+
+                    attemptLoad(nextUrl);
+                } else {
+                    console.log('all mirrors failed; no further fallback configured');
+                    // hide overlay and leave iframe as-is (error state)
+                    gameLoadingOverlay.classList.add('hidden');
+                }
+            }
+
+            gameIframe.onerror = handleError;
         }
 
         let previousView = 'main';
@@ -1564,17 +1614,12 @@
             gameIframe.onload = null;
             gameIframe.onerror = null;
 
-            // Force hide overlay after 0.5 seconds regardless of iframe load status
-            const forceHideTimeout = setTimeout(() => {
-                gameLoadingOverlay.classList.add('hidden');
-            }, 500);
-
             const handleLoadCompletion = function() {
-                clearTimeout(forceHideTimeout);
                 gameLoadingOverlay.classList.add('hidden');
             };
 
             gameIframe.src = toolUrl;
+            document.getElementById('currentLoadUrl').textContent = `Trying: ${toolUrl}`;
 
             gameIframe.onload = handleLoadCompletion;
 
@@ -1583,23 +1628,15 @@
                 const embeddrUrl = `https://embeddr.rhw.one/embed#${encodeURIComponent(toolUrl)}`;
 
                 gameLoadingOverlay.classList.remove('hidden');
-
-                // Reset force hide timeout for embeddr attempt
-                clearTimeout(forceHideTimeout);
-                const embeddrForceHideTimeout = setTimeout(() => {
-                    gameLoadingOverlay.classList.add('hidden');
-                }, 500);
-
-    gameIframe.src = embeddrUrl;
+                document.getElementById('currentLoadUrl').textContent = `Trying: ${embeddrUrl}`;
+                gameIframe.src = embeddrUrl;
 
                 gameIframe.onerror = function() {
                     console.log("embeddr also failed to load the tool");
-                    clearTimeout(embeddrForceHideTimeout);
                     gameLoadingOverlay.classList.add('hidden');
                 };
 
                 gameIframe.onload = function() {
-                    clearTimeout(embeddrForceHideTimeout);
                     gameLoadingOverlay.classList.add('hidden');
                 };
             };

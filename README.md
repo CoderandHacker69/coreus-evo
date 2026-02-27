@@ -58,6 +58,11 @@ Click on the green "Code" button a the top right od the repo page. Then navigate
 ```bash
 python3 -m http.server
 ```
+or
+```bash
+npm i
+node index.js
+```
 Wait a few seconds and a popup will appear saying a port was forwarded. Click on the button "Open in browser" and boom ! You got your link for 30 minutes.
 
 ### Code editors
@@ -108,7 +113,7 @@ This code is under AGPL v3.0 License, wich means that you can use the code but y
 
 See the full license in the LICENSE file
 ## Devs TODO list
-- [ ] Create some mirrors for singlefile version assets (coreus-assets) repo using various hosting services, and then integrate a fallback system for games in singlefile with the created mirrors
+- [x] Create some mirrors for singlefile version assets (coreus-assets) repo using various hosting services, and then integrate a fallback system for games in singlefile with the created mirrors
 - [x] When a game or a tool is open display the game or tool name instead of the path
 - [ ] Better proxy integration + new APIs
 - [ ] Globally more features

@@ -5,7 +5,8 @@ build.py - Builds coreus-onefile.html from index.html
 
 Transformations applied:
 1. Converts relative asset paths to full URLs so the file works standalone.
-2. Removes the "this is a deployment" notice from the About/Info section.
+2. Converts game backend mirror host references to GitHub Pages URLs.
+3. Removes the "this is a deployment" notice from the About/Info section.
 """
 
 import re
@@ -37,16 +38,16 @@ def build_onefile(input_path="index.html", output_path="coreus-onefile.html"):
         "https://noodlelover1.github.io/coreus-assets/games.json",
     )
 
-    # Game launch paths
+    # Game launch paths (template in JavaScript)
     html = html.replace(
-        "./assets/${gamePath}",
-        "https://noodlelover1.github.io/coreus-assets/${gamePath}",
+        '`./assets/${gamePath}`',
+        '`https://noodlelover1.github.io/coreus-assets/${gamePath}`',
     )
 
-    # Tool launch paths
+    # Tool launch paths (template in JavaScript)
     html = html.replace(
-        "./assets/${toolPath}",
-        "https://noodlelover1.github.io/coreus-assets/${toolPath}",
+        '`./assets/${toolPath}`',
+        '`https://noodlelover1.github.io/coreus-assets/${toolPath}`',
     )
 
     # Tools images (first occurrence) -> CDN URL
@@ -64,7 +65,30 @@ def build_onefile(input_path="index.html", output_path="coreus-onefile.html"):
     )
 
     # -------------------------------------------------------------------------
-    # 2. Remove the "this is a deployment" notice from the About section
+    # 2. Convert game backend mirror hosts to GitHub Pages URL
+    # -------------------------------------------------------------------------
+
+    # Update mirrorHosts array in JavaScript - add GitHub Pages as primary
+    html = html.replace(
+        "const mirrorHosts = [\n                'https://coreus-assets-x44fhv591.onrender.com/',\n                'https://coreus-assets-7hb65sx0h.onrender.com/',\n                'https://coreus-assets-g6kx36vv0.vercel.app/'\n            ];",
+        "const mirrorHosts = [\n                'https://noodlelover1.github.io/coreus-assets/',\n                'https://coreus-assets-x44fhv591.onrender.com/',\n                'https://coreus-assets-7hb65sx0h.onrender.com/',\n                'https://coreus-assets-g6kx36vv0.vercel.app/'\n            ];",
+    )
+
+    # Set default gameBackend to GitHub Pages for onefile
+    html = html.replace(
+        "let gameBackend = localStorage.getItem('gameBackend') || 'auto';",
+        "let gameBackend = localStorage.getItem('gameBackend') || 'https://noodlelover1.github.io/coreus-assets/';",
+    )
+
+    # Game backend selector dropdown - add GitHub Pages as first option
+    html = html.replace(
+        "<option value=\"auto\">Auto fallback</option>",
+        "<option value=\"https://noodlelover1.github.io/coreus-assets/\">GitHub Pages</option>",
+        1,
+    )
+
+    # -------------------------------------------------------------------------
+    # 3. Remove the "this is a deployment" notice from the About section
     # -------------------------------------------------------------------------
 
     html = html.replace(
