@@ -1375,7 +1375,7 @@
             document.getElementById('gameUrlDisplay').textContent = popupTitle || gameUrl;
 
             const gameIframe = document.getElementById('gameIframe');
-                  const gameLoadingOverlay = document.getElementById('gameLoadingOverlay');
+            const gameLoadingOverlay = document.getElementById('gameLoadingOverlay');
 
             gameLoadingOverlay.classList.remove('hidden');
 
@@ -1386,53 +1386,48 @@
                 gameLoadingOverlay.classList.add('hidden');
             };
 
-            gameIframe.src = gameUrl;
-            document.getElementById('currentLoadUrl').textContent = `Trying: ${gameUrl}`;
-
-            gameIframe.onload = handleLoadCompletion;
-
             // determine which hosts to try based on the user's backend choice
-            let fallbackHosts = [];
+            let hostList = [];
             if (gameBackend === 'auto') {
-                // cycle through all known mirrors
-                fallbackHosts = mirrorHosts.slice();
+                // try local first, then cycle through all known mirrors
+                hostList = ['./assets/', ...mirrorHosts];
             } else if (gameBackend === 'default') {
-                // no fallback hosts at all
-                fallbackHosts = [];
+                // only local
+                hostList = ['./assets/'];
             } else {
-                // assume a specific mirror URL selected by user
-                fallbackHosts = [gameBackend];
+                // specific mirror selected: try that mirror first, then fallback to local
+                hostList = [gameBackend, './assets/'];
             }
-            let fallbackIndex = 0;
-
-            // helper to start loading a url into the iframe and show overlay
-            const attemptLoad = (url) => {
-                console.log('attempting load:', url);
-                gameLoadingOverlay.classList.remove('hidden');
-                document.getElementById('currentLoadUrl').textContent = `Trying: ${url}`;
-                gameIframe.src = url;
-            };
+            
+            let currentIndex = 0;
 
             // named error handler so it can reschedule itself during retries
             function handleError() {
-                if (fallbackIndex < fallbackHosts.length) {
-                    const nextUrl = fallbackHosts[fallbackIndex++] + gamePath;
-                    console.log('direct load failed, trying mirror:', nextUrl);
-                    gameIframe.onload = function() {
-                        gameLoadingOverlay.classList.add('hidden');
-                    };
-                    // keep cycling through mirrors
-                    gameIframe.onerror = handleError;
-
-                    attemptLoad(nextUrl);
+                if (currentIndex < hostList.length) {
+                    const currentHost = hostList[currentIndex++];
+                    const nextUrl = currentHost.endsWith('/') ? currentHost + gamePath : currentHost + '/' + gamePath;
+                    console.log('attempting to load from:', nextUrl);
+                    document.getElementById('currentLoadUrl').textContent = `Trying: ${nextUrl}`;
+                    gameIframe.src = nextUrl;
                 } else {
-                    console.log('all mirrors failed; no further fallback configured');
+                    console.log('all hosts failed; no further fallback configured');
                     // hide overlay and leave iframe as-is (error state)
                     gameLoadingOverlay.classList.add('hidden');
                 }
             }
 
+            // Set handlers BEFORE setting src
+            gameIframe.onload = handleLoadCompletion;
             gameIframe.onerror = handleError;
+
+            // Start with the first host in the list
+            if (hostList.length > 0) {
+                const firstHost = hostList[currentIndex++];
+                const firstUrl = firstHost.endsWith('/') ? firstHost + gamePath : firstHost + '/' + gamePath;
+                console.log('loading game from:', firstUrl);
+                document.getElementById('currentLoadUrl').textContent = `Trying: ${firstUrl}`;
+                gameIframe.src = firstUrl;
+            }
         }
 
         let previousView = 'main';

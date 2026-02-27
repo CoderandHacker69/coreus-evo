@@ -88,6 +88,15 @@ def build_onefile(input_path="index.html", output_path="coreus-onefile.html"):
     )
 
     # -------------------------------------------------------------------------
+    # Convert './assets/' literal strings in hostList to GitHub Pages URL
+    # -------------------------------------------------------------------------
+
+    html = html.replace(
+        "'./assets/'",
+        "'https://noodlelover1.github.io/coreus-assets/'",
+    )
+
+    # -------------------------------------------------------------------------
     # 3. Remove the "this is a deployment" notice from the About section
     # -------------------------------------------------------------------------
 
