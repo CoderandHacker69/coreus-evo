@@ -61,9 +61,32 @@ python3 -m http.server
 or
 ```bash
 npm i
-node index.js
+node server.js
 ```
 Wait a few seconds and a popup will appear saying a port was forwarded. Click on the button "Open in browser" and boom ! You got your link for 30 minutes.
+
+### Local server
+
+Open a terminal and clone the repo using :
+~~~
+git clone https://github.com/noodlelover1/coreus.git
+~~~
+and enter in the repo folder using :
+~~~
+cd coreus
+~~~
+Then, run :
+~~~
+python3 -m http.server # Make sure you have python3 installed before
+~~~
+And open http://localhost:8000/ . Your local server is live !
+
+OR, run :
+~~~
+npm i
+node server.js
+~~~
+And open http://localhost:3000
 
 ### Code editors
 
