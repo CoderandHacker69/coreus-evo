@@ -18,6 +18,8 @@ concurrency:
 jobs:
   build-onefile:
     runs-on: ubuntu-latest
+    outputs:
+      deploy: ${{ steps.deploy_check.outputs.deploy }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -37,9 +39,25 @@ jobs:
           git add coreus-onefile.html
           git diff --cached --quiet || git commit -m "Auto-build coreus-onefile.html"
           git push
++
++      - name: Determine if deploy is needed
++        id: deploy_check
++        run: |
++          # compare files changed between previous commit and current
++          before=${{ github.event.before }}
++          after=${{ github.sha }}
++          echo "Checking diff $before..$after"
++          files=$(git diff --name-only "$before" "$after" || true)
++          echo "Changed files:\n$files"
++          if echo "$files" | grep -E '^(index.html|coreus-onefile.html|assets/)' >/dev/null; then
++            echo "deploy=true" >> $GITHUB_OUTPUT
++          else
++            echo "deploy=false" >> $GITHUB_OUTPUT
++          fi
 
   deploy:
     needs: build-onefile
+    if: ${{ needs.build-onefile.outputs.deploy == 'true' }}
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
@@ -60,11 +78,11 @@ jobs:
         uses: actions/deploy-pages@v4
 
   release:
-    name: Create Release with Onefile
-    needs: deploy
+    name: Create Release
+    needs: build-onefile
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout (full history for tags)
+      - name: Checkout
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
