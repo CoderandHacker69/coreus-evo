@@ -58,3 +58,95 @@ jobs:
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
+
+  release:
+    name: Create Release with Onefile
+    needs: deploy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout (full history for tags)
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.x"
+
+      - name: Ensure onefile exists
+        run: |
+          if [ ! -f coreus-onefile.html ]; then
+            echo "coreus-onefile.html not found, rebuilding..."
+            python3 build.py
+          else
+            echo "coreus-onefile.html present"
+          fi
+
+      - name: Compute next v2.* tag
+        id: compute_version
+        run: |
+          git fetch --tags
+          last_tag=$(git for-each-ref --sort=-creatordate --format '%(refname:short)' refs/tags | grep -E '^v2\.[0-9]+$' | head -n1 || true)
+          if [ -z "$last_tag" ]; then
+            next_tag="v2.1"
+          else
+            n=$(echo "$last_tag" | sed -E 's/^v2\.([0-9]+)$/\1/')
+            next=$((n+1))
+            next_tag="v2.$next"
+          fi
+          echo "next_tag=$next_tag" >> $GITHUB_OUTPUT
+          echo "last_tag=$last_tag" >> $GITHUB_OUTPUT
+          echo "Computed next tag: $next_tag (last_tag: $last_tag)"
+
+      - name: Get changelog from last commit message
+        id: get_changelog
+        run: |
+          changelog=$(git log -1 --pretty='%B')
+          echo "changelog<<EOF" >> $GITHUB_OUTPUT
+          printf '%s\n' "$changelog" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+
+      - name: Check if coreus-onefile.html changed since last v2.* tag
+        id: check_changed
+        run: |
+          last_tag="${{ steps.compute_version.outputs.last_tag }}"
+          if [ -z "$last_tag" ]; then
+            echo "No previous v2.* tag found; will create release."
+            echo "changed=true" >> $GITHUB_OUTPUT
+            exit 0
+          fi
+          echo "Comparing coreus-onefile.html between $last_tag and HEAD"
+          if git diff --name-only "$last_tag" HEAD -- coreus-onefile.html | grep -q '.'; then
+            echo "coreus-onefile.html changed since $last_tag"
+            echo "changed=true" >> $GITHUB_OUTPUT
+          else
+            echo "coreus-onefile.html unchanged since $last_tag"
+            echo "changed=false" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Abort release if onefile unchanged
+        if: ${{ steps.check_changed.outputs.changed == 'false' }}
+        run: |
+          echo "Skipping release: coreus-onefile.html unchanged since last v2.* tag (${ { steps.compute_version.outputs.last_tag } })."
+          echo "No release created."
+
+      - name: Create GitHub release
+        id: create_release
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ steps.compute_version.outputs.next_tag }}
+          release_name: ${{ steps.compute_version.outputs.next_tag }}
+          body: ${{ steps.get_changelog.outputs.changelog }}
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload coreus-onefile.html as release asset
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./coreus-onefile.html
+          asset_name: coreus-onefile.html
+          asset_content_type: text/html
