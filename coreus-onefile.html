@@ -406,19 +406,43 @@
         </div>
     </div>
 
-    <div id="chatView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: var(--primary-bg); z-index: 2000; overflow: hidden; padding: 0;">
-        <div style="display: flex; justify-content: center; align-items: center; height: 100%; width: 100%; padding-bottom: 100px;">
-            <div style="width: 90%; max-width: 1000px; height: 70vh; background: var(--card-bg); border-radius: 20px; overflow: hidden; display: flex; flex-direction: column; box-shadow: 0 8px 32px rgba(0,0,0,0.5);">
-                <div style="flex: 1; overflow-y: auto; display: flex; align-items: center; justify-content: center;">
-                    <div id="chatContainer" style="width: 100%; height: 100%;">
-                        <script src="https://minnit.chat/js/embed.js?c=1758971289" defer></script>
-                        <span style="display: none;" class="minnit-chat-sembed" data-chatname="https://organizations.minnit.chat/495986791376958/c/Website?embed" data-style="width:100%; height:100%; max-height:100%; border-radius: 20px;" data-version="1.55">Chat</span>
-                    </div>
-                </div>
-            </div>
+    <div id="chatView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; color: #fff; z-index: 2000; overflow: hidden; padding: 0;">
+        <div style="display:flex;flex-direction:column;height:100%;">
+            <div id="chat-header" style="padding:10px;text-align:center;font-size:1.2rem;border-bottom:1px solid #333;">Chat</div>
+            <ul id="chat-messages" style="flex:1;list-style:none;padding:10px;overflow-y:auto;"></ul>
+            <form id="chat-form" style="display:flex;border-top:1px solid #333;padding:10px;">
+                <input id="chat-input" autocomplete="off" placeholder="Type a message…" style="flex:1;padding:8px;border:1px solid #555;border-radius:4px;background:#111;color:#fff;" />
+                <button type="submit" style="margin-left:8px;padding:8px 12px;border:none;border-radius:4px;background:#444;color:#fff;cursor:pointer;">Send</button>
+            </form>
         </div>
-
-        <div class="bottom-navbar" style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; background: rgba(0,0,0,0.8); backdrop-filter: blur(10px); border-radius: 50px; padding: 10px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 2001; border: 1px solid rgba(255,255,255,0.1);">
+        <script src="https://coreus-chat-backend.vercel.app/socket.io/socket.io.js"></script>
+        <script>
+            (function(){
+                const socket = io('https://coreus-chat-backend.vercel.app');
+                const messagesEl = document.getElementById('chat-messages');
+                const form = document.getElementById('chat-form');
+                const input = document.getElementById('chat-input');
+                function appendMessage(entry) {
+                    const li = document.createElement('li');
+                    const date = new Date(entry.time);
+                    li.textContent = `[${date.toLocaleTimeString()}] ${entry.text}`;
+                    messagesEl.appendChild(li);
+                    messagesEl.scrollTop = messagesEl.scrollHeight;
+                }
+                socket.on('initialMessages', msgs => msgs.forEach(appendMessage));
+                socket.on('chatMessage', appendMessage);
+                socket.on('chatCleared', () => { messagesEl.innerHTML = ''; });
+                form.addEventListener('submit', e => {
+                    e.preventDefault();
+                    const msg = input.value.trim();
+                    if (!msg) return;
+                    socket.emit('chatMessage', msg);
+                    input.value = '';
+                    input.focus();
+                });
+            })();
+        </script>
+        <div class="bottom-navbar" style="position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); display: flex; align-items: center; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border-radius: 50px; padding: 10px 20px; box-shadow: 0 4px 20px rgba(0,0,0,0.3); z-index: 2001; border: 1px solid rgba(255,255,255,0.2);">
             <button class="nav-icon-btn" style="background: none; border: none; cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.3s;" onclick="location.reload()">
                 <img src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><circle cx='30' cy='30' r='15' fill='%23fff'/><circle cx='70' cy='70' r='15' fill='%23fff'/><path d='M35 35 L65 65' stroke='%23fff' stroke-width='5'/></svg>" alt="Home" style="width: 24px; height: 24px;">
             </button>
@@ -2947,8 +2971,7 @@
     </script>
     <script>
     const pingLinks = [
-    { url: 'https://js.puter.com/v2/', targetClass: 'fas.fa-robot' },
-    { url: 'https://minnit.chat/js/embed.js?c=1758971289', targetClass: 'fas.fa-comment-alt' }
+    { url: 'https://js.puter.com/v2/', targetClass: 'fas.fa-robot' }
 ];
 
 async function checkAndPermanentDelete() {

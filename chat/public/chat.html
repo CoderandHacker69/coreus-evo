@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coreus Chat</title>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 20px; }
+    #messages { list-style: none; padding: 0; max-height: 300px; overflow-y: auto; border: 1px solid #ccc; }
+    #messages li { padding: 5px; }
+    #messages li:nth-child(odd) { background: #f9f9f9; }
+    #chat-form { margin-top: 10px; }
+    #chat-input { width: 80%; padding: 5px; }
+    #chat-button { padding: 5px 10px; }
+  </style>
+</head>
+<body>
+  <h1>Coreus Chat</h1>
+  <ul id="messages"></ul>
+  <form id="chat-form">
+    <input id="chat-input" autocomplete="off" placeholder="Type a message..." />
+    <button id="chat-button" type="submit">Send</button>
+    <button id="clear-button" type="button" style="margin-left:8px;color:red;">Clear history</button>
+  </form>
+
+  <script src="/socket.io/socket.io.js"></script>
+  <script>
+    const socket = io();
+
+    const messagesEl = document.getElementById('messages');
+    const form = document.getElementById('chat-form');
+    const input = document.getElementById('chat-input');
+
+    function appendMessage(entry) {
+      const li = document.createElement('li');
+      const date = new Date(entry.time);
+      li.textContent = `[${date.toLocaleTimeString()}] ${entry.text}`;
+      messagesEl.appendChild(li);
+      messagesEl.scrollTop = messagesEl.scrollHeight;
+    }
+
+    socket.on('initialMessages', (msgs) => {
+      msgs.forEach(appendMessage);
+    });
+
+    socket.on('chatMessage', appendMessage);
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      const msg = input.value.trim();
+      if (!msg) return;
+      socket.emit('chatMessage', msg);
+      input.value = '';
+      input.focus();
+    });
+
+    const clearBtn = document.getElementById('clear-button');
+    clearBtn.addEventListener('click', async () => {
+      if (!confirm('Permanently clear the chat history on the server?')) return;
+      await fetch('/messages/clear', { method: 'POST' });
+      messagesEl.innerHTML = '';
+    });
+  </script>
+</body>
+</html>

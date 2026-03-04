@@ -93,6 +93,10 @@ And open http://localhost:3000
 
 Copy the entire <code>coreus-onefile.html</code> file content, then navigate to any HTML editor (e.g w3schools) and paste the code.
 
+### Chat backend
+
+The in‑app chat uses a custom server at `https://coreus-chat-backend.vercel.app` via Socket.IO. If you're running locally, start the chat server from `chat/` (see the chat folder in this repo).
+
 ### Data URL
 
 Paste the following data URL in your browser :
