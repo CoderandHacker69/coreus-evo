@@ -406,46 +406,341 @@
         </div>
     </div>
 
-    <div id="chatView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; color: #fff; z-index: 2000; overflow: hidden; padding: 0;">
-        <div style="display:flex;flex-direction:column;height:100%;">
-            <div id="chat-header" style="padding:10px;text-align:center;font-size:1.2rem;border-bottom:1px solid #333;">Chat</div>
-            <ul id="chat-messages" style="flex:1;list-style:none;padding:10px;overflow-y:auto;">
-                <!-- messages go here -->
-            </ul>
-            <form id="chat-form" style="display:flex;border-top:1px solid #333;padding:10px;">
-                <input id="chat-input" autocomplete="off" placeholder="Type a message…" style="flex:1;padding:8px;border:1px solid #555;border-radius:4px;background:#111;color:#fff;" />
-                <button type="submit" style="margin-left:8px;padding:8px 12px;border:none;border-radius:4px;background:#444;color:#fff;cursor:pointer;">Send</button>
+    <div id="chatView" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: linear-gradient(135deg, #0a0e27 0%, #1a1a3e 50%, #0d1b2a 100%); color: #fff; z-index: 2000; overflow: hidden; padding: 0;">
+        <style>
+            .chat-container {
+                display: flex;
+                flex-direction: column;
+                height: 100%;
+                background: linear-gradient(180deg, rgba(15, 23, 42, 0.95) 0%, rgba(10, 14, 39, 0.95) 100%);
+            }
+
+            .chat-header {
+                padding: 20px;
+                text-align: center;
+                font-size: 1.5rem;
+                font-weight: 700;
+                border-bottom: 2px solid rgba(76, 175, 80, 0.3);
+                background: linear-gradient(90deg, rgba(76, 175, 80, 0.1) 0%, transparent 50%, rgba(76, 175, 80, 0.1) 100%);
+                letter-spacing: 0.1em;
+                text-transform: uppercase;
+                color: #4CAF50;
+                text-shadow: 0 0 20px rgba(76, 175, 80, 0.3);
+            }
+
+            #chat-messages {
+                flex: 1;
+                list-style: none;
+                padding: 20px;
+                overflow-y: auto;
+                display: flex;
+                flex-direction: column;
+                gap: 12px;
+            }
+
+            #chat-messages::-webkit-scrollbar {
+                width: 8px;
+            }
+
+            #chat-messages::-webkit-scrollbar-track {
+                background: rgba(76, 175, 80, 0.1);
+                border-radius: 10px;
+            }
+
+            #chat-messages::-webkit-scrollbar-thumb {
+                background: linear-gradient(180deg, #4CAF50, #22c55e);
+                border-radius: 10px;
+            }
+
+            .message-item {
+                animation: slideIn 0.4s ease-out;
+                padding: 12px 16px;
+                border-radius: 12px;
+                background: rgba(76, 175, 80, 0.08);
+                border-left: 3px solid #4CAF50;
+                word-wrap: break-word;
+                display: flex;
+                justify-content: space-between;
+                align-items: flex-start;
+                gap: 12px;
+            }
+
+            .message-item:hover {
+                background: rgba(76, 175, 80, 0.15);
+                border-left: 3px solid #22c55e;
+                transform: translateX(4px);
+                transition: all 0.2s ease;
+            }
+
+            .message-text {
+                flex: 1;
+                line-height: 1.4;
+            }
+
+            .message-time {
+                font-size: 0.8rem;
+                color: #4CAF50;
+                opacity: 0.7;
+                white-space: nowrap;
+                font-family: 'Courier New', monospace;
+            }
+
+            @keyframes slideIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(10px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
+            }
+
+            #chat-form {
+                display: flex;
+                gap: 12px;
+                border-top: 2px solid rgba(76, 175, 80, 0.3);
+                padding: 16px 20px;
+                background: linear-gradient(90deg, rgba(0, 0, 0, 0.3) 0%, rgba(0, 0, 0, 0.2) 100%);
+            }
+
+            #chat-input {
+                flex: 1;
+                padding: 12px 16px;
+                border: 2px solid rgba(76, 175, 80, 0.3);
+                border-radius: 25px;
+                background: rgba(15, 23, 42, 0.7);
+                color: #fff;
+                outline: none;
+                font-size: 0.95rem;
+                font-family: inherit;
+                transition: all 0.3s ease;
+            }
+
+            #chat-input:focus {
+                border-color: #4CAF50;
+                background: rgba(15, 23, 42, 0.9);
+                box-shadow: 0 0 20px rgba(76, 175, 80, 0.3), inset 0 0 10px rgba(76, 175, 80, 0.1);
+            }
+
+            #chat-input::placeholder {
+                color: rgba(255, 255, 255, 0.5);
+            }
+
+            .chat-submit-btn {
+                padding: 12px 28px;
+                border: 2px solid #4CAF50;
+                border-radius: 25px;
+                background: linear-gradient(135deg, #4CAF50, #22c55e);
+                color: #000;
+                cursor: pointer;
+                font-weight: 700;
+                font-size: 0.95rem;
+                transition: all 0.3s ease;
+                text-transform: uppercase;
+                letter-spacing: 0.05em;
+            }
+
+            .chat-submit-btn:hover {
+                transform: translateY(-2px);
+                box-shadow: 0 8px 30px rgba(76, 175, 80, 0.4);
+                background: linear-gradient(135deg, #22c55e, #4CAF50);
+            }
+
+            .chat-submit-btn:active {
+                transform: translateY(0);
+            }
+
+            .chat-status {
+                text-align: center;
+                padding: 10px;
+                font-size: 0.85rem;
+                color: #4CAF50;
+                background: rgba(76, 175, 80, 0.1);
+            }
+
+            .status-connected {
+                color: #22c55e;
+            }
+
+            .status-disconnected {
+                color: #ff6b6b;
+            }
+        </style>
+
+        <div class="chat-container">
+            <div class="chat-header">
+                <span style="letter-spacing: 0.15em;">⬤ COREUS CHAT</span>
+            </div>
+            <div class="chat-status" id="chat-status" style="color: #ffaf00;">⏳ Connecting...</div>
+            <ul id="chat-messages"></ul>
+            <form id="chat-form">
+                <input id="chat-input" autocomplete="off" placeholder="💬 Type your message and press Enter..." />
+                <button type="submit" class="chat-submit-btn">SEND</button>
             </form>
         </div>
 
-        <script src="https://coreus-chat-backend.vercel.app/socket.io/socket.io.js"></script>
+        <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
         <script>
             (function(){
-                const socket = io('https://coreus-chat-backend.vercel.app');
                 const messagesEl = document.getElementById('chat-messages');
                 const form = document.getElementById('chat-form');
                 const input = document.getElementById('chat-input');
+                const statusEl = document.getElementById('chat-status');
+                
+                let socket = null;
+                let useLocalStorage = false;
+                const STORAGE_KEY = 'coreus_chat_messages';
+
+                function loadLocalMessages() {
+                    try {
+                        const stored = localStorage.getItem(STORAGE_KEY);
+                        return stored ? JSON.parse(stored) : [];
+                    } catch (e) {
+                        console.error('[Chat] Error loading local messages', e);
+                        return [];
+                    }
+                }
+
+                function saveLocalMessages(messages) {
+                    try {
+                        localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+                    } catch (e) {
+                        console.error('[Chat] Error saving local messages', e);
+                    }
+                }
 
                 function appendMessage(entry) {
                     const li = document.createElement('li');
+                    li.className = 'message-item';
+                    
                     const date = new Date(entry.time);
-                    li.textContent = `[${date.toLocaleTimeString()}] ${entry.text}`;
+                    const timeStr = date.toLocaleTimeString();
+                    
+                    const textEl = document.createElement('div');
+                    textEl.className = 'message-text';
+                    textEl.textContent = entry.text;
+                    
+                    const timeEl = document.createElement('div');
+                    timeEl.className = 'message-time';
+                    timeEl.textContent = timeStr;
+                    
+                    li.appendChild(textEl);
+                    li.appendChild(timeEl);
+                    
                     messagesEl.appendChild(li);
                     messagesEl.scrollTop = messagesEl.scrollHeight;
+                    
+                    return { text: entry.text, time: entry.time };
                 }
 
-                socket.on('initialMessages', msgs => msgs.forEach(appendMessage));
-                socket.on('chatMessage', appendMessage);
-                socket.on('chatCleared', () => { messagesEl.innerHTML = ''; });
+                function connectSocket() {
+                    const endpoints = [
+                        'https://coreus-chat-backend.vercel.app',
+                        'http://localhost:3000',
+                        window.location.origin
+                    ];
+
+                    let attemptIndex = 0;
+
+                    function tryConnect() {
+                        if (attemptIndex >= endpoints.length) {
+                            console.log('[Chat] All endpoints failed, using local storage');
+                            useLocalStorage = true;
+                            statusEl.textContent = '📝 Local Mode (Messages saved locally)';
+                            statusEl.className = 'chat-status';
+                            statusEl.style.color = '#ffaf00';
+                            
+                            // Load and display existing local messages
+                            const messages = loadLocalMessages();
+                            messages.forEach(msg => {
+                                const li = document.createElement('li');
+                                li.className = 'message-item';
+                                const timeEl = document.createElement('div');
+                                timeEl.className = 'message-time';
+                                timeEl.textContent = new Date(msg.time).toLocaleTimeString();
+                                const textEl = document.createElement('div');
+                                textEl.className = 'message-text';
+                                textEl.textContent = msg.text;
+                                li.appendChild(textEl);
+                                li.appendChild(timeEl);
+                                messagesEl.appendChild(li);
+                            });
+                            return;
+                        }
+
+                        const endpoint = endpoints[attemptIndex];
+                        attemptIndex++;
+                        
+                        console.log(`[Chat] Trying endpoint: ${endpoint}`);
+                        statusEl.textContent = `⏳ Connecting to ${endpoint}...`;
+                        
+                        socket = io(endpoint, {
+                            reconnection: true,
+                            reconnectionDelay: 1000,
+                            reconnectionDelayMax: 3000,
+                            reconnectionAttempts: 2,
+                            transports: ['websocket', 'polling'],
+                            timeout: 5000
+                        });
+
+                        socket.on('connect', () => {
+                            console.log('[Chat] Connected to', endpoint);
+                            statusEl.textContent = '✓ Connected';
+                            statusEl.className = 'chat-status status-connected';
+                        });
+
+                        socket.on('disconnect', () => {
+                            console.log('[Chat] Disconnected');
+                            statusEl.textContent = '✗ Disconnected';
+                            statusEl.className = 'chat-status status-disconnected';
+                        });
+
+                        socket.on('connect_error', (error) => {
+                            console.error('[Chat] Connection error:', error);
+                            socket.disconnect();
+                            tryConnect();
+                        });
+
+                        socket.on('initialMessages', msgs => {
+                            messagesEl.innerHTML = '';
+                            if (Array.isArray(msgs)) {
+                                msgs.forEach(appendMessage);
+                            }
+                        });
+
+                        socket.on('chatMessage', appendMessage);
+                        socket.on('chatCleared', () => { 
+                            messagesEl.innerHTML = ''; 
+                        });
+                    }
+
+                    tryConnect();
+                }
 
                 form.addEventListener('submit', e => {
                     e.preventDefault();
                     const msg = input.value.trim();
                     if (!msg) return;
-                    socket.emit('chatMessage', msg);
+                    
+                    if (useLocalStorage) {
+                        // Local storage mode
+                        const entry = { text: msg, time: Date.now() };
+                        const messages = loadLocalMessages();
+                        messages.push(entry);
+                        saveLocalMessages(messages);
+                        appendMessage(entry);
+                    } else if (socket) {
+                        // Socket.io mode
+                        socket.emit('chatMessage', msg);
+                    }
+                    
                     input.value = '';
                     input.focus();
                 });
+
+                // Connect on init
+                connectSocket();
             })();
         </script>
 
