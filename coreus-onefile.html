@@ -1889,8 +1889,13 @@
                 req.onsuccess = function() {
                     const db = req.result;
                     const out = {};
-                    const txn = db.transaction(db.objectStoreNames, 'readonly');
                     const promises = [];
+                    if (!db.objectStoreNames || db.objectStoreNames.length === 0) {
+                        db.close();
+                        resolve(out);
+                        return;
+                    }
+                    const txn = db.transaction(Array.from(db.objectStoreNames), 'readonly');
                     for (let storeName of db.objectStoreNames) {
                         const store = txn.objectStore(storeName);
                         const p = new Promise(res => {
@@ -1941,10 +1946,16 @@
                     };
                     openReq.onsuccess = e => {
                         const db = e.target.result;
-                        const txn = db.transaction(Object.keys(stores), 'readwrite');
+                        const storeNames = Object.keys(stores || {});
+                        if (storeNames.length === 0) {
+                            db.close();
+                            resolve();
+                            return;
+                        }
+                        const txn = db.transaction(storeNames, 'readwrite');
                         txn.oncomplete = () => { db.close(); resolve(); };
                         txn.onerror = () => { db.close(); resolve(); };
-                        for (let storeName in stores) {
+                        for (let storeName of storeNames) {
                             const store = txn.objectStore(storeName);
                             (stores[storeName] || []).forEach(item => store.put(item));
                         }
