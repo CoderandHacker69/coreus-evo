@@ -27,6 +27,7 @@
 - 🔓 Single file, completely unblockable
 - 🚫 No ads
 - 🤩 Beautiful UI
+- 👤 Account system with settings sync (hash based)
 
 ## I am looking for contributors !
 
