@@ -199,7 +199,6 @@
     <form id="chat-form">
       <input id="chat-input" autocomplete="off" placeholder="Message..." />
       <button id="chat-button" class="chat-btn" type="submit">SEND</button>
-      <button id="clear-button" class="chat-btn" type="button">CLEAR</button>
     </form>
   </div>
 
@@ -250,13 +249,7 @@
       input.focus();
     });
 
-    const clearBtn = document.getElementById('clear-button');
-    clearBtn.addEventListener('click', async (e) => {
-      e.preventDefault();
-      if (!confirm('Clear all chat history?')) return;
-      await fetch('/messages/clear', { method: 'POST' });
-      messagesEl.innerHTML = '';
-    });
+
   </script>
 </body>
 </html>

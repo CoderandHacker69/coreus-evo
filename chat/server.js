@@ -49,12 +49,31 @@ try {
     messages = [];
 }
 
-// helper to flush messages array to disk
+// helper to flush messages array to disk with batching
+let _writePending = false;
+let _writeQueued = false;
+
 function persistMessages() {
+    // if a write is already in progress, mark that another write is needed afterwards
+    if (_writePending) {
+        _writeQueued = true;
+        return;
+    }
+
+    _writePending = true;
     fs.writeFile(storagePath, JSON.stringify(messages, null, 2), err => {
-        if (err) console.error('failed to persist messages', err);
+        _writePending = false;
+        if (err) {
+            console.error('failed to persist messages', err);
+        }
+        if (_writeQueued) {
+            _writeQueued = false;
+            // schedule immediate second write
+            persistMessages();
+        }
     });
 }
+
 
 io.on('connection', (socket) => {
   console.log('a user connected', socket.id);
@@ -63,8 +82,15 @@ io.on('connection', (socket) => {
   socket.emit('initialMessages', messages);
 
   socket.on('chatMessage', (msg) => {
-    const entry = { id: socket.id, text: msg, time: Date.now() };
+    // restrict message length to reasonable size
+    const trimmed = String(msg).slice(0, 1000);
+    const entry = { id: socket.id, text: trimmed, time: Date.now() };
+
     messages.push(entry);
+    // keep last 1000 messages to avoid giant memory usage
+    if (messages.length > 1000) messages.shift();
+
+    // persist asynchronously (batched)
     persistMessages();
     // broadcast to everyone including sender
     io.emit('chatMessage', entry);
