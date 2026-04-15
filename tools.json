@@ -61,5 +61,12 @@
 		"image": "img/physix.png",
 		"href": "tools/physix/",
 		"category": "Tools"
+	},
+	{
+		"name": "Scratch/Turbowarp",
+		"tags": "coding, blocks, sandbox",
+		"image": "img/scratch.png",
+		"href": "tools/scratch/",
+		"category": "Tools"
 	}
 ]
