@@ -14,7 +14,9 @@
 
 </div>
 
-### ⭐ PLEASE STAR IF YOU FORK OR ENJOY ⭐
+### ⭐ PLEASE STAR IF YOU FORK OR IF YOU ENJOY ⭐
+### ⭐️ LESS THAN HALF PEAOPLE THAT FORKED STARRED ⭐️
+### ⭐️ PLEASE SUPPORT ME, STAR THE REPO, IT MEANS A LOT ⭐️
 ## STOLEN CODE
 - https://github.com/l3br00n/lebron
 - https://github.com/t02530501-maker/nexus
