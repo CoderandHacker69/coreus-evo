@@ -12,6 +12,6 @@ jobs:
             fetch-depth: 0
         - uses: yesolutions/mirror-action@master
           with:
-            REMOTE: 'https://codeberg.org/noodlelover1/coreus.gut'
+            REMOTE: 'https://codeberg.org/noodlelover1/coreus.git'
             GIT_USERNAME: noodlelover1
             GIT_PASSWORD: ${{ secrets.GIT_PASSWORD }}
