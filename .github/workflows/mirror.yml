@@ -2,13 +2,16 @@ on:
   push:
     branches: ["main"]
   workflow_dispatch:
-
-steps:
+  
+jobs:
+  build-onefile:
+    runs-on: ubuntu-latest
+    steps:
         - uses: actions/checkout@v3
           with:
             fetch-depth: 0
         - uses: yesolutions/mirror-action@master
           with:
-            REMOTE: 'https://gitlab.com/spyoungtech/mirror-action.git'
-            GIT_USERNAME: spyoungtech
+            REMOTE: 'https://codeberg.org/noodlelover1/coreus.gut'
+            GIT_USERNAME: noodlelover1
             GIT_PASSWORD: ${{ secrets.GIT_PASSWORD }}
