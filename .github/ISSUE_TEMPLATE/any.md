@@ -1,6 +1,6 @@
 ---
-name: Issue
-about: Create an issue
+name: Any
+about: Create an issue for anything
 title: ''
 labels: ''
 assignees: noodlelover1
