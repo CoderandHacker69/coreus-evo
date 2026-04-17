@@ -1,6 +1,6 @@
 #!/bin/bash
 
-COREUS_DIR="/home/krypcide/coreus"
+COREUS_DIR="/etc/coreus"
 SERVICE_FILE="/etc/systemd/system/coreus.service"
 
 show_help() {
