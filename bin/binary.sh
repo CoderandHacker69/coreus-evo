@@ -28,7 +28,7 @@ install_service() {
         exit 1
     fi
 
-    cat << EOF | sudo tee "$SERVICE_FILE" > /dev/null
+    cat "
 [Unit]
 Description=Coreus File Server
 After=network.target
@@ -42,8 +42,8 @@ Restart=on-failure
 RestartSec=5
 
 [Install]
-WantedBy=multi-user.target
-EOF
+WantedBy=multi-user.target" > $SERVICE_FILE
+
 
     sudo systemctl daemon-reload
     sudo systemctl enable coreus
