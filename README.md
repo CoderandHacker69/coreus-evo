@@ -1,6 +1,7 @@
 
 <div align='center'>
-
+<p><img src="og.png" width="100%"/></p>
+ <hr>
 <img src=icon.svg alt="logo" width=150 height=150 />
 <br>
 
