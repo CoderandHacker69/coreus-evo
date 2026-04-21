@@ -730,40 +730,6 @@
             <span style="font-size: 1.5rem;">👤</span>
             <span id="profileName" style="color: #fff; font-size: 1rem; font-weight: 600;">Log in</span>
         </div>
-        <div id="backendSelector" style="position: absolute; top: 20px; left: 50%; transform: translateX(-50%); background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); border: 2px solid #333; border-radius: 12px; padding: 8px 14px; display: flex; flex-direction: column; align-items: center; gap: 4px;">
-            <span style="color: var(--secondary-text); font-size: 0.7rem; opacity: 0.7;">backend</span>
-            <div style="display: flex; align-items: center; gap: 10px;">
-                <i id="vrtxIcon" class="fas fa-cube" style="color: var(--accent-color); font-size: 1.2rem; cursor: pointer; transition: all 0.3s;" onclick="setGameBackend('vrtx')"></i>
-                <div id="backendSwitch" style="width: 36px; height: 20px; background: var(--accent-color); border-radius: 10px; position: relative; cursor: pointer; transition: all 0.3s;" onclick="toggleBackend()">
-                    <div id="switchKnob" style="width: 16px; height: 16px; background: #fff; border-radius: 50%; position: absolute; top: 2px; left: 2px; transition: all 0.3s; box-shadow: 0 1px 3px rgba(0,0,0,0.3);"></div>
-                </div>
-                <i id="seleniteIcon" class="fas fa-moon" style="color: #666; font-size: 1.1rem; cursor: pointer; transition: all 0.3s;" onclick="setGameBackend('selenite')"></i>
-            </div>
-            <i class="fas fa-question-circle" style="position: absolute; top: 4px; right: 6px; font-size: 0.7rem; color: var(--secondary-text); cursor: pointer; opacity: 0.6;" onclick="showBackendInfoPopup()"></i>
-        </div>
-
-        <div id="backendInfoPopup" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 5000; justify-content: center; align-items: center;" onclick="closeBackendInfoPopup(event)">
-            <div style="background: #111; border-radius: 16px; padding: 30px; max-width: 450px; width: 90%; border: 2px solid #333; box-shadow: 0 20px 60px rgba(0,0,0,0.8);" onclick="event.stopPropagation()">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-                    <h2 style="color: #fff; font-size: 1.4rem; margin: 0;">Backend Info</h2>
-                    <i class="fas fa-times" style="color: #666; font-size: 1.2rem; cursor: pointer;" onclick="closeBackendInfoPopup()"></i>
-                </div>
-                <div style="background: #1a1a1a; border-radius: 12px; padding: 20px; margin-bottom: 15px; border: 1px solid var(--accent-color);">
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                        <i class="fas fa-cube" style="color: var(--accent-color); font-size: 1.5rem;"></i>
-                        <span style="color: #fff; font-size: 1.2rem; font-weight: 600;">VRTX</span>
-                    </div>
-                    <p style="color: var(--secondary-text); font-size: 0.9rem; line-height: 1.5; margin: 0;">Local backend with 100+ games. All games are mobile-friendly and load instantly.</p>
-                </div>
-                <div style="background: #1a1a1a; border-radius: 12px; padding: 20px; border: 1px solid #9d4edd;">
-                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 10px;">
-                        <i class="fas fa-moon" style="color: #9d4edd; font-size: 1.5rem;"></i>
-                        <span style="color: #fff; font-size: 1.2rem; font-weight: 600;">Selenite</span>
-                    </div>
-                    <p style="color: var(--secondary-text); font-size: 0.9rem; line-height: 1.5; margin: 0;">External backend with 500+ games. Games load from external servers.</p>
-                </div>
-            </div>
-        </div>
         <div style="position: relative; width: 100%;">
             <h1 class="title">coreus</h1>
         </div>
@@ -1141,15 +1107,7 @@
             const currentGame = document.getElementById('gameUrlDisplay').textContent;
             
             try {
-                let games = [];
-                if (gameBackend === 'selenite') {
-                    const response = await fetch(seleniteConfig.baseUrl + seleniteConfig.gamesManifest);
-                    const data = await response.json();
-                    games = data.map(g => ({ title: g.name, image: seleniteConfig.gameFolderBase + '/' + g.directory + '/' + g.image, path: seleniteConfig.gameFolderBase + '/' + g.directory + '/index.html' }));
-                } else {
-                    const response = await fetch('./games.json');
-                    games = await response.json();
-                }
+                const games = gamesCache || [];
                 
                 const shuffled = games.sort(() => 0.5 - Math.random()).slice(0, 8);
                 
@@ -1158,7 +1116,7 @@
                     if (title === currentGame) return;
                     const image = game.image || game.img || '';
                     const path = game.gamePath || game.href || game.path || game.url || '';
-                    const imageSrc = (gameBackend === 'selenite' ? seleniteConfig.baseUrl : './') + image;
+                    const imageSrc = (game.backend === 'selenite' ? seleniteConfig.baseUrl : './') + image;
                     
                     const card = document.createElement('div');
                     card.style.cssText = 'background: #1a1a1a; border-radius: 12px; padding: 10px; cursor: pointer; transition: transform 0.3s; text-align: center;';
@@ -1166,7 +1124,7 @@
                         <img src="${imageSrc}" alt="${title}" style="width: 100%; aspect-ratio: 1; object-fit: cover; border-radius: 8px; margin-bottom: 8px; background: linear-gradient(135deg, #333, #222);" onerror="this.style.display='none'">
                         <div style="color: #fff; font-size: 0.8rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${title}</div>
                     `;
-                    card.onclick = () => showGamePopup(path, title, gameBackend === 'selenite');
+                    card.onclick = () => showGamePopup(path, title, game.backend === 'selenite');
                     card.onmouseenter = () => card.style.transform = 'scale(1.05)';
                     card.onmouseleave = () => card.style.transform = 'scale(1)';
                     grid.appendChild(card);
@@ -1256,19 +1214,6 @@
                         <option value="https://api.allorigins.win/raw?url=">api.allorigins.win</option>
                         <option value="https://api.cors.lol/?url=">api.cors.lol</option>
                         <option value="https://yacdn.org/proxy/">yacdn.org</option>
-                    </select>
-                </div>
-            </div>
-
-            <div style="margin-bottom: 1.5rem;">
-                <h3 style="color: #fff; margin-bottom: 1rem; font-size: 1.4rem; font-weight: 700; border-bottom: 2px solid #333; padding-bottom: 0.5rem;">Game Backend</h3>
-                <div style="margin-bottom: 1rem;">
-                    <label style="display: block; color: #fff; margin-bottom: 0.5rem; font-weight: 600;">Backend:</label>
-                    <select id="gameBackendSelect" onchange="setGameBackend(this.value)" style="width: 100%; padding: 0.8rem; background: #000; color: #fff; border: 2px solid #333; border-radius: 8px; font-size: 1rem; outline: none; transition: border-color 0.3s;">
-                        <option value="auto">Auto fallback (VRTX)</option>
-                        <option value="default">Default (local only)</option>
-                        <option value="selenite">Selenite (External)</option>
-                        <option value="https://coreus-assets-g6kx36vv0.vercel.app/">Vercel Mirror</option>
                     </select>
                 </div>
             </div>
@@ -2085,7 +2030,7 @@
             gameFolderBase: '/semag'
         };
         
-        let gameBackend = localStorage.getItem('gameBackend') || 'https://noodlelover1.github.io/coreus-assets/';
+        let gameBackend = 'both';
         let currentCategory = 'all';
         let featuredGames = [];
         let currentFeaturedIndex = 0;
@@ -2302,21 +2247,6 @@
             if (proxySelectModal) proxySelectModal.value = selectedProxy;
             if (proxySelectSettings) proxySelectSettings.value = selectedProxy;
 
-            const storedBackend = localStorage.getItem('gameBackend') || gameBackend || 'auto';
-            gameBackend = storedBackend;
-            const backendSelect = document.getElementById('gameBackendSelect');
-            if (backendSelect) {
-
-                const validOptions = ['auto', 'default', 'selenite', 
-                    'https://coreus-assets-g6kx36vv0.vercel.app/'
-                ];
-                if (validOptions.includes(gameBackend)) {
-                    backendSelect.value = gameBackend;
-                } else {
-                    backendSelect.value = 'auto';
-                }
-            }
-
             const storedCloak = localStorage.getItem('cloakingOption') || cloakingOption || 'No';
             cloakingOption = storedCloak;
             const cloakingSelectSettings = document.getElementById('cloakingSelectSettings');
@@ -2339,50 +2269,6 @@
 
             showStatus(`Proxy mode set to ${mode}`, 'success');
             setTimeout(hideStatus, 1200);
-        }
-
-        function setGameBackend(backend) {
-            gameBackend = backend;
-            localStorage.setItem('gameBackend', gameBackend);
-
-            const vrtxIcon = document.getElementById('vrtxIcon');
-            const seleniteIcon = document.getElementById('seleniteIcon');
-            const switchEl = document.getElementById('backendSwitch');
-            const knob = document.getElementById('switchKnob');
-
-            if (backend === 'selenite') {
-                localStorage.setItem('toolsBackend', 'fallback');
-                toolsBackend = 'fallback';
-                localStorage.setItem('gameBackendChoice', 'selenite');
-                vrtxIcon.style.color = '#666';
-                seleniteIcon.style.color = '#9d4edd';
-                switchEl.style.background = '#9d4edd';
-                knob.style.left = '18px';
-            } else {
-                localStorage.setItem('gameBackendChoice', 'vrtx');
-                vrtxIcon.style.color = 'var(--accent-color)';
-                seleniteIcon.style.color = '#666';
-                switchEl.style.background = 'var(--accent-color)';
-                knob.style.left = '2px';
-            }
-        }
-
-        function toggleBackend() {
-            if (gameBackend === 'selenite') {
-                setGameBackend('vrtx');
-            } else {
-                setGameBackend('selenite');
-            }
-        }
-
-        function showBackendInfoPopup() {
-            document.getElementById('backendInfoPopup').style.display = 'flex';
-        }
-
-        function closeBackendInfoPopup(event) {
-            if (!event || event.target.id === 'backendInfoPopup') {
-                document.getElementById('backendInfoPopup').style.display = 'none';
-            }
         }
 
         function saveSettings() {
@@ -3179,14 +3065,13 @@ const isDriftBoss = gamePath.includes('driftboss') || gamePath.includes('drift-b
         }
 
         function getGameFavorites() {
-            const backend = gameBackend || 'vrtx';
-            const key = 'coreus_game_favorites_' + backend;
-            const saved = localStorage.getItem(key);
-            return saved ? JSON.parse(saved) : [];
+            return {
+                vrtx: JSON.parse(localStorage.getItem('coreus_game_favorites_vrtx') || '[]'),
+                selenite: JSON.parse(localStorage.getItem('coreus_game_favorites_selenite') || '[]')
+            };
         }
 
-        function saveGameFavorites(favorites) {
-            const backend = gameBackend || 'vrtx';
+        function saveGameFavorites(backend, favorites) {
             const key = 'coreus_game_favorites_' + backend;
             localStorage.setItem(key, JSON.stringify(favorites));
             if (currentAccount) {
@@ -3203,7 +3088,11 @@ const isDriftBoss = gamePath.includes('driftboss') || gamePath.includes('drift-b
         }
 
         function toggleGameFavorite(gameTitle) {
-            const favorites = getGameFavorites();
+            const game = gamesCache.find(g => (g.title || g.name) === gameTitle);
+            if (!game) return;
+            const backend = game.backend;
+            const key = 'coreus_game_favorites_' + backend;
+            const favorites = JSON.parse(localStorage.getItem(key) || '[]');
             const index = favorites.indexOf(gameTitle);
             if (index > -1) {
                 favorites.splice(index, 1);
@@ -3212,7 +3101,7 @@ const isDriftBoss = gamePath.includes('driftboss') || gamePath.includes('drift-b
                 favorites.push(gameTitle);
                 trackFavoriteGame();
             }
-            saveGameFavorites(favorites);
+            saveGameFavorites(backend, favorites);
             loadGames();
         }
 
@@ -3440,18 +3329,20 @@ const isDriftBoss = gamePath.includes('driftboss') || gamePath.includes('drift-b
             return `${days}d ago`;
         }
 
-        function renderLastPlayedGames(backend = 'vrtx') {
+        function renderLastPlayedGames() {
             const container = document.getElementById('lastPlayedList');
             if (!container) return;
-            const lastPlayed = getLastPlayedGames(backend);
+            const lastPlayedVrtx = getLastPlayedGames('vrtx');
+            const lastPlayedSelenite = getLastPlayedGames('selenite');
+            const allLastPlayed = lastPlayedVrtx.concat(lastPlayedSelenite).sort((a, b) => b.playedAt - a.playedAt).slice(0, 10); // Top 10 recent
             container.innerHTML = '';
 
-            if (!lastPlayed.length) {
+            if (!allLastPlayed.length) {
                 container.innerHTML = '<span style="color: #999; font-size: 0.95rem;">No recently played games yet.</span>';
                 return;
             }
 
-            lastPlayed.forEach(item => {
+            allLastPlayed.forEach(item => {
                 const card = document.createElement('div');
                 card.className = 'game-card';
                 card.style.cursor = 'pointer';
@@ -3469,7 +3360,8 @@ const isDriftBoss = gamePath.includes('driftboss') || gamePath.includes('drift-b
                 `;
 
                 card.addEventListener('click', () => {
-                    showGamePopup(item.path, item.name, item.path.startsWith(seleniteConfig.baseUrl));
+                    const isSelenite = item.path.startsWith(seleniteConfig.baseUrl);
+                    showGamePopup(item.path, item.name, isSelenite);
                 });
 
                 container.appendChild(card);
@@ -3884,47 +3776,51 @@ const isDriftBoss = gamePath.includes('driftboss') || gamePath.includes('drift-b
         }
 
         async function loadGames() {
-            let games = [];
-            let isSelenite = false;
+            let vrtxGames = [];
+            let seleniteGames = [];
 
-            if (gameBackend === 'selenite') {
-                isSelenite = true;
-                try {
-                    const seleniteUrl = seleniteConfig.baseUrl + seleniteConfig.gamesManifest;
-                    const response = await fetch(seleniteUrl);
-                    const seleniteData = await response.json();
-
-                    games = seleniteData.map(game => ({
-                        title: game.name,
-                        image: seleniteConfig.gameFolderBase + '/' + game.directory + '/' + game.image,
-                        gamePath: seleniteConfig.gameFolderBase + '/' + game.directory + '/index.html',
-                        category: game.category || 'Casual'
-                    }));
-                    console.log('Selenite Games loaded:', games.length);
-                } catch (error) {
-                    console.error('Error loading Selenite games:', error);
-                    document.getElementById('gamesGrid').innerHTML = '<p style="color: var(--primary-text); width: 100%; text-align: center;">Error loading games from Selenite backend.</p>';
-                    return;
-                }
-            } else {
-                try {
-                    const response = await fetch('./games.json');
-                    games = await response.json();
-                    console.log('Games data:', games);
-                } catch (error) {
-                    console.error('Error loading games:', error);
-                    document.getElementById('gamesGrid').innerHTML = '<p style="color: var(--primary-text); width: 100%; text-align: center;">Error loading games. Please try again later.</p>';
-                    return;
-                }
+            // Load VRTX games
+            try {
+                const response = await fetch('./games.json');
+                const data = await response.json();
+                vrtxGames = data.map(game => ({
+                    ...game,
+                    backend: 'vrtx',
+                    title: game.name,
+                    gamePath: game.href
+                }));
+                console.log('VRTX Games loaded:', vrtxGames.length);
+            } catch (error) {
+                console.error('Error loading VRTX games:', error);
             }
 
-            // Selenite backend has no categories in games payload
-            if (isSelenite) {
-                currentCategory = 'all';
-                document.getElementById('categoriesSection').style.display = 'none';
-            } else {
-                document.getElementById('categoriesSection').style.display = 'block';
+            // Load Selenite games
+            try {
+                const seleniteUrl = seleniteConfig.baseUrl + seleniteConfig.gamesManifest;
+                const response = await fetch(seleniteUrl);
+                const seleniteData = await response.json();
+                seleniteGames = seleniteData.map(game => ({
+                    title: game.name,
+                    image: seleniteConfig.gameFolderBase + '/' + game.directory + '/' + game.image,
+                    gamePath: seleniteConfig.gameFolderBase + '/' + game.directory + '/index.html',
+                    category: game.category || 'Casual',
+                    backend: 'selenite'
+                }));
+                console.log('Selenite Games loaded:', seleniteGames.length);
+            } catch (error) {
+                console.error('Error loading Selenite games:', error);
             }
+
+            // Combine games
+            let games = vrtxGames.concat(seleniteGames);
+
+            if (games.length === 0) {
+                document.getElementById('gamesGrid').innerHTML = '<p style="color: var(--primary-text); width: 100%; text-align: center;">Error loading games. Please try again later.</p>';
+                return;
+            }
+
+            // Always show categories since both backends have them
+            document.getElementById('categoriesSection').style.display = 'block';
 
             // Keep a cache for lookups (e.g., last played thumbnails)
             gamesCache = games;
@@ -3949,13 +3845,17 @@ const isDriftBoss = gamePath.includes('driftboss') || gamePath.includes('drift-b
             // Golden zone favorites block
             const favoriteZone = document.getElementById('favoriteZone');
             if (favoriteZone) {
-                const favoriteGames = filteredGames.filter(g => favorites.includes((g.title || g.name || '').toString()));
+                const favoriteGames = filteredGames.filter(g => {
+                    const title = (g.title || g.name || '').toString();
+                    return favorites[g.backend] && favorites[g.backend].includes(title);
+                });
                 if (favoriteGames.length > 0) {
                     favoriteZone.innerHTML = '<div class="favorite-slot-title">Favorites</div>';
                     const favSlot = document.createElement('div');
                     favSlot.className = 'favorite-slot';
                     favoriteGames.forEach(favGame => {
-                        favSlot.appendChild(createGameCard(favGame, isSelenite, true, true));
+                        const isFavorite = true;
+                        favSlot.appendChild(createGameCard(favGame, favGame.backend === 'selenite', isFavorite, true));
                     });
                     favoriteZone.appendChild(favSlot);
                 } else {
@@ -3967,8 +3867,9 @@ const isDriftBoss = gamePath.includes('driftboss') || gamePath.includes('drift-b
             gamesGrid.innerHTML = '';
 
             filteredGames.forEach(game => {
-                const isFavorite = favorites.includes((game.title || game.name || '').toString());
-                const gameCard = createGameCard(game, isSelenite, isFavorite, false);
+                const title = (game.title || game.name || '').toString();
+                const isFavorite = favorites[game.backend] && favorites[game.backend].includes(title);
+                const gameCard = createGameCard(game, game.backend === 'selenite', isFavorite, false);
                 gamesGrid.appendChild(gameCard);
             });
 
@@ -3982,13 +3883,14 @@ const isDriftBoss = gamePath.includes('driftboss') || gamePath.includes('drift-b
             const clearLastPlayedBtn = document.getElementById('clearLastPlayedBtn');
             if (clearLastPlayedBtn) {
                 clearLastPlayedBtn.addEventListener('click', () => {
-                    const key = getLastPlayedStorageKey(gameBackend);
-                    localStorage.removeItem(key);
-                    renderLastPlayedGames(gameBackend);
+                    // Clear for both backends
+                    localStorage.removeItem('coreus_last_played_games_vrtx');
+                    localStorage.removeItem('coreus_last_played_games_selenite');
+                    renderLastPlayedGames();
                 });
             }
 
-            renderLastPlayedGames(gameBackend);
+            renderLastPlayedGames();
         }
 
         function filterGameCards(searchTerm) {
@@ -4018,7 +3920,7 @@ const isDriftBoss = gamePath.includes('driftboss') || gamePath.includes('drift-b
             featuredGames.forEach((game, index) => {
                 const slide = document.createElement('div');
                 slide.className = 'featured-slide';
-                const imageSrc = gameBackend === 'selenite' ? (seleniteConfig.baseUrl + game.image) : ('./' + game.image);
+                const imageSrc = game.backend === 'selenite' ? (seleniteConfig.baseUrl + game.image) : ('./' + game.image);
                 slide.style.backgroundImage = `url('${imageSrc}')`;
                 slide.innerHTML = `
                     <div class="featured-content">
@@ -4030,8 +3932,8 @@ const isDriftBoss = gamePath.includes('driftboss') || gamePath.includes('drift-b
 
                 const playBtn = slide.querySelector('.featured-play-btn');
                 playBtn.addEventListener('click', () => {
-                    const gameImageSrc = gameBackend === 'selenite' ? (seleniteConfig.baseUrl + game.image) : ('./' + game.image);
-                    showGamePopup(game.gamePath || game.href || '', game.title || game.name, gameBackend === 'selenite', gameImageSrc);
+                    const gameImageSrc = game.backend === 'selenite' ? (seleniteConfig.baseUrl + game.image) : ('./' + game.image);
+                    showGamePopup(game.gamePath || game.href || '', game.title || game.name, game.backend === 'selenite', gameImageSrc);
                 });
 
                 const indicator = document.createElement('div');
