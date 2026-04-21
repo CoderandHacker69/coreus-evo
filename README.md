@@ -4,15 +4,11 @@
  <hr>
 <img src=icon.svg alt="logo" width=150 height=150 />
 <br>
-
-
 <h1>Coreus</h1>
 <p>The truely completely unblockable UBG</p>
 <a href="./LICENSE"><img src="https://img.shields.io/badge/License-AGPL_v3.0-blue?style=for-the-badge"/></a>
 <a href="https://noodlelover1.github.io/coreus/"><img alt="Website" src="https://img.shields.io/website?url=https%3A%2F%2Fnoodlelover1.github.io%2Fcoreus%2F&style=for-the-badge&label=Live%20Demo">
 </a>
-
-
 </div>
 
 ### ⭐ PLEASE STAR IF YOU FORK OR IF YOU ENJOY ⭐
