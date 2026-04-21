@@ -63,6 +63,7 @@ Here is a list of links (check regularly for updates):
 - https://noodlelover1.github.io/coreus
 - https://n00dle.codeberg.page/coreus
 - https://coreus.vercel.app/
+- https://raw.githack.com/noodlelover1/coreus/main/coreus-onefile.html
 
 ### Codespaces
 
