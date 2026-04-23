@@ -56,6 +56,13 @@
 		"category": "Action"
 	},
 	{
+		"name": "Baldi's Basics Plus",
+		"tags": "blast, ball, learning",
+		"image": "img/bbp.webp",
+		"href": "games/bbplus/",
+		"category": "Action"
+	},
+	{
 		"name": "Ball Blast",
 		"tags": "blast, ball, casual",
 		"image": "img/ballblast.png",
