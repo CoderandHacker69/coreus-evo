@@ -412,6 +412,13 @@
 		"href": "games/hcr/",
 		"category": "Racing"
 	},
+		{
+		"name": "Hollow Knight",
+		"tags": "port, platform",
+		"image": "img/hollowknight.ico",
+		"href": "games/hollowknight/",
+		"category": "Casual"
+	},
 	{
 		"name": "Idle Breakout",
 		"tags": "breakout, idle",
