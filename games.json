@@ -777,6 +777,13 @@
 		"category": "Racing"
 	},
 	{
+		"name": "Terraria",
+		"tags": "pixel, craft, port",
+		"image": "img/terraria.jpeg",
+		"href": "games/terraria/",
+		"category": "Casual"
+	},
+	{
 		"name": "Tiny Fishing",
 		"tags": "tiny, fishing, idle",
 		"image": "img/tinyfishing.png",
