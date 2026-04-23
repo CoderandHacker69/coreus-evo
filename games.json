@@ -266,6 +266,13 @@
 		"category": "Puzzle"
 	},
 	{
+		"name": "Cuphead"
+		"tags": "port, cup",
+		"image": "img/cuphead.jpeg",
+		"href": "games/cuphead/",
+		"category": "Action"
+	},
+	{
 		"name": "Dadish",
 		"tags": "pixel, platformer, adventure",
 		"image": "img/dadish.jpg",
