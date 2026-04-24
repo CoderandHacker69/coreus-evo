@@ -700,6 +700,13 @@
 		"category": "Casual"
 	},
 	{
+		"name": "Stardew Valley"
+		"tags": "farming, pixel, port",
+		"image": "img/stardew.png",
+		"href": "games/stardew/",
+		"category": "Idle"
+	},
+	{
 		"name": "State.io",
 		"tags": "io, territory, conquest, casual",
 		"image": "img/stateio.webp",
