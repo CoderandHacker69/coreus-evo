@@ -25,6 +25,7 @@
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/jquery.terminal/js/jquery.terminal.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
         :root {
             --primary-bg: #000000;
@@ -4281,57 +4282,214 @@ const isDriftBoss = gamePath.includes('driftboss') || gamePath.includes('drift-b
             var pattern = /^https?:\/\/(?:[-\w.])+(?:\:[0-9]+)?(?:\/(?:[\w\/_.])*(?:\?(?:[\w&=%.])*)?(?:\#(?:[\w.])*)?)?$/;
             return pattern.test(url);
         }
+        // === SUPABASE CONFIG ===
+const SUPABASE_URL = 'https://jggxhachrhxtliiqloef.supabase.co';
+const SUPABASE_ANON_KEY = 'sb_publishable_2W89rm5NCZsoNq_3WC9X7A_4fDun7Aw';
+let supabaseClient = null;
+let isSupabaseAvailable = false;
+let isSupabaseActive = false;
 
-        let currentAccount = null;
-        let isApplyingAccount = false;
-
-        function setCurrentAccountVar(val) {
-            currentAccount = val;
+async function initSupabase() {
+    try {
+        if (typeof supabase === 'undefined') {
+            console.warn('Supabase library not loaded. Falling back to local storage.');
+            return false;
         }
+        supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const { data, error } = await supabaseClient.from('profiles').select('id').limit(1);
+        if (error) throw error;
+        isSupabaseAvailable = true;
+        console.log('Supabase connected successfully.');
+        return true;
+    } catch (error) {
+        console.error('Supabase connection failed:', error);
+        isSupabaseAvailable = false;
+        return false;
+    }
+}
 
-        function encodeAccount(obj) {
-            const json = JSON.stringify(obj);
-            let result = '';
-            for (let c of json) {
-                const code = c.charCodeAt(0);
+let currentAccount = null;
+let isApplyingAccount = false;
 
-                const encoded = code.toString(36).padStart(3, '0');
+function setCurrentAccountVar(val) {
+    currentAccount = val;
+}
 
-                const prefix = String.fromCharCode(97 + (code % 26));
-                result += prefix + encoded;
+function encodeAccount(obj) {
+    const json = JSON.stringify(obj);
+    let result = '';
+    for (let c of json) {
+        const code = c.charCodeAt(0);
+        const encoded = code.toString(36).padStart(3, '0');
+        const prefix = String.fromCharCode(97 + (code % 26));
+        result += prefix + encoded;
+    }
+    return result;
+}
+
+function decodeAccount(hash) {
+    if (!hash || typeof hash !== 'string') return null;
+    try {
+        if (!/^[a-z0-9]+$/.test(hash)) return null;
+        let str = '';
+        for (let i = 0; i < hash.length; i += 4) {
+            const encoded = hash.substring(i + 1, i + 4);
+            if (encoded.length === 3) {
+                const code = parseInt(encoded, 36);
+                str += String.fromCharCode(code);
             }
-            return result;
         }
+        return JSON.parse(str);
+    } catch(e) {
+        return null;
+    }
+}
 
-        function decodeAccount(hash) {
-            if (!/^[a-z0-9]+$/.test(hash)) return null;
-            try {
-                let str = '';
+async function loadSupabaseProfile(userId) {
+    try {
+        const { data, error } = await supabaseClient.from('profiles').select('*').eq('id', userId).single();
+        if (error) throw error;
+        const acc = {
+            id: data.id, username: data.username, settings: data.settings || { theme: 'default' },
+            achievements: data.achievements || [], playedGames: data.played_games || [],
+            usedTools: data.used_tools || [], proxyVisits: data.proxy_visits || [],
+            searchCount: data.search_count || 0, chatVisits: data.chat_visits || 0,
+            favoriteCount: data.favorite_count || 0, daysUsed: data.days_used || 0,
+            totalTimeOnSite: data.total_time_seconds || 0,
+            gameFavorites: data.game_favorites || { vrtx: [], selenite: [] },
+            toolFavorites: data.tool_favorites || []
+        };
+        setCurrentAccountVar(acc);
+        applyAccount();
+    } catch (error) {
+        console.error('Error loading Supabase profile:', error);
+        const raw = window.localStorage.getItem('coreus_account');
+        if (raw) { setCurrentAccountVar(JSON.parse(raw)); applyAccount(); }
+    }
+}
 
-                for (let i = 0; i < hash.length; i += 4) {
-                    const encoded = hash.substring(i + 1, i + 4);
-                    if (encoded.length === 3) {
-                        const code = parseInt(encoded, 36);
-                        str += String.fromCharCode(code);
-                    }
-                }
-                return JSON.parse(str);
-            } catch(e) {
-                return null;
-            }
+async function setCurrentAccount(acc) {
+    setCurrentAccountVar(acc);
+    if (acc) {
+        const sessionTime = Math.floor((Date.now() - sessionStartTime) / 1000);
+        acc.achievements = getUnlockedAchievements();
+        acc.playedGames = JSON.parse(window.localStorage.getItem('coreus_played_games') || '[]');
+        acc.usedTools = JSON.parse(window.localStorage.getItem('coreus_used_tools') || '[]');
+        acc.proxyVisits = JSON.parse(window.localStorage.getItem('coreus_proxy_visits') || '[]');
+        acc.searchCount = parseInt(window.localStorage.getItem('coreus_search_count') || '0');
+        acc.chatVisits = parseInt(window.localStorage.getItem('coreus_chat_visits') || '0');
+        acc.favoriteCount = parseInt(window.localStorage.getItem('coreus_favorite_count') || '0');
+        acc.daysUsed = parseInt(window.localStorage.getItem('coreus_days_used') || '0');
+        acc.totalTimeOnSite = totalTimeOnSite + sessionTime;
+        acc.gameFavorites = getAllGameFavorites();
+        acc.toolFavorites = getToolFavorites();
+    }
+
+    if (isSupabaseActive && supabaseClient && acc && acc.id) {
+        try {
+            const { error } = await supabaseClient.from('profiles').upsert({
+                id: acc.id, username: acc.username, settings: acc.settings,
+                achievements: acc.achievements, played_games: acc.playedGames,
+                used_tools: acc.usedTools, proxy_visits: acc.proxyVisits,
+                search_count: acc.searchCount, chat_visits: acc.chatVisits,
+                favorite_count: acc.favoriteCount, days_used: acc.daysUsed,
+                total_time_seconds: acc.totalTimeOnSite,
+                game_favorites: acc.gameFavorites, tool_favorites: acc.toolFavorites
+            });
+            if (error) throw error;
+        } catch (error) {
+            console.error('Supabase sync failed, falling back to local:', error);
+            isSupabaseActive = false;
+            window.localStorage.setItem('coreus_account', JSON.stringify(acc));
         }
+    } else {
+        try { window.localStorage.setItem('coreus_account', JSON.stringify(acc)); }
+        catch(e) { console.error('Local storage save failed', e); }
+    }
+    updateAccountView();
+    updateProfileCard();
+}
 
-        async function saveAccount(acc) {
-            try {
-                suppressHashTrigger = true;
-                window.localStorage.setItem('coreus_account', JSON.stringify(acc));
-                console.log('Account saved:', acc);
-            } catch(e) {
-                console.error('Error saving account:', e);
-            } finally {
-                suppressHashTrigger = false;
-            }
+async function initAuth() {
+    await initSupabase();
+    if (isSupabaseAvailable && supabaseClient) {
+        const { data: { user } } = await supabaseClient.auth.getUser();
+        if (user) { isSupabaseActive = true; await loadSupabaseProfile(user.id); return; }
+    }
+    const raw = window.localStorage.getItem('coreus_account');
+    if (raw) {
+        try { const acc = JSON.parse(raw); setCurrentAccountVar(acc); applyAccount(); }
+        catch(e) { console.error('Failed to parse local account', e); }
+    }
+}
+
+async function handleSupabaseAuth(action, email, password, username = null) {
+    if (!isSupabaseAvailable) { alert('Supabase unavailable. Using local fallback.'); return false; }
+    try {
+        if (action === 'signup') {
+            const { data, error } = await supabaseClient.auth.signUp({ email, password, options: { data: { username: username || 'Guest' } } });
+            if (error) throw error;
+            alert('Check your email to confirm signup!');
+            return true;
+        } else if (action === 'signin') {
+            const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+            if (error) throw error;
+            await loadSupabaseProfile(data.user.id);
+            return true;
         }
+    } catch (error) { console.error('Auth error:', error); alert(error.message); return false; }
+}
+
+async function handleLogout() {
+    if (isSupabaseActive && supabaseClient) await supabaseClient.auth.signOut();
+    setCurrentAccount(null);
+    isSupabaseActive = false;
+    document.getElementById('accountNotLogged').style.display = 'block';
+    document.getElementById('accountLogged').style.display = 'none';
+    document.getElementById('loginSection').style.display = 'none';
+    document.getElementById('newUsername').value = '';
+    document.getElementById('loginHash').value = '';
+    document.getElementById('supabaseEmail').value = '';
+    document.getElementById('supabasePass').value = '';
+}
+
+async function createAccount() {
+    const email = document.getElementById('supabaseEmail').value.trim();
+    const password = document.getElementById('supabasePass').value.trim();
+    const username = document.getElementById('newUsername').value.trim();
+    if (isSupabaseAvailable && email && password) {
+        const success = await handleSupabaseAuth('signup', email, password, username);
+        if (success) return;
+    }
+    let name = username || 'guest' + Math.floor(1000 + Math.random()*9000);
+    const sessionTime = Math.floor((Date.now() - sessionStartTime) / 1000);
+    const totalSeconds = totalTimeOnSite + sessionTime;
+    const acc = { username: name, settings: { theme: getCurrentTheme() }, achievements: getUnlockedAchievements(),
+        playedGames: JSON.parse(localStorage.getItem('coreus_played_games') || '[]'),
+        usedTools: JSON.parse(localStorage.getItem('coreus_used_tools') || '[]'),
+        proxyVisits: JSON.parse(localStorage.getItem('coreus_proxy_visits') || '[]'),
+        searchCount: parseInt(localStorage.getItem('coreus_search_count') || '0'),
+        chatVisits: parseInt(localStorage.getItem('coreus_chat_visits') || '0'),
+        favoriteCount: parseInt(localStorage.getItem('coreus_favorite_count') || '0'),
+        daysUsed: parseInt(localStorage.getItem('coreus_days_used') || '0'),
+        totalTimeOnSite: totalSeconds, gameFavorites: getAllGameFavorites(), toolFavorites: getToolFavorites() };
+    await setCurrentAccount(acc);
+    if (!isSupabaseAvailable) alert('Supabase unavailable. Account created locally.\nYour hash is:\n' + encodeAccount(acc));
+}
+
+async function loginWithHash() {
+    const hash = document.getElementById('loginHash').value.trim();
+    const acc = decodeAccount(hash);
+    if (acc && acc.username) { await setCurrentAccount(acc); alert('Logged in as ' + acc.username + ' (Local Fallback)'); }
+    else { alert('Invalid hash'); }
+}
+
+async function loginWithSupabase() {
+    const email = document.getElementById('supabaseEmail').value.trim();
+    const password = document.getElementById('supabasePass').value.trim();
+    if (!email || !password) { alert('Please enter email and password'); return; }
+    await handleSupabaseAuth('signin', email, password);
+}
 
         function getLocalStorageData() {
             const data = {};
@@ -4743,7 +4901,11 @@ const isDriftBoss = gamePath.includes('driftboss') || gamePath.includes('drift-b
             "ctr+c ctrl+v",
             "technoblade never dies",
             "wsgvuisdmvhio",
-            "WTF?"
+            "WTF?",
+            "doot doot",
+            "Does someone reads this",
+            "HK and silksong included",
+            "With minecraft !"
         ];
         const urlInput = document.getElementById('urlInput');
         if (urlInput) {
