@@ -266,7 +266,7 @@
 		"category": "Puzzle"
 	},
 	{
-		"name": "Cuphead"
+		"name": "Cuphead",
 		"tags": "port, cup",
 		"image": "img/cuphead.jpeg",
 		"href": "games/cuphead/",
@@ -700,7 +700,7 @@
 		"category": "Casual"
 	},
 	{
-		"name": "Stardew Valley"
+		"name": "Stardew Valley",
 		"tags": "farming, pixel, port",
 		"image": "img/stardew.png",
 		"href": "games/stardew/",
