@@ -426,11 +426,18 @@
 		"href": "games/hcr/",
 		"category": "Racing"
 	},
-		{
+	{
 		"name": "Hollow Knight",
 		"tags": "port, platform",
 		"image": "img/hollowknight.ico",
 		"href": "games/hollowknight/",
+		"category": "Casual"
+	},
+	{
+		"name": "Hollow Knight: Silksong",
+		"tags": "port, platform",
+		"image": "img/silksong.png",
+		"href": "games/silksong/",
 		"category": "Casual"
 	},
 	{
