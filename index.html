@@ -3196,6 +3196,40 @@ const isDriftBoss = gamePath.includes('driftboss') || gamePath.includes('drift-b
             }
         }
 
+        function showAccountView() {
+            hideAllViews();
+            const accountView = document.getElementById('accountView');
+            if (accountView) {
+                accountView.style.display = 'block';
+            }
+            updateAccountView();
+            previousView = 'account';
+        }
+
+        function ensureNavbarProfileButton() {
+            const nav = document.querySelector('.bottom-navbar');
+            if (!nav) return;
+            if (nav.querySelector('.nav-profile-btn')) return;
+
+            const sep = document.createElement('div');
+            sep.style.cssText = 'width: 1px; height: 24px; background: rgba(255,255,255,0.2); margin: 0 10px;';
+
+            const btn = document.createElement('button');
+            btn.className = 'nav-icon-btn nav-profile-btn';
+            btn.style.cssText = 'background: none; border: none; cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.3s;';
+            btn.innerHTML = "<i class='fas fa-user' style='color:white;font-size:20px;'></i>";
+            btn.addEventListener('click', showAccountView);
+
+            const discordLink = nav.querySelector('a.nav-icon-btn');
+            if (discordLink) {
+                nav.insertBefore(sep, discordLink);
+                nav.insertBefore(btn, sep);
+            } else {
+                nav.appendChild(sep);
+                nav.appendChild(btn);
+            }
+        }
+
         function renderAchievements() {
             const container = document.getElementById('achievements-list');
             const unlocked = getUnlockedAchievements();
@@ -4283,8 +4317,8 @@ const isDriftBoss = gamePath.includes('driftboss') || gamePath.includes('drift-b
             return pattern.test(url);
         }
         // === SUPABASE CONFIG ===
-const SUPABASE_URL = 'https://jggxhachrhxtliiqloef.supabase.co';
-const SUPABASE_ANON_KEY = 'sb_publishable_2W89rm5NCZsoNq_3WC9X7A_4fDun7Aw';
+const SUPABASE_URL = 'https://adqysbsljfulvytgrfxm.supabase.co/';
+const SUPABASE_ANON_KEY = 'sb_publishable_-UWj9REkic_oRtvoAIWbkA_PcRKvXZj';
 let supabaseClient = null;
 let isSupabaseAvailable = false;
 let isSupabaseActive = false;
@@ -4410,40 +4444,96 @@ async function setCurrentAccount(acc) {
     updateProfileCard();
 }
 
+async function handleSupabaseCallback() {
+    if (!isSupabaseAvailable || !supabaseClient) return null;
+    if (!window.location.hash.includes('access_token=') && !window.location.hash.includes('refresh_token=')) return null;
+
+    try {
+        const { data, error } = await supabaseClient.auth.getSessionFromUrl({ storeSession: true });
+        if (error) {
+            console.warn('Supabase callback session error:', error);
+            return null;
+        }
+        const user = data?.session?.user;
+        if (user) {
+            isSupabaseActive = true;
+            await loadSupabaseProfile(user.id);
+        }
+        history.replaceState(null, '', window.location.pathname + window.location.search);
+        return user;
+    } catch (error) {
+        console.error('Supabase callback parse failed:', error);
+        return null;
+    }
+}
+
 async function initAuth() {
     await initSupabase();
     if (isSupabaseAvailable && supabaseClient) {
-        const { data: { user } } = await supabaseClient.auth.getUser();
-        if (user) { isSupabaseActive = true; await loadSupabaseProfile(user.id); return; }
+        await handleSupabaseCallback();
+        try {
+            const { data: { user }, error } = await supabaseClient.auth.getUser();
+            if (!error && user) {
+                isSupabaseActive = true;
+                await loadSupabaseProfile(user.id);
+                return;
+            }
+        } catch (error) {
+            console.error('Supabase auth init failed:', error);
+        }
     }
-    const raw = window.localStorage.getItem('coreus_account');
-    if (raw) {
-        try { const acc = JSON.parse(raw); setCurrentAccountVar(acc); applyAccount(); }
-        catch(e) { console.error('Failed to parse local account', e); }
-    }
+    loadAccount();
 }
 
 async function handleSupabaseAuth(action, email, password, username = null) {
-    if (!isSupabaseAvailable) { alert('Supabase unavailable. Using local fallback.'); return false; }
+    if (!isSupabaseAvailable || !supabaseClient) {
+        return { status: 'unavailable', message: 'Supabase unavailable.' };
+    }
     try {
         if (action === 'signup') {
-            const { data, error } = await supabaseClient.auth.signUp({ email, password, options: { data: { username: username || 'Guest' } } });
+            const { data, error } = await supabaseClient.auth.signUp({
+                email,
+                password,
+                options: {
+                    data: { username: username || 'guest' },
+                    emailRedirectTo: window.location.origin
+                }
+            });
             if (error) throw error;
-            alert('Check your email to confirm signup!');
-            return true;
+            if (data?.user) {
+                isSupabaseActive = true;
+                const profile = await loadSupabaseProfile(data.user.id);
+                if (profile) {
+                    return { status: 'logged_in', profile };
+                }
+            }
+            return { status: 'email_confirm', message: 'Signup successful. Check your email and confirm the link to complete account setup.' };
         } else if (action === 'signin') {
             const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
             if (error) throw error;
-            await loadSupabaseProfile(data.user.id);
-            return true;
+            if (data?.user) {
+                isSupabaseActive = true;
+                await loadSupabaseProfile(data.user.id);
+                return { status: 'logged_in' };
+            }
+            return { status: 'error', message: 'No user session returned from Supabase.' };
         }
-    } catch (error) { console.error('Auth error:', error); alert(error.message); return false; }
+    } catch (error) {
+        console.error('Auth error:', error);
+        return { status: 'error', message: error.message || 'Authentication failed.' };
+    }
 }
 
 async function handleLogout() {
-    if (isSupabaseActive && supabaseClient) await supabaseClient.auth.signOut();
-    setCurrentAccount(null);
+    if (isSupabaseActive && supabaseClient) {
+        try {
+            await supabaseClient.auth.signOut();
+        } catch (error) {
+            console.warn('Supabase sign out failed', error);
+        }
+    }
     isSupabaseActive = false;
+    setCurrentAccount(null);
     document.getElementById('accountNotLogged').style.display = 'block';
     document.getElementById('accountLogged').style.display = 'none';
     document.getElementById('loginSection').style.display = 'none';
@@ -4457,14 +4547,27 @@ async function createAccount() {
     const email = document.getElementById('supabaseEmail').value.trim();
     const password = document.getElementById('supabasePass').value.trim();
     const username = document.getElementById('newUsername').value.trim();
-    if (isSupabaseAvailable && email && password) {
-        const success = await handleSupabaseAuth('signup', email, password, username);
-        if (success) return;
+
+    if (email && password && isSupabaseAvailable) {
+        const result = await handleSupabaseAuth('signup', email, password, username);
+        if (result.status === 'logged_in') return;
+        if (result.status === 'email_confirm') {
+            alert(result.message);
+            return;
+        }
+        if (result.status === 'error') {
+            alert(result.message);
+            return;
+        }
     }
-    let name = username || 'guest' + Math.floor(1000 + Math.random()*9000);
+
+    let name = username || 'guest' + Math.floor(1000 + Math.random() * 9000);
     const sessionTime = Math.floor((Date.now() - sessionStartTime) / 1000);
     const totalSeconds = totalTimeOnSite + sessionTime;
-    const acc = { username: name, settings: { theme: getCurrentTheme() }, achievements: getUnlockedAchievements(),
+    const acc = {
+        username: name,
+        settings: { theme: getCurrentTheme() },
+        achievements: getUnlockedAchievements(),
         playedGames: JSON.parse(localStorage.getItem('coreus_played_games') || '[]'),
         usedTools: JSON.parse(localStorage.getItem('coreus_used_tools') || '[]'),
         proxyVisits: JSON.parse(localStorage.getItem('coreus_proxy_visits') || '[]'),
@@ -4472,7 +4575,10 @@ async function createAccount() {
         chatVisits: parseInt(localStorage.getItem('coreus_chat_visits') || '0'),
         favoriteCount: parseInt(localStorage.getItem('coreus_favorite_count') || '0'),
         daysUsed: parseInt(localStorage.getItem('coreus_days_used') || '0'),
-        totalTimeOnSite: totalSeconds, gameFavorites: getAllGameFavorites(), toolFavorites: getToolFavorites() };
+        totalTimeOnSite: totalSeconds,
+        gameFavorites: getAllGameFavorites(),
+        toolFavorites: getToolFavorites()
+    };
     await setCurrentAccount(acc);
     if (!isSupabaseAvailable) alert('Supabase unavailable. Account created locally.\nYour hash is:\n' + encodeAccount(acc));
 }
@@ -4487,8 +4593,20 @@ async function loginWithHash() {
 async function loginWithSupabase() {
     const email = document.getElementById('supabaseEmail').value.trim();
     const password = document.getElementById('supabasePass').value.trim();
-    if (!email || !password) { alert('Please enter email and password'); return; }
-    await handleSupabaseAuth('signin', email, password);
+    if (!email || !password) {
+        alert('Please enter email and password');
+        return;
+    }
+    const result = await handleSupabaseAuth('signin', email, password);
+    if (result.status === 'logged_in') {
+        alert('Logged in successfully.');
+        return;
+    }
+    if (result.status === 'error') {
+        alert(result.message);
+        return;
+    }
+    alert('Login failed. Please try again.');
 }
 
         function getLocalStorageData() {
@@ -4644,62 +4762,95 @@ async function loginWithSupabase() {
                     setCurrentAccountVar(JSON.parse(raw));
                     applyAccount();
                 }
-            } catch(e) {
+            } catch (e) {
                 setCurrentAccountVar(null);
             }
         }
 
         function applyAccount() {
             if (!currentAccount) return;
-            
             try {
                 isApplyingAccount = true;
-                
-                if (currentAccount.achievements) {
-                    window.localStorage.setItem('coreus_achievements', JSON.stringify(currentAccount.achievements));
-                }
-                if (currentAccount.playedGames) {
-                    window.localStorage.setItem('coreus_played_games', JSON.stringify(currentAccount.playedGames));
-                }
-                if (currentAccount.usedTools) {
-                    window.localStorage.setItem('coreus_used_tools', JSON.stringify(currentAccount.usedTools));
-                }
-                if (currentAccount.proxyVisits) {
-                    window.localStorage.setItem('coreus_proxy_visits', JSON.stringify(currentAccount.proxyVisits));
-                }
-                if (currentAccount.searchCount) {
-                    window.localStorage.setItem('coreus_search_count', currentAccount.searchCount.toString());
-                }
-                if (currentAccount.chatVisits) {
-                    window.localStorage.setItem('coreus_chat_visits', currentAccount.chatVisits.toString());
-                }
-                if (currentAccount.favoriteCount) {
-                    window.localStorage.setItem('coreus_favorite_count', currentAccount.favoriteCount.toString());
-                }
-                if (currentAccount.daysUsed) {
-                    window.localStorage.setItem('coreus_days_used', currentAccount.daysUsed.toString());
-                }
-                if (currentAccount.totalTimeOnSite) {
-                    window.localStorage.setItem('coreus_total_time', currentAccount.totalTimeOnSite.toString());
-                    totalTimeOnSite = currentAccount.totalTimeOnSite;
-                }
-                if (currentAccount.gameFavorites) {
-                    window.localStorage.setItem('coreus_game_favorites_vrtx', JSON.stringify(currentAccount.gameFavorites.vrtx || []));
-                    window.localStorage.setItem('coreus_game_favorites_selenite', JSON.stringify(currentAccount.gameFavorites.selenite || []));
-                }
-                if (currentAccount.toolFavorites) {
-                    window.localStorage.setItem('coreus_tool_favorites', JSON.stringify(currentAccount.toolFavorites));
-                }
-                
+
+                window.localStorage.setItem('coreus_achievements', JSON.stringify(currentAccount.achievements || []));
+                window.localStorage.setItem('coreus_played_games', JSON.stringify(currentAccount.playedGames || []));
+                window.localStorage.setItem('coreus_used_tools', JSON.stringify(currentAccount.usedTools || []));
+                window.localStorage.setItem('coreus_proxy_visits', JSON.stringify(currentAccount.proxyVisits || []));
+                window.localStorage.setItem('coreus_search_count', (currentAccount.searchCount || 0).toString());
+                window.localStorage.setItem('coreus_chat_visits', (currentAccount.chatVisits || 0).toString());
+                window.localStorage.setItem('coreus_favorite_count', (currentAccount.favoriteCount || 0).toString());
+                window.localStorage.setItem('coreus_days_used', (currentAccount.daysUsed || 0).toString());
+                window.localStorage.setItem('coreus_total_time', (currentAccount.totalTimeOnSite || 0).toString());
+                totalTimeOnSite = currentAccount.totalTimeOnSite || 0;
+                window.localStorage.setItem('coreus_game_favorites_vrtx', JSON.stringify((currentAccount.gameFavorites && currentAccount.gameFavorites.vrtx) || []));
+                window.localStorage.setItem('coreus_game_favorites_selenite', JSON.stringify((currentAccount.gameFavorites && currentAccount.gameFavorites.selenite) || []));
+                window.localStorage.setItem('coreus_tool_favorites', JSON.stringify(currentAccount.toolFavorites || []));
+
                 if (currentAccount.settings && currentAccount.settings.theme) {
                     changeTheme(currentAccount.settings.theme);
                 }
-                
+
                 isApplyingAccount = false;
                 updateAccountView();
                 updateProfileCard();
-            } catch(e) {
+            } catch (e) {
+                console.error('applyAccount failed', e);
                 isApplyingAccount = false;
+            }
+        }
+
+        function updateAccountView() {
+            const notLogged = document.getElementById('accountNotLogged');
+            const logged = document.getElementById('accountLogged');
+            if (currentAccount) {
+                if (notLogged) notLogged.style.display = 'none';
+                if (logged) logged.style.display = 'block';
+
+                const usernameInput = document.getElementById('accUsername');
+                if (usernameInput) usernameInput.value = currentAccount.username || '';
+
+                const hashInput = document.getElementById('accHash');
+                if (hashInput) hashInput.value = encodeAccount(currentAccount);
+            } else {
+                if (notLogged) notLogged.style.display = 'block';
+                if (logged) logged.style.display = 'none';
+            }
+        }
+
+        async function saveAccountToLocal(acc) {
+            try {
+                window.localStorage.setItem('coreus_account', JSON.stringify(acc));
+            } catch (e) {
+                console.error('Local account save failed', e);
+            }
+        }
+
+        async function saveAccountToSupabase(acc) {
+            if (!supabaseClient || !acc || !acc.id) {
+                return { error: new Error('Supabase client or account id missing') };
+            }
+            try {
+                const { data, error } = await supabaseClient
+                    .from('profiles')
+                    .upsert({
+                        id: acc.id,
+                        username: acc.username,
+                        settings: acc.settings,
+                        achievements: acc.achievements,
+                        played_games: acc.playedGames,
+                        used_tools: acc.usedTools,
+                        proxy_visits: acc.proxyVisits,
+                        search_count: acc.searchCount,
+                        chat_visits: acc.chatVisits,
+                        favorite_count: acc.favoriteCount,
+                        days_used: acc.daysUsed,
+                        total_time_seconds: acc.totalTimeOnSite,
+                        game_favorites: acc.gameFavorites,
+                        tool_favorites: acc.toolFavorites
+                    });
+                return { data, error };
+            } catch (error) {
+                return { error };
             }
         }
 
@@ -4718,7 +4869,17 @@ async function loginWithSupabase() {
                 acc.totalTimeOnSite = totalTimeOnSite + sessionTime;
                 acc.gameFavorites = getAllGameFavorites();
                 acc.toolFavorites = getToolFavorites();
-                await saveAccount(acc);
+
+                if (isSupabaseActive && supabaseClient && acc.id) {
+                    const { error } = await saveAccountToSupabase(acc);
+                    if (error) {
+                        console.error('Supabase save failed, using local fallback', error);
+                        isSupabaseActive = false;
+                        await saveAccountToLocal(acc);
+                    }
+                } else {
+                    await saveAccountToLocal(acc);
+                }
             } else {
                 window.localStorage.removeItem('coreus_account');
             }
@@ -4726,94 +4887,76 @@ async function loginWithSupabase() {
             updateProfileCard();
         }
 
-        function ensureNavbarProfileButton() {
-            document.querySelectorAll('.bottom-navbar').forEach(nav => {
-                if (nav.querySelector('.nav-profile-btn')) return;
-
-                const settingsBtn = Array.from(nav.querySelectorAll('.nav-icon-btn')).find(btn => 
-                    btn.innerHTML.includes('fa-cog')
-                );
-                if (!settingsBtn) return;
-
-                const sep = document.createElement('div');
-                sep.style.cssText = 'width: 1px; height: 24px; margin: 0 10px;';
-
-                const btn = document.createElement('button');
-                btn.className = 'nav-icon-btn nav-profile-btn';
-                btn.style.cssText = 'background: none; border: none; cursor: pointer; padding: 8px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.3s;';
-                btn.innerHTML = "<i class='fas fa-user' style='color:white;font-size:20px;'></i>";
-                btn.addEventListener('click', showAccountView);
-
-                settingsBtn.parentNode.insertBefore(sep, settingsBtn.nextSibling);
-                settingsBtn.parentNode.insertBefore(btn, sep.nextSibling);
-            });
-        }
-
-        function showAccountView() {
-            console.log('showAccountView currentAccount:', currentAccount);
-            console.trace('Stack trace');
-            hideAllViews();
-            document.getElementById('accountView').style.display = 'block';
-            updateAccountView();
-        }
-
-        function hideAccountView() {
-            document.getElementById('accountView').style.display = 'none';
-        }
-
-        function updateAccountView() {
-            const notLogged = document.getElementById('accountNotLogged');
-            const logged = document.getElementById('accountLogged');
-            if (currentAccount) {
-                notLogged.style.display = 'none';
-                logged.style.display = 'block';
-                document.getElementById('accUsername').value = currentAccount.username || '';
-                document.getElementById('accHash').value = encodeAccount(currentAccount);
-            } else {
-                notLogged.style.display = 'block';
-                logged.style.display = 'none';
+        async function loadSupabaseProfile(userId) {
+            try {
+                const { data, error } = await supabaseClient.from('profiles').select('*').eq('id', userId).single();
+                if (error && error.code !== 'PGRST116') throw error;
+                if (!data) {
+                    return null;
+                }
+                const acc = {
+                    id: data.id,
+                    username: data.username || 'guest',
+                    settings: data.settings || { theme: 'default' },
+                    achievements: data.achievements || [],
+                    playedGames: data.played_games || [],
+                    usedTools: data.used_tools || [],
+                    proxyVisits: data.proxy_visits || [],
+                    searchCount: data.search_count || 0,
+                    chatVisits: data.chat_visits || 0,
+                    favoriteCount: data.favorite_count || 0,
+                    daysUsed: data.days_used || 0,
+                    totalTimeOnSite: data.total_time_seconds || 0,
+                    gameFavorites: data.game_favorites || { vrtx: [], selenite: [] },
+                    toolFavorites: data.tool_favorites || []
+                };
+                setCurrentAccountVar(acc);
+                applyAccount();
+                return acc;
+            } catch (error) {
+                console.error('Error loading Supabase profile:', error);
+                return null;
             }
-            updateProfileCard();
         }
 
-        async function createAccount() {
-            let name = document.getElementById('newUsername').value.trim();
-            if (!name) {
-                name = 'guest' + Math.floor(1000 + Math.random()*9000);
+        async function initSupabase() {
+            try {
+                if (typeof supabase === 'undefined') {
+                    console.warn('Supabase library not loaded. Falling back to local storage.');
+                    return false;
+                }
+                supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+                isSupabaseAvailable = true;
+                return true;
+            } catch (error) {
+                console.error('Supabase init failed:', error);
+                isSupabaseAvailable = false;
+                return false;
             }
-            const sessionTime = Math.floor((Date.now() - sessionStartTime) / 1000);
-            const totalSeconds = totalTimeOnSite + sessionTime;
-            const acc = { 
-                username: name, 
-                settings: { theme: getCurrentTheme() },
-                achievements: getUnlockedAchievements(),
-                playedGames: JSON.parse(localStorage.getItem('coreus_played_games') || '[]'),
-                usedTools: JSON.parse(localStorage.getItem('coreus_used_tools') || '[]'),
-                proxyVisits: JSON.parse(localStorage.getItem('coreus_proxy_visits') || '[]'),
-                searchCount: parseInt(localStorage.getItem('coreus_search_count') || '0'),
-                chatVisits: parseInt(localStorage.getItem('coreus_chat_visits') || '0'),
-                favoriteCount: parseInt(localStorage.getItem('coreus_favorite_count') || '0'),
-                daysUsed: parseInt(localStorage.getItem('coreus_days_used') || '0'),
-                totalTimeOnSite: totalSeconds,
-                gameFavorites: getAllGameFavorites(),
-                toolFavorites: getToolFavorites()
-            };
-            await setCurrentAccount(acc);
-            alert('Account created! Your hash is:\n' + encodeAccount(acc));
         }
 
-        function showLoginSection() {
-            document.getElementById('loginSection').style.display = 'block';
-        }
 
         async function loginWithHash() {
             const hash = document.getElementById('loginHash').value.trim();
             const acc = decodeAccount(hash);
             if (acc && acc.username) {
                 await setCurrentAccount(acc);
-                alert('Logged in as ' + acc.username);
+                alert('Logged in as ' + acc.username + ' (Local Fallback)');
             } else {
                 alert('Invalid hash');
+            }
+        }
+
+        async function loginWithSupabase() {
+            const email = document.getElementById('supabaseEmail').value.trim();
+            const password = document.getElementById('supabasePass').value.trim();
+            if (!email || !password) {
+                alert('Please enter email and password');
+                return;
+            }
+            const success = await handleSupabaseAuth('signin', email, password);
+            if (!success && !isSupabaseActive) {
+                alert('Supabase login failed. You can use the local hash fallback.');
             }
         }
 
@@ -4821,7 +4964,7 @@ async function loginWithSupabase() {
             const name = document.getElementById('accUsername').value.trim();
             if (currentAccount) {
                 currentAccount.username = name || currentAccount.username;
-                setCurrentAccount(currentAccount); // will snapshot storage and update hash
+                setCurrentAccount(currentAccount);
 
                 setTimeout(() => {
                     document.getElementById('accHash').value = encodeAccount(currentAccount);
@@ -4830,12 +4973,7 @@ async function loginWithSupabase() {
         }
 
         function logout() {
-            setCurrentAccount(null);
-            document.getElementById('accountNotLogged').style.display = 'block';
-            document.getElementById('accountLogged').style.display = 'none';
-            document.getElementById('loginSection').style.display = 'none';
-            document.getElementById('newUsername').value = '';
-            document.getElementById('loginHash').value = '';
+            handleLogout();
         }
 
         function copyHash() {
@@ -4885,7 +5023,7 @@ async function loginWithSupabase() {
 
         setInterval(updateTimeOnSite, 1000);
 
-        loadAccount();
+        initAuth();
 
         // Random search placeholder
         const searchPlaceholders = [
@@ -5244,8 +5382,8 @@ async function loginWithSupabase() {
                 <h3 style="color:var(--primary-text); margin-bottom:15px; font-size:1.1rem;">Sign In / Sign Up (Cloud)</h3>
                 <input id="supabaseEmail" placeholder="Email address" style="width:100%; padding:12px 16px; margin-bottom:10px; background:var(--tertiary-bg); color:var(--primary-text); border:2px solid var(--border-color); border-radius:10px; font-size:0.95rem; outline:none;">
                 <input id="supabasePass" type="password" placeholder="Password" style="width:100%; padding:12px 16px; margin-bottom:15px; background:var(--tertiary-bg); color:var(--primary-text); border:2px solid var(--border-color); border-radius:10px; font-size:0.95rem; outline:none;">
-                <button onclick="createAccount()" style="width:100%; padding:12px 20px; background:var(--primary-text); border:none; border-radius:10px; color:var(--primary-bg); font-weight:600; font-size:0.95rem; cursor:pointer; transition:all 0.3s; margin-bottom:10px;"><i class="fas fa-user-plus"></i> Create Account (Supabase)</button>
-                <button onclick="loginWithSupabase()" style="width:100%; padding:12px 20px; background:var(--tertiary-bg); border:2px solid var(--border-color); border-radius:10px; color:var(--primary-text); font-weight:600; font-size:0.95rem; cursor:pointer; transition:all 0.3s;"><i class="fas fa-sign-in-alt"></i> Login (Supabase)</button>
+                <button onclick="createAccount()" style="width:100%; padding:12px 20px; background:var(--primary-text); border:none; border-radius:10px; color:var(--primary-bg); font-weight:600; font-size:0.95rem; cursor:pointer; transition:all 0.3s; margin-bottom:10px;"><i class="fas fa-user-plus"></i> Create Account (Cloud)</button>
+                <button onclick="loginWithSupabase()" style="width:100%; padding:12px 20px; background:var(--tertiary-bg); border:2px solid var(--border-color); border-radius:10px; color:var(--primary-text); font-weight:600; font-size:0.95rem; cursor:pointer; transition:all 0.3s;"><i class="fas fa-sign-in-alt"></i> Login (Cloud)</button>
             </div>
             <div style="display:flex; align-items:center; margin:25px 0; gap:15px;">
                 <div style="flex:1; height:1px; background:var(--border-color);"></div>
