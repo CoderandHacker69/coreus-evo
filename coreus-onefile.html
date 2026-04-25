@@ -151,6 +151,26 @@
             border: none;
             box-shadow: 0 0 10px #00ffff;
         }
+
+        /* Auth Messages */
+        .auth-message {
+            font-size: 0.9rem;
+        }
+        .auth-message.success {
+            background: rgba(34, 197, 94, 0.1);
+            border: 1px solid #22c55e;
+            color: #22c55e;
+        }
+        .auth-message.error {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+        }
+        .auth-message.warning {
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid #f59e0b;
+            color: #f59e0b;
+        }
         
         .cursor-dot.gold {
             background: linear-gradient(45deg, #ffd700, #ffaa00);
@@ -3191,12 +3211,34 @@ const isDriftBoss = gamePath.includes('driftboss') || gamePath.includes('drift-b
                 if (currentAccount && currentAccount.username) {
                     profileNameEl.textContent = currentAccount.username;
                 } else {
-                    profileNameEl.textContent = 'Log in';
+                    profileNameEl.textContent = 'Sign In';
                 }
             }
         }
 
+        function showSigninView() {
+            hideAllViews();
+            const signinView = document.getElementById('signinView');
+            if (signinView) {
+                signinView.style.display = 'block';
+            }
+            previousView = 'signin';
+        }
+
+        function showSignupView() {
+            hideAllViews();
+            const signupView = document.getElementById('signupView');
+            if (signupView) {
+                signupView.style.display = 'block';
+            }
+            previousView = 'signup';
+        }
+
         function showAccountView() {
+            if (!currentAccount) {
+                showSigninView();
+                return;
+            }
             hideAllViews();
             const accountView = document.getElementById('accountView');
             if (accountView) {
@@ -4011,7 +4053,7 @@ const isDriftBoss = gamePath.includes('driftboss') || gamePath.includes('drift-b
         function hideAllViews() {
             document.querySelector('.container').style.display = 'none';
             stopFpsCounter();
-            ['gamesView','toolsView','aboutView','settingsView','chatView','aiView','accountView', 'proxyView', 'achievementsView', 'privacyPolicyView', 'disclaimerView', 'dmcaView', 'statsView', 'gamePopup', 'animeView', 'animePlayerView', 'terminalView', 'randomThingsView'].forEach(id => {
+            ['gamesView','toolsView','aboutView','settingsView','chatView','aiView','accountView', 'signinView', 'signupView', 'proxyView', 'achievementsView', 'privacyPolicyView', 'disclaimerView', 'dmcaView', 'statsView', 'gamePopup', 'animeView', 'animePlayerView', 'terminalView', 'randomThingsView'].forEach(id => {
                 const el = document.getElementById(id);
                 if (el) el.style.display = 'none';
             });
@@ -4330,10 +4372,8 @@ async function initSupabase() {
             return false;
         }
         supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        const { data, error } = await supabaseClient.from('profiles').select('id').limit(1);
-        if (error) throw error;
         isSupabaseAvailable = true;
-        console.log('Supabase connected successfully.');
+        console.log('Supabase initialized successfully.');
         return true;
     } catch (error) {
         console.error('Supabase connection failed:', error);
@@ -4341,6 +4381,165 @@ async function initSupabase() {
         return false;
     }
 }
+
+let onlineUsersChannel = null;
+let onlineUserCount = 0;
+let visitorId = null;
+let visitorIdSupported = true;
+
+function getVisitorId() {
+    if (visitorId) return visitorId;
+    visitorId = window.localStorage.getItem('coreus_visitor_id');
+    if (!visitorId) {
+        visitorId = 'visitor_' + Math.random().toString(36).substring(2, 12) + '_' + Date.now();
+        try {
+            window.localStorage.setItem('coreus_visitor_id', visitorId);
+        } catch (e) {
+            console.warn('Could not persist visitor id', e);
+        }
+    }
+    return visitorId;
+}
+
+function getOnlineIdentity() {
+    if (currentAccount && currentAccount.id) {
+        return { user_id: currentAccount.id };
+    }
+    if (!visitorIdSupported) {
+        return null;
+    }
+    return { visitor_id: getVisitorId() };
+}
+
+async function initOnlineUsers() {
+    if (!supabaseClient) return;
+    
+    // Subscribe to online users changes
+    onlineUsersChannel = supabaseClient
+        .channel('online_users')
+        .on('postgres_changes', {
+            event: '*',
+            schema: 'public',
+            table: 'online_users'
+        }, () => {
+            updateOnlineCount();
+        })
+        .subscribe();
+    
+    // Initial count
+    updateOnlineCount();
+    
+    // Start heartbeat after subscription is ready
+    updateUserOnlineStatus();
+}
+
+async function updateUserOnlineStatus() {
+    if (!supabaseClient) return;
+    const identity = getOnlineIdentity();
+
+    const record = {
+        ...identity,
+        last_seen: new Date().toISOString(),
+        is_online: true
+    };
+
+    try {
+        let result;
+        if (identity.user_id) {
+            result = await supabaseClient
+                .from('online_users')
+                .update(record)
+                .eq('user_id', identity.user_id)
+                .select('*');
+        } else if (identity.visitor_id) {
+            result = await supabaseClient
+                .from('online_users')
+                .update(record)
+                .eq('visitor_id', identity.visitor_id)
+                .select('*');
+        } else {
+            return;
+        }
+
+        if (result.error) {
+            if (result.error.code === 'PGRST204' && !identity.user_id) {
+                visitorIdSupported = false;
+                return;
+            }
+            console.error('Error updating online status:', result.error);
+            return;
+        }
+
+        if (!result.data || result.data.length === 0) {
+            const insertResult = await supabaseClient.from('online_users').insert(record);
+            if (insertResult.error) {
+                if (insertResult.error.code === 'PGRST204' && !identity.user_id) {
+                    visitorIdSupported = false;
+                    return;
+                }
+                console.error('Error inserting online status:', insertResult.error);
+            }
+        }
+    } catch (error) {
+        console.error('Error updating online status:', error);
+    }
+}
+
+async function updateOnlineCount() {
+    if (!supabaseClient) return;
+    
+    try {
+        const fiveMinutesAgo = new Date(Date.now() - 5 * 60 * 1000).toISOString();
+        const { count, error } = await supabaseClient
+            .from('online_users')
+            .select('*', { count: 'exact', head: true })
+            .gt('last_seen', fiveMinutesAgo);
+        
+        if (error) {
+            console.error('Error fetching online count:', error);
+            return;
+        }
+        
+        onlineUserCount = count || 0;
+        updateVisitorCounter();
+    } catch (error) {
+        console.error('Error fetching online count:', error);
+    }
+}
+
+function updateVisitorCounter() {
+    const visitorCountText = document.getElementById('visitorCountText');
+    if (visitorCountText) {
+        visitorCountText.textContent = `${onlineUserCount} users online`;
+    }
+}
+
+// Heartbeat to keep user online
+setInterval(() => {
+    updateUserOnlineStatus();
+}, 30000); // Every 30 seconds
+
+// Cleanup on page unload
+window.addEventListener('beforeunload', () => {
+    if (supabaseClient) {
+        const identity = getOnlineIdentity();
+        if (!identity) return;
+        if (identity.user_id) {
+            supabaseClient
+                .from('online_users')
+                .update({ is_online: false })
+                .eq('user_id', identity.user_id);
+        } else if (identity.visitor_id) {
+            supabaseClient
+                .from('online_users')
+                .update({ is_online: false })
+                .eq('visitor_id', identity.visitor_id);
+        }
+    }
+    if (onlineUsersChannel) {
+        onlineUsersChannel.unsubscribe();
+    }
+});
 
 let currentAccount = null;
 let isApplyingAccount = false;
@@ -4471,11 +4670,32 @@ async function initAuth() {
     await initSupabase();
     if (isSupabaseAvailable && supabaseClient) {
         await handleSupabaseCallback();
+        initOnlineUsers(); // Initialize online users tracking
         try {
             const { data: { user }, error } = await supabaseClient.auth.getUser();
             if (!error && user) {
-                isSupabaseActive = true;
-                await loadSupabaseProfile(user.id);
+                let acc = loadAccount();
+                if (!acc || acc.id !== user.id) {
+                    acc = {
+                        id: user.id,
+                        username: user.user_metadata?.display_name || user.email.split('@')[0],
+                        email: user.email,
+                        settings: { theme: 'default' },
+                        achievements: [],
+                        playedGames: [],
+                        usedTools: [],
+                        proxyVisits: [],
+                        searchCount: 0,
+                        chatVisits: 0,
+                        favoriteCount: 0,
+                        daysUsed: 0,
+                        totalTimeOnSite: 0,
+                        gameFavorites: { vrtx: [], selenite: [] },
+                        toolFavorites: []
+                    };
+                }
+                setCurrentAccountVar(acc);
+                applyAccount();
                 return;
             }
         } catch (error) {
@@ -4491,32 +4711,68 @@ async function handleSupabaseAuth(action, email, password, username = null) {
     }
     try {
         if (action === 'signup') {
+            const displayName = username || email.split('@')[0];
             const { data, error } = await supabaseClient.auth.signUp({
                 email,
                 password,
                 options: {
-                    data: { username: username || 'guest' },
-                    emailRedirectTo: window.location.origin
+                    data: { display_name: displayName }
                 }
             });
             if (error) throw error;
-            if (data?.user) {
-                isSupabaseActive = true;
-                const profile = await loadSupabaseProfile(data.user.id);
-                if (profile) {
-                    return { status: 'logged_in', profile };
-                }
+            if (data.user && !data.session) {
+                return { status: 'confirm_email', message: 'Please check your email to confirm your account before signing in.' };
             }
-            return { status: 'email_confirm', message: 'Signup successful. Check your email and confirm the link to complete account setup.' };
+            if (data.session && data.user) {
+                const acc = {
+                    id: data.user.id,
+                    username: data.user.user_metadata?.display_name || displayName,
+                    email: data.user.email,
+                    settings: { theme: 'default' },
+                    achievements: [],
+                    playedGames: [],
+                    usedTools: [],
+                    proxyVisits: [],
+                    searchCount: 0,
+                    chatVisits: 0,
+                    favoriteCount: 0,
+                    daysUsed: 0,
+                    totalTimeOnSite: 0,
+                    gameFavorites: { vrtx: [], selenite: [] },
+                    toolFavorites: []
+                };
+                await setCurrentAccount(acc);
+                return { status: 'logged_in' };
+            }
+            return { status: 'error', message: 'Signup failed. Please try again.' };
         } else if (action === 'signin') {
             const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
             if (error) throw error;
-            if (data?.user) {
-                isSupabaseActive = true;
-                await loadSupabaseProfile(data.user.id);
+            if (data.user) {
+                let acc = loadAccount();
+                if (!acc || acc.id !== data.user.id) {
+                    acc = {
+                        id: data.user.id,
+                        username: data.user.user_metadata?.display_name || data.user.email.split('@')[0],
+                        email: data.user.email,
+                        settings: { theme: 'default' },
+                        achievements: [],
+                        playedGames: [],
+                        usedTools: [],
+                        proxyVisits: [],
+                        searchCount: 0,
+                        chatVisits: 0,
+                        favoriteCount: 0,
+                        daysUsed: 0,
+                        totalTimeOnSite: 0,
+                        gameFavorites: { vrtx: [], selenite: [] },
+                        toolFavorites: []
+                    };
+                }
+                await setCurrentAccount(acc);
                 return { status: 'logged_in' };
             }
-            return { status: 'error', message: 'No user session returned from Supabase.' };
+            return { status: 'error', message: 'Invalid email or password.' };
         }
     } catch (error) {
         console.error('Auth error:', error);
@@ -4534,33 +4790,63 @@ async function handleLogout() {
     }
     isSupabaseActive = false;
     setCurrentAccount(null);
-    document.getElementById('accountNotLogged').style.display = 'block';
-    document.getElementById('accountLogged').style.display = 'none';
-    document.getElementById('loginSection').style.display = 'none';
-    document.getElementById('newUsername').value = '';
-    document.getElementById('loginHash').value = '';
-    document.getElementById('supabaseEmail').value = '';
-    document.getElementById('supabasePass').value = '';
+    // Clear form fields
+    const fields = ['signinEmail', 'signinPass', 'signinHash', 'signupEmail', 'signupPass', 'signupUsername', 'supabaseEmail', 'supabasePass', 'newUsername', 'loginHash'];
+    fields.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = '';
+    });
+    const messageEls = ['signinMessage', 'signupMessage', 'authMessage'];
+    messageEls.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.style.display = 'none';
+    });
 }
 
 async function createAccount() {
-    const email = document.getElementById('supabaseEmail').value.trim();
-    const password = document.getElementById('supabasePass').value.trim();
-    const username = document.getElementById('newUsername').value.trim();
+    const emailEl = document.getElementById('signupEmail') || document.getElementById('supabaseEmail');
+    const passEl = document.getElementById('signupPass') || document.getElementById('supabasePass');
+    const usernameEl = document.getElementById('signupUsername') || document.getElementById('newUsername');
+    const email = emailEl ? emailEl.value.trim() : '';
+    const password = passEl ? passEl.value.trim() : '';
+    const username = usernameEl ? usernameEl.value.trim() : '';
+
+    // Validation
+    if (!email) {
+        showAuthMessage('Please enter a valid email address.', 'error');
+        return;
+    }
+    if (!isValidEmail(email)) {
+        showAuthMessage('Please enter a valid email address.', 'error');
+        return;
+    }
+    if (password.length < 6) {
+        showAuthMessage('Password must be at least 6 characters long.', 'error');
+        return;
+    }
+
+    showAuthLoading(true);
 
     if (email && password && isSupabaseAvailable) {
         const result = await handleSupabaseAuth('signup', email, password, username);
-        if (result.status === 'logged_in') return;
-        if (result.status === 'email_confirm') {
-            alert(result.message);
+        showAuthLoading(false);
+        if (result.status === 'logged_in') {
+            showAuthMessage('Account created and logged in successfully!', 'success');
+            showAccountView();
+            return;
+        }
+        if (result.status === 'confirm_email') {
+            showAuthMessage(result.message, 'warning');
             return;
         }
         if (result.status === 'error') {
-            alert(result.message);
+            showAuthMessage(result.message, 'error');
             return;
         }
     }
 
+    // Fallback to local account
+    showAuthLoading(false);
     let name = username || 'guest' + Math.floor(1000 + Math.random() * 9000);
     const sessionTime = Math.floor((Date.now() - sessionStartTime) / 1000);
     const totalSeconds = totalTimeOnSite + sessionTime;
@@ -4580,33 +4866,80 @@ async function createAccount() {
         toolFavorites: getToolFavorites()
     };
     await setCurrentAccount(acc);
-    if (!isSupabaseAvailable) alert('Supabase unavailable. Account created locally.\nYour hash is:\n' + encodeAccount(acc));
+    showAccountView();
 }
 
 async function loginWithHash() {
     const hash = document.getElementById('loginHash').value.trim();
     const acc = decodeAccount(hash);
-    if (acc && acc.username) { await setCurrentAccount(acc); alert('Logged in as ' + acc.username + ' (Local Fallback)'); }
-    else { alert('Invalid hash'); }
+    if (acc && acc.username) { 
+        await setCurrentAccount(acc); 
+        showAccountView();
+    }
+    else { 
+        showAuthMessage('Invalid hash', 'error');
+    }
 }
 
 async function loginWithSupabase() {
-    const email = document.getElementById('supabaseEmail').value.trim();
-    const password = document.getElementById('supabasePass').value.trim();
+    const emailEl = document.getElementById('signinEmail') || document.getElementById('supabaseEmail');
+    const passEl = document.getElementById('signinPass') || document.getElementById('supabasePass');
+    const email = emailEl ? emailEl.value.trim() : '';
+    const password = passEl ? passEl.value.trim() : '';
     if (!email || !password) {
-        alert('Please enter email and password');
+        showAuthMessage('Please enter email and password.', 'error');
         return;
     }
+    if (!isValidEmail(email)) {
+        showAuthMessage('Please enter a valid email address.', 'error');
+        return;
+    }
+
+    showAuthLoading(true);
     const result = await handleSupabaseAuth('signin', email, password);
+    showAuthLoading(false);
     if (result.status === 'logged_in') {
-        alert('Logged in successfully.');
+        showAuthMessage('Logged in successfully!', 'success');
+        showAccountView();
         return;
     }
     if (result.status === 'error') {
-        alert(result.message);
+        showAuthMessage(result.message, 'error');
         return;
     }
-    alert('Login failed. Please try again.');
+    showAuthMessage('Login failed. Please try again.', 'error');
+}
+
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+function showAuthMessage(message, type) {
+    let messageEl = document.getElementById('authMessage') || document.getElementById('signinMessage') || document.getElementById('signupMessage');
+    if (messageEl) {
+        messageEl.textContent = message;
+        messageEl.className = `auth-message ${type}`;
+        messageEl.style.display = 'block';
+        setTimeout(() => {
+            messageEl.style.display = 'none';
+        }, 5000);
+    } else {
+        alert(message); // Fallback
+    }
+}
+
+function showAuthLoading(loading) {
+    const selectors = ['#accountNotLogged button', '#accountNotLogged input', '#signinView button', '#signinView input', '#signupView button', '#signupView input'];
+    selectors.forEach(selector => {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach(el => {
+            el.disabled = loading;
+            if (el.tagName === 'BUTTON') {
+                el.textContent = loading ? 'Loading...' : el.textContent.replace('Loading...', '');
+            }
+        });
+    });
 }
 
         function getLocalStorageData() {
@@ -4761,6 +5094,7 @@ async function loginWithSupabase() {
                 if (raw) {
                     setCurrentAccountVar(JSON.parse(raw));
                     applyAccount();
+                    updateProfileCard();
                 }
             } catch (e) {
                 setCurrentAccountVar(null);
@@ -4800,10 +5134,8 @@ async function loginWithSupabase() {
         }
 
         function updateAccountView() {
-            const notLogged = document.getElementById('accountNotLogged');
             const logged = document.getElementById('accountLogged');
             if (currentAccount) {
-                if (notLogged) notLogged.style.display = 'none';
                 if (logged) logged.style.display = 'block';
 
                 const usernameInput = document.getElementById('accUsername');
@@ -4812,7 +5144,6 @@ async function loginWithSupabase() {
                 const hashInput = document.getElementById('accHash');
                 if (hashInput) hashInput.value = encodeAccount(currentAccount);
             } else {
-                if (notLogged) notLogged.style.display = 'block';
                 if (logged) logged.style.display = 'none';
             }
         }
@@ -4871,12 +5202,8 @@ async function loginWithSupabase() {
                 acc.toolFavorites = getToolFavorites();
 
                 if (isSupabaseActive && supabaseClient && acc.id) {
-                    const { error } = await saveAccountToSupabase(acc);
-                    if (error) {
-                        console.error('Supabase save failed, using local fallback', error);
-                        isSupabaseActive = false;
-                        await saveAccountToLocal(acc);
-                    }
+                    // Supabase storage removed, using localStorage only
+                    await saveAccountToLocal(acc);
                 } else {
                     await saveAccountToLocal(acc);
                 }
@@ -5231,69 +5558,8 @@ async function loginWithSupabase() {
             return `${hrs.toString().padStart(2, '0')}:${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
         }
 
-        // Analytics data
+        // Analytics data removed. Realtime user count now updates the visitor counter directly.
         let analyticsData = {};
-
-        function loadVisitorCount() {
-            $.ajax({
-                url: 'https://dashboard.simpleanalytics.com/noodlelover1.github.io.json?version=6&fields=pageviews,visitors,histogram,pages,countries&_=' + Date.now(),
-                dataType: 'jsonp',
-                success: function(data1) {
-                    $.ajax({
-                        url: 'https://dashboard.simpleanalytics.com/n00dle.is-a.dev.json?version=6&fields=pageviews,visitors,histogram,pages,countries&_=' + Date.now(),
-                        dataType: 'jsonp',
-                        success: function(data2) {
-                            const pageviews1 = data1.pageviews || 0;
-                            const pageviews2 = data2.pageviews || 0;
-                            const totalPageviews = pageviews1 + pageviews2;
-                            analyticsData = {
-                                pageviews: totalPageviews,
-                                visitors: (data1.visitors || 0) + (data2.visitors || 0),
-                                histogram: data1.histogram || [],
-                                pages: (data1.pages || []).concat(data2.pages || []),
-                                countries: data1.countries || []
-                            };
-                            const visitorCountText = document.getElementById('visitorCountText');
-                            if (visitorCountText) {
-                                visitorCountText.textContent = totalPageviews.toLocaleString() + ' visits this month';
-                            }
-                            updateStatsView();
-                        },
-                        error: function() {
-                            const pageviews = data1.pageviews || 0;
-                            const visitorCountText = document.getElementById('visitorCountText');
-                            if (visitorCountText) {
-                                visitorCountText.textContent = pageviews.toLocaleString() + ' visits this month';
-                            }
-                            analyticsData = data1;
-                            updateStatsView();
-                        }
-                    });
-                },
-                error: function() {
-                    $.ajax({
-                        url: 'https://dashboard.simpleanalytics.com/n00dle.is-a.dev.json?version=6&fields=pageviews,visitors,histogram,pages,countries&_=' + Date.now(),
-                        dataType: 'jsonp',
-                        success: function(data2) {
-                            const pageviews = data2.pageviews || 0;
-                            const visitorCountText = document.getElementById('visitorCountText');
-                            if (visitorCountText) {
-                                visitorCountText.textContent = pageviews.toLocaleString() + ' visits this month';
-                            }
-                            analyticsData = data2;
-                            updateStatsView();
-                        },
-                        error: function() {
-                            const visitorCountText = document.getElementById('visitorCountText');
-                            if (visitorCountText) {
-                                visitorCountText.textContent = 'Stats unavailable';
-                            }
-                        }
-                    });
-                }
-            });
-        }
-
         function updateStatsView() {
             const sessionTime = Math.floor((Date.now() - sessionStartTime) / 1000);
             const totalSeconds = totalTimeOnSite + sessionTime;
@@ -5367,23 +5633,20 @@ async function loginWithSupabase() {
         }
 
         setInterval(updateStatsTime, 1000);
-
-        loadVisitorCount();
     </script>
-    <div id="accountView" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: var(--primary-bg); background-image: radial-gradient(circle, #333 1px, transparent 1px); background-size: 40px 40px; z-index:2000; overflow-y:auto; padding:20px 20px 100px 20px;">
+    <div id="signinView" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: var(--primary-bg); background-image: radial-gradient(circle, #333 1px, transparent 1px); background-size: 40px 40px; z-index:2000; overflow-y:auto; padding:20px 20px 100px 20px;">
     <div style="max-width:500px; margin:40px auto 0; text-align:center;">
         <div style="margin-bottom:30px;">
-            <i class="fas fa-user-circle" style="font-size:4rem; color:var(--primary-text); margin-bottom:15px; opacity:0.8;"></i>
-            <h2 style="font-size:2.5rem; font-weight:300; letter-spacing:0.1em; color:var(--primary-text); margin:0;">Account</h2>
-            <p style="color:var(--secondary-text); margin-top:8px; font-size:0.95rem;">Manage your Coreus account</p>
+            <i class="fas fa-sign-in-alt" style="font-size:4rem; color:var(--primary-text); margin-bottom:15px; opacity:0.8;"></i>
+            <h2 style="font-size:2.5rem; font-weight:300; letter-spacing:0.1em; color:var(--primary-text); margin:0;">Sign In</h2>
+            <p style="color:var(--secondary-text); margin-top:8px; font-size:0.95rem;">Access your Coreus account</p>
         </div>
-        <div id="accountNotLogged" style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:24px; padding:40px; backdrop-filter:blur(20px);">
+        <div style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:24px; padding:40px; backdrop-filter:blur(20px);">
+            <div id="signinMessage" class="auth-message" style="display: none; padding: 10px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: 500;"></div>
             <div style="margin-bottom:25px;">
-                <h3 style="color:var(--primary-text); margin-bottom:15px; font-size:1.1rem;">Sign In / Sign Up (Cloud)</h3>
-                <input id="supabaseEmail" placeholder="Email address" style="width:100%; padding:12px 16px; margin-bottom:10px; background:var(--tertiary-bg); color:var(--primary-text); border:2px solid var(--border-color); border-radius:10px; font-size:0.95rem; outline:none;">
-                <input id="supabasePass" type="password" placeholder="Password" style="width:100%; padding:12px 16px; margin-bottom:15px; background:var(--tertiary-bg); color:var(--primary-text); border:2px solid var(--border-color); border-radius:10px; font-size:0.95rem; outline:none;">
-                <button onclick="createAccount()" style="width:100%; padding:12px 20px; background:var(--primary-text); border:none; border-radius:10px; color:var(--primary-bg); font-weight:600; font-size:0.95rem; cursor:pointer; transition:all 0.3s; margin-bottom:10px;"><i class="fas fa-user-plus"></i> Create Account (Cloud)</button>
-                <button onclick="loginWithSupabase()" style="width:100%; padding:12px 20px; background:var(--tertiary-bg); border:2px solid var(--border-color); border-radius:10px; color:var(--primary-text); font-weight:600; font-size:0.95rem; cursor:pointer; transition:all 0.3s;"><i class="fas fa-sign-in-alt"></i> Login (Cloud)</button>
+                <input id="signinEmail" placeholder="Email address" style="width:100%; padding:12px 16px; margin-bottom:10px; background:var(--tertiary-bg); color:var(--primary-text); border:2px solid var(--border-color); border-radius:10px; font-size:0.95rem; outline:none; transition:all 0.3s;" type="email">
+                <input id="signinPass" type="password" placeholder="Password" style="width:100%; padding:12px 16px; margin-bottom:15px; background:var(--tertiary-bg); color:var(--primary-text); border:2px solid var(--border-color); border-radius:10px; font-size:0.95rem; outline:none; transition:all 0.3s;">
+                <button onclick="loginWithSupabase()" style="width:100%; padding:12px 20px; background:var(--primary-text); border:none; border-radius:10px; color:var(--primary-bg); font-weight:600; font-size:0.95rem; cursor:pointer; transition:all 0.3s; margin-bottom:10px;"><i class="fas fa-sign-in-alt"></i> Sign In</button>
             </div>
             <div style="display:flex; align-items:center; margin:25px 0; gap:15px;">
                 <div style="flex:1; height:1px; background:var(--border-color);"></div>
@@ -5391,16 +5654,41 @@ async function loginWithSupabase() {
                 <div style="flex:1; height:1px; background:var(--border-color);"></div>
             </div>
             <div style="margin-bottom:20px;">
-                <label style="color:var(--primary-text); display:block; margin-bottom:10px; font-weight:500; text-align:left;">Username (Optional for Local)</label>
-                <input id="newUsername" placeholder="Enter username..." style="width:100%; padding:12px 16px; background:var(--tertiary-bg); color:var(--primary-text); border:2px solid var(--border-color); border-radius:10px; font-size:0.95rem; outline:none; transition:all 0.3s;">
+                <label style="color:var(--primary-text); display:block; margin-bottom:10px; font-weight:500; text-align:left;">Account Hash (Local)</label>
+                <input id="signinHash" placeholder="Paste your account hash here..." style="width:100%; padding:12px 16px; background:var(--tertiary-bg); color:var(--primary-text); border:2px solid var(--border-color); border-radius:10px; font-size:0.9rem; outline:none; transition:all 0.3s; font-family:monospace;">
             </div>
-            <div style="margin-bottom:20px;">
-                <label style="color:var(--primary-text); display:block; margin-bottom:10px; font-weight:500; text-align:left;">Account Hash (Local Fallback)</label>
-                <input id="loginHash" placeholder="Paste your account hash here..." style="width:100%; padding:12px 16px; background:var(--tertiary-bg); color:var(--primary-text); border:2px solid var(--border-color); border-radius:10px; font-size:0.9rem; outline:none; transition:all 0.3s; font-family:monospace;">
-            </div>
-            <button onclick="loginWithHash()" style="width:100%; padding:12px 20px; background:var(--tertiary-bg); border:2px solid var(--border-color); border-radius:10px; color:var(--primary-text); font-weight:600; font-size:0.95rem; cursor:pointer; transition:all 0.3s; display:flex; align-items:center; justify-content:center; gap:10px;"><i class="fas fa-key"></i> Login with Hash</button>
+            <button onclick="loginWithHash()" style="width:100%; padding:12px 20px; background:var(--tertiary-bg); border:2px solid var(--border-color); border-radius:10px; color:var(--primary-text); font-weight:600; font-size:0.95rem; cursor:pointer; transition:all 0.3s; display:flex; align-items:center; justify-content:center; gap:10px; margin-bottom:15px;"><i class="fas fa-key"></i> Login with Hash</button>
+            <p style="color:var(--secondary-text); font-size:0.9rem; margin-top:20px;">Don't have an account? <a href="#" onclick="showSignupView()" style="color:var(--accent-color); text-decoration:none; font-weight:500;">Sign Up</a></p>
         </div>
-        <div id="accountLogged" style="display:none; background:var(--card-bg); border:1px solid var(--border-color); border-radius:24px; padding:40px; backdrop-filter:blur(20px);">
+    </div>
+</div>
+    <div id="signupView" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: var(--primary-bg); background-image: radial-gradient(circle, #333 1px, transparent 1px); background-size: 40px 40px; z-index:2000; overflow-y:auto; padding:20px 20px 100px 20px;">
+    <div style="max-width:500px; margin:40px auto 0; text-align:center;">
+        <div style="margin-bottom:30px;">
+            <i class="fas fa-user-plus" style="font-size:4rem; color:var(--primary-text); margin-bottom:15px; opacity:0.8;"></i>
+            <h2 style="font-size:2.5rem; font-weight:300; letter-spacing:0.1em; color:var(--primary-text); margin:0;">Sign Up</h2>
+            <p style="color:var(--secondary-text); margin-top:8px; font-size:0.95rem;">Create your Coreus account</p>
+        </div>
+        <div style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:24px; padding:40px; backdrop-filter:blur(20px);">
+            <div id="signupMessage" class="auth-message" style="display: none; padding: 10px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: 500;"></div>
+            <div style="margin-bottom:25px;">
+                <input id="signupEmail" placeholder="Email address" style="width:100%; padding:12px 16px; margin-bottom:10px; background:var(--tertiary-bg); color:var(--primary-text); border:2px solid var(--border-color); border-radius:10px; font-size:0.95rem; outline:none; transition:all 0.3s;" type="email">
+                <input id="signupPass" type="password" placeholder="Password (min 6 characters)" style="width:100%; padding:12px 16px; margin-bottom:10px; background:var(--tertiary-bg); color:var(--primary-text); border:2px solid var(--border-color); border-radius:10px; font-size:0.95rem; outline:none; transition:all 0.3s;">
+                <input id="signupUsername" placeholder="Username (optional)" style="width:100%; padding:12px 16px; margin-bottom:15px; background:var(--tertiary-bg); color:var(--primary-text); border:2px solid var(--border-color); border-radius:10px; font-size:0.95rem; outline:none; transition:all 0.3s;">
+                <button onclick="createAccount()" style="width:100%; padding:12px 20px; background:var(--primary-text); border:none; border-radius:10px; color:var(--primary-bg); font-weight:600; font-size:0.95rem; cursor:pointer; transition:all 0.3s; margin-bottom:10px;"><i class="fas fa-user-plus"></i> Create Account</button>
+            </div>
+            <p style="color:var(--secondary-text); font-size:0.9rem; margin-top:20px;">Already have an account? <a href="#" onclick="showSigninView()" style="color:var(--accent-color); text-decoration:none; font-weight:500;">Sign In</a></p>
+        </div>
+    </div>
+</div>
+    <div id="accountView" style="display: none; position: fixed; top:0; left:0; width:100%; height:100%; background: var(--primary-bg); background-image: radial-gradient(circle, #333 1px, transparent 1px); background-size: 40px 40px; z-index:2000; overflow-y:auto; padding:20px 20px 100px 20px;">
+    <div style="max-width:500px; margin:40px auto 0; text-align:center;">
+        <div style="margin-bottom:30px;">
+            <i class="fas fa-user-circle" style="font-size:4rem; color:var(--primary-text); margin-bottom:15px; opacity:0.8;"></i>
+            <h2 style="font-size:2.5rem; font-weight:300; letter-spacing:0.1em; color:var(--primary-text); margin:0;">Account</h2>
+            <p style="color:var(--secondary-text); margin-top:8px; font-size:0.95rem;">Manage your Coreus account</p>
+        </div>
+        <div id="accountLogged" style="background:var(--card-bg); border:1px solid var(--border-color); border-radius:24px; padding:40px; backdrop-filter:blur(20px);">
             <div style="text-align:center; margin-bottom:30px;">
                 <div style="width:80px; height:80px; background:var(--tertiary-bg); border:2px solid var(--border-color); border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 15px;"><i class="fas fa-user" style="font-size:2rem; color:var(--primary-text);"></i></div>
                 <p style="color:var(--secondary-text); font-size:0.9rem;">Logged in as</p>
