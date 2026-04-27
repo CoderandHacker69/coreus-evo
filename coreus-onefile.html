@@ -4373,6 +4373,39 @@ async function initSupabase() {
         supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
         isSupabaseAvailable = true;
         console.log('Supabase initialized successfully.');
+        
+        // Listen for auth state changes to persist login across reloads
+        supabaseClient.auth.onAuthStateChange((event, session) => {
+            if (event === 'SIGNED_IN' && session) {
+                let acc = loadAccount();
+                if (!acc || acc.id !== session.user.id) {
+                    acc = {
+                        id: session.user.id,
+                        username: session.user.user_metadata?.display_name || session.user.email.split('@')[0],
+                        email: session.user.email,
+                        settings: { theme: 'default' },
+                        achievements: [],
+                        playedGames: [],
+                        usedTools: [],
+                        proxyVisits: [],
+                        searchCount: 0,
+                        chatVisits: 0,
+                        favoriteCount: 0,
+                        daysUsed: 0,
+                        totalTimeOnSite: 0,
+                        gameFavorites: { vrtx: [], selenite: [] },
+                        toolFavorites: []
+                    };
+                }
+                setCurrentAccountVar(acc);
+                applyAccount();
+                showAccountView();
+            } else if (event === 'SIGNED_OUT') {
+                setCurrentAccountVar(null);
+                showGamesView();
+            }
+        });
+        
         return true;
     } catch (error) {
         console.error('Supabase connection failed:', error);
@@ -4670,37 +4703,9 @@ async function initAuth() {
     if (isSupabaseAvailable && supabaseClient) {
         await handleSupabaseCallback();
         initOnlineUsers(); // Initialize online users tracking
-        try {
-            const { data: { user }, error } = await supabaseClient.auth.getUser();
-            if (!error && user) {
-                let acc = loadAccount();
-                if (!acc || acc.id !== user.id) {
-                    acc = {
-                        id: user.id,
-                        username: user.user_metadata?.display_name || user.email.split('@')[0],
-                        email: user.email,
-                        settings: { theme: 'default' },
-                        achievements: [],
-                        playedGames: [],
-                        usedTools: [],
-                        proxyVisits: [],
-                        searchCount: 0,
-                        chatVisits: 0,
-                        favoriteCount: 0,
-                        daysUsed: 0,
-                        totalTimeOnSite: 0,
-                        gameFavorites: { vrtx: [], selenite: [] },
-                        toolFavorites: []
-                    };
-                }
-                setCurrentAccountVar(acc);
-                applyAccount();
-                return;
-            }
-        } catch (error) {
-            console.error('Supabase auth init failed:', error);
-        }
+        // Auth state changes are handled by the onAuthStateChange listener in initSupabase
     }
+    // Load local account if no Supabase session
     loadAccount();
 }
 
